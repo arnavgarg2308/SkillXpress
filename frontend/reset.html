@@ -34,7 +34,7 @@
       }
 
       // 🔐 Check OTP session
-      const { data, error: sessionError } = await supabase.auth.getSession();
+      const { data, error: sessionError } = await supabaseClient.auth.getSession();
 
       if (!data.session) {
         alert("Invalid or expired reset link");
@@ -43,7 +43,7 @@
       }
 
       // ✅ Update password
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await supabaseClient.auth.updateUser({
         password: newPassword
       });
 
