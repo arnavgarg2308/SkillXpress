@@ -82,13 +82,17 @@
 
     <!-- SIGN IN -->
     <div id="signin" class="auth-card">
-      <div class="brand">SkillNest</div>
+      <div class="brand">SkillXpress</div>
       <div class="tagline">Build skills. Track growth. Get hired.</div>
 
       <input id="loginEmail" type="email" class="form-control mb-3" placeholder="Email" />
       <input id="loginPass" type="password" class="form-control mb-3" placeholder="Password" />
 
       <button class="btn btn-main w-100" onclick="signin()">Sign In</button>
+        <button type="button" class="btn btn-link p-0" onclick="forgotPassword()">
+  Forgot password?
+</button>
+
 
       <div class="switch">
         New here? <a onclick="showSignup()">Create an account</a>
@@ -105,8 +109,8 @@
       <input class="form-control mb-2" placeholder="Branch" />
       <input class="form-control mb-2" placeholder="College Year" />
       <input class="form-control mb-2" placeholder="Age" />
-      <input class="form-control mb-2" placeholder="Phone Number" />
-      <input class="form-control mb-2" placeholder="Username" />
+      <input id="phone" class="form-control mb-2" placeholder="Phone Number" />
+      <input id="username" class="form-control mb-2" placeholder="Username" />
       <input id="signupEmail" type="email" class="form-control mb-2" placeholder="Email" />
       <input id="signupPass" type="password" class="form-control mb-3" placeholder="Password" />
 
@@ -119,61 +123,130 @@
 
   </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
 <script>
   function showSignup(){
-    document.getElementById("signin").classList.add("hidden");
-    document.getElementById("signup").classList.remove("hidden");
+  document.getElementById("signin").classList.add("hidden");
+  document.getElementById("signup").classList.remove("hidden");
+}
+
+function showSignin(){
+  document.getElementById("signup").classList.add("hidden");
+  document.getElementById("signin").classList.remove("hidden");
+}
+
+// SUPABASE SIGNUP
+async function signup() {
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPass").value;
+  const username = document.getElementById("username").value;
+  const phone = document.getElementById("phone").value;
+
+  // 🔹 basic validation
+  if (!email || !password || !phone) {
+    alert("Email, phone & password required");
+    return;
   }
 
-  function showSignin(){
-    document.getElementById("signup").classList.add("hidden");
-    document.getElementById("signin").classList.remove("hidden");
+  if (phone.length < 10) {
+    alert("Valid phone number required");
+    return;
   }
 
-  function signup(){
-    const email = document.getElementById("signupEmail").value;
-    const pass = document.getElementById("signupPass").value;
-
-    if(email === "" || pass === ""){
-      alert("Please fill email and password");
-      return;
-    }
-
-    localStorage.setItem("email", email);
-    localStorage.setItem("pass", pass);
-
-    // 👇 mark user as NEW
-    localStorage.setItem("isNewUser", "yes");
-
-    window.location.href = "profile.html";
+  // 1️⃣ AUTH SIGNUP (EMAIL UNIQUE CHECK YAHIN HOTA HAI)
+  const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { username, phone },
+    emailRedirectTo: "https://skill-xpress.vercel.app/profile.html"
   }
+});
 
-  function signin(){
-    const email = document.getElementById("loginEmail").value;
-    const pass = document.getElementById("loginPass").value;
-
-    const savedEmail = localStorage.getItem("email");
-    const savedPass = localStorage.getItem("pass");
-    const isNewUser = localStorage.getItem("isNewUser");
-
-    if(email === savedEmail && pass === savedPass){
-
-      // ✅ ONLY new users go to profile
-      if(isNewUser === "yes"){
-        window.location.href = "profile.html";
-      } 
-      // ✅ old users (no / null) go directly to main
-      else {
-        window.location.href = "main.html";
-      }
-
+  // 🔴 EMAIL ALREADY REGISTERED
+  if (error) {
+    if (
+      error.message.toLowerCase().includes("already") ||
+      error.message.toLowerCase().includes("registered")
+    ) {
+      alert("Email already registered. Please sign in or reset password.");
     } else {
-      alert("Invalid email or password");
+      alert("Email or phone number already exists");
     }
+    return;
   }
-</script>
 
+  // ⚠️ Email verification ON hone par session nahi milta
+  const userId = data.user?.id;
+
+  if (!userId) {
+    alert("Verification email sent. Please verify your email, then login.");
+    return;
+  }
+
+  // 2️⃣ PROFILE INSERT (PHONE UNIQUE CHECK)
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .insert({
+      id: userId,
+      phone,
+      username
+    });
+
+  // 🔴 PHONE ALREADY REGISTERED
+  if (profileError) {
+    if (profileError.code === "23505") {
+      alert("Phone number already registered");
+    } else {
+      alert(profileError.message);
+    }
+    return;
+  }
+
+  alert("Signup successful. Verify email and login.If email not found, please check Spam and mark as Not Spam");
+  showSignup()
+}
+
+// SUPABASE SIGNIN
+async function signin() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPass").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Invalid email or password");
+    return;
+  }
+
+  // 🔒 block unverified users
+  if (!data.user.email_confirmed_at) {
+    alert("Please verify your email first");
+    await supabase.auth.signOut();
+    return;
+  }
+
+  window.location.href = "main.html";
+}
+
+
+// FORGOT PASSWORD
+async function forgotPassword() {
+  const email = prompt("Registered email daalo");
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: "https://skill-xpress.vercel.app/reset.html"
+  });
+
+  if (error) alert(error.message);
+  else alert("Password reset email bhej diya gaya");
+}
+
+</script>
 
 
 </body>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Password</title>
+</head>
+<body>
+
+  <h2>Set New Password</h2>
+
+  <input
+    type="password"
+    id="newPass"
+    placeholder="Enter new password"
+  />
+
+  <button onclick="updatePassword()">Update Password</button>
+
+  <!-- 1️⃣ FIRST load Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 2️⃣ THEN auth.js -->
+  <script src="auth.js"></script>
+
+  <!-- 3️⃣ THEN your logic -->
+  <script>
+    async function updatePassword() {
+
+      const newPassword = document.getElementById("newPass").value;
+      if (!newPassword) {
+        alert("Password required");
+        return;
+      }
+
+      // 🔐 Check OTP session
+      const { data, error: sessionError } = await supabase.auth.getSession();
+
+      if (!data.session) {
+        alert("Invalid or expired reset link");
+        window.location.href = "index.html";
+        return;
+      }
+
+      // ✅ Update password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert("Password successfully updated");
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
