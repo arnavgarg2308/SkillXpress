@@ -155,7 +155,7 @@ async function signup() {
   }
 
   // 1️⃣ AUTH SIGNUP (EMAIL UNIQUE CHECK YAHIN HOTA HAI)
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
   email,
   password,
   options: {
@@ -213,7 +213,7 @@ async function signin() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPass").value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
@@ -226,7 +226,7 @@ async function signin() {
   // 🔒 block unverified users
   if (!data.user.email_confirmed_at) {
     alert("Please verify your email first");
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     return;
   }
 
@@ -238,7 +238,7 @@ async function signin() {
 async function forgotPassword() {
   const email = prompt("Registered email daalo");
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
     redirectTo: "https://skill-xpress.vercel.app/reset.html"
   });
 
