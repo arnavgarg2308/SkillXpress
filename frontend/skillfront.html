@@ -126,20 +126,31 @@ async function loadSkillGraph() {
 
   // 🌐 call ML backend (RENDER)
   const res = await fetch(
-    `https://YOUR-RENDER-URL.onrender.com/skills/${username}`
+    `https://skillxpress.onrender.com/skills/${username}`
   );
 
   const result = await res.json();
+if (!result.skills || Object.keys(result.skills).length === 0) {
+  alert("No GitHub activity found yet");
+  return;
+}
 
   drawGraph(result.skills);
 }
 
 // 📊 chart
+let skillChartInstance = null;
+
 function drawGraph(skills) {
 
   const ctx = document.getElementById("skillChart");
 
-  new Chart(ctx, {
+  // destroy old chart
+  if (skillChartInstance) {
+    skillChartInstance.destroy();
+  }
+
+  skillChartInstance = new Chart(ctx, {
     type: "radar",
     data: {
       labels: Object.keys(skills),
