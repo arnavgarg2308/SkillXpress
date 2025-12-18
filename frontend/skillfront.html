@@ -91,62 +91,77 @@ body{
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+
 <script>
-async function loadSkillGraph(){
+async function loadSkillGraph() {
 
-  // 1️⃣ Logged in user
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if(!user){
-    alert("User not logged in");
+  // 🔐 session
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    alert("Please login again");
     return;
   }
 
-  // 2️⃣ Get profile row
-  const { data, error } = await supabase
+  // 📥 fetch github link from Supabase
+  const { data, error } = await supabaseClient
     .from("profiles")
     .select("github")
-    .eq("user_id", user.id)
+    .eq("id", session.user.id)
     .single();
 
-  if(error || !data?.github){
-    alert("GitHub profile not found");
+  if (error || !data.github) {
+    alert("GitHub profile not connected");
     return;
   }
 
-  // 3️⃣ Extract username
-  const githubUsername = data.github.split("github.com/")[1];
+  // 🔗 extract username
+  const username = data.github
+    .replace("https://", "")
+    .replace("http://", "")
+    .replace("www.", "")
+    .split("github.com/")[1]
+    .replace("/", "");
 
-  // 4️⃣ Call ML backend
+  // 🌐 call ML backend (RENDER)
   const res = await fetch(
-    `https://YOUR-RENDER-URL.onrender.com/skills/${githubUsername}`
+    `https://YOUR-RENDER-URL.onrender.com/skills/${username}`
   );
 
   const result = await res.json();
-  const skills = result.skills;
 
-  // 5️⃣ Render graph
-  new Chart(document.getElementById("skillChart"), {
+  drawGraph(result.skills);
+}
+
+// 📊 chart
+function drawGraph(skills) {
+
+  const ctx = document.getElementById("skillChart");
+
+  new Chart(ctx, {
     type: "radar",
     data: {
       labels: Object.keys(skills),
       datasets: [{
         label: "Skill Strength",
         data: Object.values(skills),
-        backgroundColor: "rgba(99,102,241,0.25)",
+        backgroundColor: "rgba(99,102,241,0.3)",
         borderColor: "#4f46e5",
         borderWidth: 2
       }]
     },
-    options:{
-      scales:{
-        r:{ beginAtZero:true, max:100 }
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
       }
     }
   });
 }
 
-// auto load
 loadSkillGraph();
 </script>
 
