@@ -71,14 +71,14 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg fixed-top">
   <div class="container">
-    <a class="navbar-brand brand" href="#">SkillNest</a>
+    <a class="navbar-brand brand" href="#">SkillXpress</a>
 
     <div class="ms-auto d-flex align-items-center gap-3">
       <span class="fw-semibold">Hi, Student 👋</span>
       <div class="dropdown">
         <button class="btn btn-light rounded-circle" data-bs-toggle="dropdown">👤</button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="user-profile.html">Profile</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger" href="index.html">Logout</a></li>
@@ -189,7 +189,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
 <script>
-const { data } = await supabase.auth.getUser();
+const { data } = await supabaseClient.auth.getUser();
 if (!data.user) {
   window.location.href = "index.html";
 }
