@@ -13,18 +13,24 @@ async function loadUserProfile() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
 
-  if (profileError) {
-    console.error(profileError);
-    return;
-  }
+  if (profileError || !data || data.length === 0) {
+  console.error(profileError);
+  return;
+}
+
+const profile = data[0];
 
   document.getElementById("username").innerText = data.username || "-";
   document.getElementById("college").innerText = data.college || "-";
   document.getElementById("course").innerText = data.course || "-";
+  document.getElementById("year").innerText = data.year || "-";
   document.getElementById("branch").innerText = data.branch || "-";
   document.getElementById("age").innerText = data.age || "-";
+  document.getElementById("github").innerText = data.github || "-";
+  document.getElementById("leetcode").innerText = data.leetcode || "-";
+  document.getElementById("codechef").innerText = data.codechef || "-";
+  document.getElementById("hackerrank").innerText = data.hackerrank || "-";
 }
 
 loadUserProfile();
