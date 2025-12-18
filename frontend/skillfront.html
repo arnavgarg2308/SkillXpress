@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillNest | Skill Graph</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#eef2ff,#ffffff);
+  font-family:"Segoe UI",sans-serif;
+}
+
+.navbar{
+  background:white;
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+
+.card{
+  border:none;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+}
+
+.section-title{
+  font-weight:800;
+  color:#4338ca;
+}
+
+.upload-box{
+  border:2px dashed #c7d2fe;
+  border-radius:16px;
+  padding:20px;
+  text-align:center;
+  color:#475569;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg px-4">
+  <span class="navbar-brand fw-bold text-primary">SkillNest</span>
+  <div class="ms-auto">
+    <span class="me-3 fw-semibold">👤 Profile</span>
+    <span class="fw-semibold">⚙ Settings</span>
+  </div>
+</nav>
+
+<div class="container py-5">
+
+  <!-- SKILL GRAPH -->
+  <div class="card p-4 mb-5">
+    <h4 class="section-title mb-3">📊 Your Skill Graph</h4>
+    <canvas id="skillChart" height="120"></canvas>
+  </div>
+
+  <!-- UPLOAD CENTER -->
+  <div class="card p-4">
+    <h4 class="section-title mb-3">📁 Upload Center</h4>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="upload-box">
+          <h6>Resume</h6>
+          <input type="file" class="form-control mt-2">
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="upload-box">
+          <h6>Certificates</h6>
+          <input type="file" class="form-control mt-2" multiple>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="upload-box">
+          <h6>Projects</h6>
+          <textarea class="form-control mt-2" placeholder="Describe your projects"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+
+<script>
+async function loadSkillGraph() {
+
+  // 🔐 session
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    alert("Please login again");
+    return;
+  }
+
+  // 📥 fetch github link from Supabase
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("github")
+    .eq("id", session.user.id)
+    .single();
+
+  if (error || !data.github) {
+    alert("GitHub profile not connected");
+    return;
+  }
+
+  // 🔗 extract username
+  const username = data.github
+    .replace("https://", "")
+    .replace("http://", "")
+    .replace("www.", "")
+    .split("github.com/")[1]
+    .replace("/", "");
+
+  // 🌐 call ML backend (RENDER)
+  const res = await fetch(
+    `https://YOUR-RENDER-URL.onrender.com/skills/${username}`
+  );
+
+  const result = await res.json();
+
+  drawGraph(result.skills);
+}
+
+// 📊 chart
+function drawGraph(skills) {
+
+  const ctx = document.getElementById("skillChart");
+
+  new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: Object.keys(skills),
+      datasets: [{
+        label: "Skill Strength",
+        data: Object.values(skills),
+        backgroundColor: "rgba(99,102,241,0.3)",
+        borderColor: "#4f46e5",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+}
+
+loadSkillGraph();
+</script>
+
+
+</body>
+</html>
