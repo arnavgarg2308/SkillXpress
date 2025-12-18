@@ -18,18 +18,57 @@ body{background:linear-gradient(135deg,#f0f4ff,#ffffff);min-height:100vh;display
 <div class="card p-4">
 <h4 class="fw-bold">Connect Your Profiles</h4>
 <p class="text-muted">We analyze skills from these</p>
-<input class="form-control my-2" placeholder="LinkedIn URL">
-<input class="form-control my-2" placeholder="GitHub URL">
-<input class="form-control my-2" placeholder="LeetCode URL">
-<input class="form-control my-2" placeholder="CodeChef URL">
-<input class="form-control my-2" placeholder="HackerRank URL">
-<button class="btn btn-main w-100 mt-3" onclick="location.href='interests.html'">Next</button>
+<input id="github" class="form-control my-2" placeholder="GitHub URL">
+<input id="leetcode" class="form-control my-2" placeholder="LeetCode URL">
+<input id="codechef"class="form-control my-2" placeholder="CodeChef URL">
+<input id="hackerrank" class="form-control my-2" placeholder="HackerRank URL">
+<button class="btn btn-main w-100 mt-3" onclick="saveLinks()">Save & Continue</button>
 </div>
 </div>
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
+<script>
+async function saveLinks() {
+  // 1. session check
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    alert("Please login again");
+    window.location.href = "index.html";
+    return;
+  }
+
+  const user = session.user;
+
+  // 2. input values
+  const github = document.getElementById("github").value;
+  const leetcode = document.getElementById("leetcode").value;
+  const codechef = document.getElementById("codechef").value;
+  const hackerrank = document.getElementById("hackerrank").value;
+
+  // 3. update DB
+  const { error } = await supabaseClient
+    .from("profiles")
+    .update({
+      github,
+      leetcode,
+      codechef,
+      hackerrank
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error(error);
+    alert("Failed to save profile links");
+    return;
+  }
+
+  // 4. next page
+  window.location.href = "interests.html";
+}
+</script>
 
 </body>
 </html>
