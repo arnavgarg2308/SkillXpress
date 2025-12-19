@@ -41,6 +41,12 @@ async function saveLinks() {
   }
 
   const user = session.user;
+const username = document.getElementById("username")?.value || null;
+  const college = document.getElementById("college")?.value || null;
+  const course = document.getElementById("course")?.value || null;
+  const branch = document.getElementById("branch")?.value || null;
+  const year = document.getElementById("year")?.value || null;
+  const age = document.getElementById("age")?.value || null;
 
   // 2. input values
   const github = document.getElementById("github").value;
@@ -51,11 +57,19 @@ async function saveLinks() {
   // 3. update DB
   const { error } = await supabaseClient
     .from("profiles")
-    .update({
+    .upsert({
+     id: user.id,                  // ⭐ MUST
+      username,
+      college,
+      course,
+      branch,
+      year,
+      age,
       github,
       leetcode,
       codechef,
-      hackerrank
+      hackerrank,
+      is_profile_completed: true  
     })
     .eq("id", user.id);
 

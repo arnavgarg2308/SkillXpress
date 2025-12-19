@@ -165,56 +165,14 @@ const year = document.getElementById("year").value;
   password,
   options: {
     data: { username, phone },
-    emailRedirectTo: "https://skill-xpress.vercel.app/profile.html"
+    emailRedirectTo: "https://skill-xpress.vercel.app/index.html"
   }
 });
 
-  // 🔴 EMAIL ALREADY REGISTERED
   if (error) {
-    if (
-      error.message.toLowerCase().includes("already") ||
-      error.message.toLowerCase().includes("registered")
-    ) {
-      alert("Email already registered. Please sign in or reset password.");
-    } else {
-      alert("Email or phone number already exists");
-    }
+    alert(error.message);
     return;
   }
-
-  // ⚠️ Email verification ON hone par session nahi milta
-  const userId = data.user?.id;
-
-  if (!userId) {
-    alert("Verification email sent. Please verify your email, then login.");
-    return;
-  }
-
-  // 2️⃣ PROFILE INSERT (PHONE UNIQUE CHECK)
-  const { error: profileError } = await supabaseClient
-    .from("profiles")
-.update({
-  username,
-  phone,
-  college,
-  course,
-  branch,
-  age,
-  year
-})
-.eq("id", userId);
-
-
-  // 🔴 PHONE ALREADY REGISTERED
-  if (profileError) {
-    if (profileError.code === "23505") {
-      alert("Phone number already registered");
-    } else {
-      alert(profileError.message);
-    }
-    return;
-  }
-
   alert("Signup successful. Verify email and login.If email not found, please check Spam and mark as Not Spam");
   showSignup()
 }
@@ -241,7 +199,18 @@ async function signin() {
     return;
   }
 
-  window.location.href = "main.html";
+ // 🔥 NEW vs OLD USER CHECK
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("is_profile_completed")
+    .eq("id", data.user.id)
+    .single();
+
+  if (!profile || !profile.is_profile_completed) {
+    window.location.replace("profile.html");   // 🆕 new user
+  } else {
+    window.location.replace("main.html");      // 👴 old user
+  }
 }
 
 

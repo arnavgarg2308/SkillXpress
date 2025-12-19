@@ -77,7 +77,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
         skills["Learning"] = (skills["Learning"] || 0) + 10;
       }
 
-      // 🛠 Projects
+     // 🛠 Projects
       if (item.type === "project" && item.description) {
         const t = item.description.toLowerCase();
         if (t.includes("react")) skills["React"] = (skills["React"] || 0) + 20;
@@ -85,7 +85,6 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
         if (t.includes("html")) skills["HTML"] = (skills["HTML"] || 0) + 10;
         if (t.includes("css")) skills["CSS"] = (skills["CSS"] || 0) + 10;
       }
-
       // 📄 Resume (basic boost)
       if (item.type === "resume") {
         skills["Professional Readiness"] =
