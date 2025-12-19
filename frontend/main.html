@@ -101,8 +101,10 @@
     <div class="col-md-4 col-sm-6">
       <div class="feature-card">
         <div class="feature-icon">📊</div>
-        <h5 class="feature-title"></h5><a href="skillfront.html">"📊 Skill Graph</a>
-        <canvas id="skillChart" height="150"></canvas>
+        <a href="skillfront.html" class="feature-title text-decoration-none">
+  📊 Skill Graph
+</a>
+<canvas id="skillChart" height="150"></canvas>
 
       </div>
     </div>
@@ -189,10 +191,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
 <script>
-const { data } = await supabaseClient.auth.getUser();
-if (!data.user) {
-  window.location.href = "index.html";
+async function checkAuth() {
+  const { data } = await supabaseClient.auth.getUser();
+  if (!data.user) {
+    window.location.href = "index.html";
+  }
 }
+
+checkAuth();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
