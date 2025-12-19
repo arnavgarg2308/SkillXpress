@@ -103,14 +103,7 @@
     <div id="signup" class="auth-card hidden">
       <div class="brand">Create Account</div>
       <div class="tagline">Start building your future today</div>
-
-      <input id="college" class="form-control mb-2" placeholder="College Name" />
-      <input id="course" class="form-control mb-2" placeholder="Course" />
-      <input id="branch" class="form-control mb-2" placeholder="Branch" />
-      <input id="year" class="form-control mb-2" placeholder="College Year" />
-      <input id="age" class="form-control mb-2" placeholder="Age" />
       <input id="phone" class="form-control mb-2" placeholder="Phone Number" />
-      <input id="username" class="form-control mb-2" placeholder="Username" />
       <input id="signupEmail" type="email" class="form-control mb-2" placeholder="Email" />
       <input id="signupPass" type="password" class="form-control mb-3" placeholder="Password" />
 
@@ -140,14 +133,7 @@ function showSignin(){
 async function signup() {
   const email = document.getElementById("signupEmail").value;
   const password = document.getElementById("signupPass").value;
-  const username = document.getElementById("username").value;
   const phone = document.getElementById("phone").value;
-const college = document.getElementById("college").value;
-const course = document.getElementById("course").value;
-const branch = document.getElementById("branch").value;
-const age = document.getElementById("age").value;
-const year = document.getElementById("year").value;
-
   // 🔹 basic validation
   if (!email || !password || !phone) {
     alert("Email, phone & password required");
