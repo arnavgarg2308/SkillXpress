@@ -46,11 +46,7 @@ body{
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg px-4">
-  <span class="navbar-brand fw-bold text-primary">SkillNest</span>
-  <div class="ms-auto">
-    <span class="me-3 fw-semibold">👤 Profile</span>
-    <span class="fw-semibold">⚙ Settings</span>
-  </div>
+  <span class="navbar-brand fw-bold text-primary">SkillXpress</span>
 </nav>
 
 <div class="container py-5">
@@ -65,29 +61,47 @@ body{
   <div class="card p-4">
     <h4 class="section-title mb-3">📁 Upload Center</h4>
 
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="upload-box">
-          <h6>Resume</h6>
-          <input type="file" class="form-control mt-2">
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="upload-box">
-          <h6>Certificates</h6>
-          <input type="file" class="form-control mt-2" multiple>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="upload-box">
-          <h6>Projects</h6>
-          <textarea class="form-control mt-2" placeholder="Describe your projects"></textarea>
-        </div>
-      </div>
-    </div>
+    <div class="col-md-4">
+  <div class="upload-box">
+    <h6>Resume</h6>
+    <input type="file" id="resume" class="form-control mt-2">
+    <button class="btn btn-sm btn-primary mt-2" onclick="uploadResume()">
+      Upload Resume
+    </button>
   </div>
+</div>
+
+
+      <div class="col-md-4">
+  <div class="upload-box">
+    <h6>Certificates</h6>
+    <input type="file" id="cert" class="form-control mt-2" multiple
+  accept=".pdf,.jpg,.png">
+    <button class="btn btn-sm btn-primary mt-2" onclick="uploadCerts()">
+      Upload Certificates
+    </button>
+  </div>
+</div>
+
+
+      <div class="col-md-4">
+  <div class="upload-box">
+    <h6>Projects</h6>
+    <textarea
+      id="projectText"
+      class="form-control mt-2"
+      rows="4"
+      placeholder="Describe your projects (tech stack, features, GitHub links)"
+    ></textarea>
+
+    <button
+      class="btn btn-sm btn-primary mt-2"
+      onclick="saveProject()"
+    >
+      Save Project
+    </button>
+  </div>
+</div>
 
 </div>
 
@@ -174,6 +188,80 @@ function drawGraph(skills) {
 }
 
 loadSkillGraph();
+async function uploadResume() {
+  const file = document.getElementById("resume").files[0];
+  if (!file) return alert("Select resume");
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  const path = `${session.user.id}/${Date.now()}_${file.name}`;
+
+  const { error } = await supabaseClient
+    .storage
+    .from("resumes")
+    .upload(path, file);
+
+  if (error) return alert(error.message);
+
+  await supabaseClient.from("uploads").insert({
+    user_id: session.user.id,
+    type: "resume",
+    file_path: path
+  });
+
+  alert("Resume saved successfully ✅");
+}
+async function uploadCerts() {
+  const files = document.getElementById("cert").files;
+  if (!files.length) {
+    alert("Select at least one certificate");
+    return;
+  }
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) {
+    alert("Please login again");
+    return;
+  }
+
+  for (const file of files) {
+    const path = `${session.user.id}/cert_${Date.now()}_${file.name}`;
+
+    const { error } = await supabaseClient
+      .storage
+      .from("certificates")
+      .upload(path, file);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    await supabaseClient.from("uploads").insert({
+      user_id: session.user.id,
+      type: "certificate",
+      file_path: path
+    });
+  }
+
+  document.getElementById("cert").value = "";
+  alert("Certificates uploaded successfully ✅");
+}
+async function saveProject() {
+  const text = document.getElementById("projectText").value;
+  if (!text) return alert("Write project description");
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  await supabaseClient.from("uploads").insert({
+    user_id: session.user.id,
+    type: "project",
+    description: text
+  });
+
+  alert("Project saved ✅");
+}
+
 </script>
 
 
