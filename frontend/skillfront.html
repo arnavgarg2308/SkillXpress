@@ -61,47 +61,18 @@ body{
   <div class="card p-4">
     <h4 class="section-title mb-3">📁 Upload Center</h4>
 
-    <div class="col-md-4">
-  <div class="upload-box">
-    <h6>Resume</h6>
-    <input type="file" id="resume" class="form-control mt-2">
-    <button class="btn btn-sm btn-primary mt-2" onclick="uploadResume()">
-      Upload Resume
-    </button>
-  </div>
-</div>
+    <!-- RESUME -->
+<input type="file" id="resumeFile" class="form-control mt-2">
+<button class="btn btn-sm btn-primary mt-2" onclick="uploadResume()">Upload Resume</button>
 
+<!-- CERTIFICATES -->
+<input type="file" id="certFiles" class="form-control mt-2" multiple>
+<button class="btn btn-sm btn-primary mt-2" onclick="uploadCertificates()">Upload Certificates</button>
 
-      <div class="col-md-4">
-  <div class="upload-box">
-    <h6>Certificates</h6>
-    <input type="file" id="cert" class="form-control mt-2" multiple
-  accept=".pdf,.jpg,.png">
-    <button class="btn btn-sm btn-primary mt-2" onclick="uploadCerts()">
-      Upload Certificates
-    </button>
-  </div>
-</div>
-
-
-      <div class="col-md-4">
-  <div class="upload-box">
-    <h6>Projects</h6>
-    <textarea
-      id="projectText"
-      class="form-control mt-2"
-      rows="4"
-      placeholder="Describe your projects (tech stack, features, GitHub links)"
-    ></textarea>
-
-    <button
-      class="btn btn-sm btn-primary mt-2"
-      onclick="saveProject()"
-    >
-      Save Project
-    </button>
-  </div>
-</div>
+<!-- PROJECT -->
+<textarea id="projectText" class="form-control mt-2"
+  placeholder="Describe your project"></textarea>
+<button class="btn btn-sm btn-primary mt-2" onclick="saveProject()">Save Project</button>
 
 </div>
 
@@ -140,7 +111,8 @@ async function loadSkillGraph() {
 
   // 🌐 call ML backend (RENDER)
   const res = await fetch(
-    `https://skillxpress.onrender.com/skills/${username}`
+    `https://skillxpress.onrender.com//full-skills/${session.user.id}/${username}
+`
   );
 
   const result = await res.json();
@@ -189,79 +161,78 @@ function drawGraph(skills) {
 
 loadSkillGraph();
 async function uploadResume() {
-  const file = document.getElementById("resume").files[0];
+  const file = document.getElementById("resumeFile").files[0];
   if (!file) return alert("Select resume");
 
   const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return alert("Login again");
 
-  const path = `${session.user.id}/${Date.now()}_${file.name}`;
+  const userId = session.user.id;
+  const path = `${userId}/${Date.now()}-${file.name}`;
 
-  const { error } = await supabaseClient
-    .storage
+  const { error: uploadError } = await supabaseClient.storage
     .from("resumes")
     .upload(path, file);
 
-  if (error) return alert(error.message);
+  if (uploadError) return alert(uploadError.message);
 
-  await supabaseClient.from("uploads").insert({
-    user_id: session.user.id,
+  const { error } = await supabaseClient.from("uploads").insert({
+    user_id: userId,
     type: "resume",
     file_path: path
   });
 
-  alert("Resume saved successfully ✅");
+  if (error) return alert(error.message);
+
+  alert("Resume uploaded ✅");
 }
-async function uploadCerts() {
-  const files = document.getElementById("cert").files;
-  if (!files.length) {
-    alert("Select at least one certificate");
-    return;
-  }
+async function uploadCertificates() {
+  const files = document.getElementById("certFiles").files;
+  if (!files.length) return alert("Select certificates");
 
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) {
-    alert("Please login again");
-    return;
-  }
+  if (!session) return alert("Login again");
+
+  const userId = session.user.id;
 
   for (const file of files) {
-    const path = `${session.user.id}/cert_${Date.now()}_${file.name}`;
+    const path = `${userId}/${Date.now()}-${file.name}`;
 
-    const { error } = await supabaseClient
-      .storage
+    const { error: uploadError } = await supabaseClient.storage
       .from("certificates")
       .upload(path, file);
 
-    if (error) {
-      alert(error.message);
-      return;
+    if (uploadError) {
+      console.error(uploadError);
+      continue;
     }
 
     await supabaseClient.from("uploads").insert({
-      user_id: session.user.id,
+      user_id: userId,
       type: "certificate",
       file_path: path
     });
   }
 
-  document.getElementById("cert").value = "";
-  alert("Certificates uploaded successfully ✅");
+  alert("Certificates uploaded ✅");
 }
 async function saveProject() {
   const text = document.getElementById("projectText").value;
   if (!text) return alert("Write project description");
 
   const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return alert("Login again");
 
-  await supabaseClient.from("uploads").insert({
+  const { error } = await supabaseClient.from("uploads").insert({
     user_id: session.user.id,
     type: "project",
     description: text
   });
 
+  if (error) return alert(error.message);
+
   alert("Project saved ✅");
 }
-
 </script>
 
 

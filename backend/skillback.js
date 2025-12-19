@@ -32,10 +32,13 @@ function mlScore({ repos, stars, forks, activity }) {
 
 /* ===== API ===== */
 
-app.get("/skills/:username", async (req, res) => {
-  const username = req.params.username;
+app.get("/full-skills/:userId/:username", async (req, res) => {
+  const { userId, username } = req.params;
 
   try {
+    let skills = {};
+
+    /* ===== 1️⃣ GITHUB ANALYSIS ===== */
     const ghRes = await fetch(
       `https://api.github.com/users/${username}/repos`,
       {
@@ -46,68 +49,63 @@ app.get("/skills/:username", async (req, res) => {
       }
     );
 
-    if (!ghRes.ok) {
-      return res.status(404).json({ error: "GitHub user not found" });
-    }
-
     const repos = await ghRes.json();
-    let skills = {};
 
-    // ✅ CORRECT LOOP (async-safe)
     for (const repo of repos) {
       if (repo.fork) continue;
 
       const langRes = await fetch(repo.languages_url, {
-        headers: {
-          "User-Agent": "SkillXpress",
-          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
-        }
+        headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
       });
-
       const languages = await langRes.json();
 
       for (const lang of Object.keys(languages)) {
-        if (!skills[lang]) {
-          skills[lang] = {
-            repos: 0,
-            stars: 0,
-            forks: 0,
-            activity: 0
-          };
-        }
-
-        skills[lang].repos += 1;
-        skills[lang].stars += repo.stargazers_count || 0;
-        skills[lang].forks += repo.forks_count || 0;
-
-        const daysOld =
-          (Date.now() - new Date(repo.updated_at)) /
-          (1000 * 60 * 60 * 24);
-
-        skills[lang].activity += Math.max(0, 30 - daysOld);
+        skills[lang] = (skills[lang] || 0) + 15;
       }
     }
 
-    let final = {};
-    Object.keys(skills).forEach(lang => {
-      final[lang] = normalize(mlScore(skills[lang]));
+    /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
+    const { data: uploads } = await supabase
+      .from("uploads")
+      .select("type, description")
+      .eq("user_id", userId);
+
+    uploads.forEach(item => {
+
+      // 🎓 Certificates
+      if (item.type === "certificate") {
+        skills["Learning"] = (skills["Learning"] || 0) + 10;
+      }
+
+      // 🛠 Projects
+      if (item.type === "project" && item.description) {
+        const t = item.description.toLowerCase();
+        if (t.includes("react")) skills["React"] = (skills["React"] || 0) + 20;
+        if (t.includes("node")) skills["Node.js"] = (skills["Node.js"] || 0) + 20;
+        if (t.includes("html")) skills["HTML"] = (skills["HTML"] || 0) + 10;
+        if (t.includes("css")) skills["CSS"] = (skills["CSS"] || 0) + 10;
+      }
+
+      // 📄 Resume (basic boost)
+      if (item.type === "resume") {
+        skills["Professional Readiness"] =
+          (skills["Professional Readiness"] || 0) + 15;
+      }
     });
 
-    if (Object.keys(final).length === 0) {
-      final = { "Learning": 20 };
-    }
-
-    res.json({
-      username,
-      skills: final,
-      generatedAt: new Date()
+    /* ===== NORMALIZE ===== */
+    Object.keys(skills).forEach(k => {
+      skills[k] = Math.min(100, skills[k]);
     });
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "GitHub API error" });
+    res.json({ skills });
+
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Skill analysis failed" });
   }
 });
+
 
 /* ===== RENDER START ===== */
 
