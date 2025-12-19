@@ -120,7 +120,7 @@ if (!result.skills || Object.keys(result.skills).length === 0) {
   alert("No GitHub activity found yet");
   return;
 }
-
+console.log("GRAPH DATA:", result.skills);
   drawGraph(result.skills);
 }
 
@@ -128,10 +128,14 @@ if (!result.skills || Object.keys(result.skills).length === 0) {
 let skillChartInstance = null;
 
 function drawGraph(skills) {
+  const canvas = document.getElementById("skillChart");
+  if (!canvas) {
+    console.error("Canvas not found");
+    return;
+  }
 
-  const ctx = document.getElementById("skillChart");
+  const ctx = canvas.getContext("2d");
 
-  // destroy old chart
   if (skillChartInstance) {
     skillChartInstance.destroy();
   }
@@ -149,6 +153,8 @@ function drawGraph(skills) {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         r: {
           beginAtZero: true,
