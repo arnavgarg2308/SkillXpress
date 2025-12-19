@@ -21,16 +21,17 @@ async function loadUserProfile() {
 
 const profile = data[0];
 
-  document.getElementById("username").innerText = data.username || "-";
-  document.getElementById("college").innerText = data.college || "-";
-  document.getElementById("course").innerText = data.course || "-";
-  document.getElementById("year").innerText = data.year || "-";
-  document.getElementById("branch").innerText = data.branch || "-";
-  document.getElementById("age").innerText = data.age || "-";
-  document.getElementById("github").innerText = data.github || "-";
-  document.getElementById("leetcode").innerText = data.leetcode || "-";
-  document.getElementById("codechef").innerText = data.codechef || "-";
-  document.getElementById("hackerrank").innerText = data.hackerrank || "-";
+  document.getElementById("username").innerText = profile.username || "-";
+document.getElementById("college").innerText = profile.college || "-";
+document.getElementById("course").innerText = profile.course || "-";
+document.getElementById("year").innerText = profile.year || "-";
+document.getElementById("branch").innerText = profile.branch || "-";
+document.getElementById("age").innerText = profile.age || "-";
+document.getElementById("github").innerText = profile.github || "-";
+document.getElementById("leetcode").innerText = profile.leetcode || "-";
+document.getElementById("codechef").innerText = profile.codechef || "-";
+document.getElementById("hackerrank").innerText = profile.hackerrank || "-";
+
 }
 
 loadUserProfile();
