@@ -1,17 +1,24 @@
-// jobback.js (RENDER READY)
+// jobback.js (RENDER SAFE & STABLE)
 const express = require("express");
-const cors = require("cors");
 
 const app = express();
 
-// ✅ PROPER CORS CONFIG
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
+/* ================================
+   FORCE CORS (MOST RELIABLE)
+   ================================ */
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
 
-app.options("*", cors()); // 👈 IMPORTANT
+  // ✅ Handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
 app.use(express.json());
 
 /* ================================
@@ -49,27 +56,14 @@ const JOB_REQUIREMENTS = {
 /* ================================
    JOB MATCH API
    ================================ */
-/*
-  INPUT:
-  {
-    skills: { "React": 60, "JavaScript": 70 },
-    interests: ["Frontend Developer"]
-  }
-
-  OUTPUT:
-  {
-    success: true,
-    jobMatch: {
-      "Frontend Developer": 72
-    }
-  }
-*/
-
 app.post("/job-match", (req, res) => {
   const { skills, interests } = req.body;
 
   if (!skills || !interests || !Array.isArray(interests)) {
-    return res.status(400).json({ error: "Invalid input data" });
+    return res.status(400).json({
+      success: false,
+      error: "Invalid input data"
+    });
   }
 
   let jobMatch = {};

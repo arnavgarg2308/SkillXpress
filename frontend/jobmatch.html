@@ -15,7 +15,10 @@ body{
 .card{
   border:none;
   border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.1);
+  box-shadow:0 15px 35px rgba(0,0,0,.1);
+}
+.badge{
+  font-size:0.9rem;
 }
 .progress{
   height:22px;
@@ -24,16 +27,45 @@ body{
 .progress-bar{
   font-weight:600;
 }
+.section-title{
+  font-weight:700;
+  color:#4f46e5;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container py-5">
-  <h2 class="text-center mb-4 fw-bold text-primary">
-    🎯 Job Readiness Analysis
+
+  <h2 class="text-center fw-bold text-primary mb-4">
+    🎯 Job Readiness Dashboard
   </h2>
 
-  <div id="jobResults"></div>
+  <!-- INTERESTS -->
+  <div class="card p-4 mb-4">
+    <h5 class="section-title mb-3">💼 Your Dream Roles</h5>
+    <div id="interestBox" class="d-flex flex-wrap gap-2">
+      <span class="text-muted">Loading interests...</span>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="card p-4 mb-4">
+    <h5 class="section-title mb-3">🧠 Your Current Skills</h5>
+    <div id="skillBox">
+      <span class="text-muted">Loading skills...</span>
+    </div>
+  </div>
+
+  <!-- JOB MATCH -->
+  <div class="card p-4">
+    <h5 class="section-title mb-3">📊 Job Readiness Percentage</h5>
+    <div id="jobResults">
+      <span class="text-muted">Calculating job match...</span>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -44,23 +76,28 @@ async function loadJobMatch() {
 
   /* 1️⃣ AUTH */
   const { data:{ session } } = await supabaseClient.auth.getSession();
-  if (!session) {
-    alert("Login required");
-    return;
-  }
+  if (!session) return alert("Login required");
 
-  /* 2️⃣ FETCH INTERESTS + GITHUB */
-  const { data: profile, error } = await supabaseClient
+  /* 2️⃣ FETCH PROFILE */
+  const { data: profile } = await supabaseClient
     .from("profiles")
     .select("interests, github")
     .eq("id", session.user.id)
     .single();
 
-  if (error || !profile || !profile.interests || !profile.github) {
-    alert("Profile data missing");
+  if (!profile || !profile.interests || !profile.github) {
+    alert("Profile incomplete");
     return;
   }
 
+  /* SHOW INTERESTS */
+  const interestBox = document.getElementById("interestBox");
+  interestBox.innerHTML = "";
+  profile.interests.forEach(i => {
+    interestBox.innerHTML += `<span class="badge bg-primary">${i}</span>`;
+  });
+
+  /* 3️⃣ FETCH SKILLS */
   const githubUsername = profile.github
     .replace("https://", "")
     .replace("http://", "")
@@ -68,23 +105,33 @@ async function loadJobMatch() {
     .split("github.com/")[1]
     .replace("/", "");
 
-  /* 3️⃣ FETCH SKILLS (RENDER URL) */
   const skillsRes = await fetch(
     `https://skillxpress.onrender.com/full-skills/${session.user.id}/${githubUsername}`
   );
   const skillData = await skillsRes.json();
 
-  if (!skillData.skills) {
-    alert("Skill data not found");
-    return;
-  }
+  const skillBox = document.getElementById("skillBox");
+  skillBox.innerHTML = "";
 
-  /* 4️⃣ CALL JOB MATCH BACKEND (RENDER URL) */
+  Object.entries(skillData.skills).forEach(([skill, value]) => {
+    skillBox.innerHTML += `
+      <div class="mb-2">
+        <strong>${skill}</strong>
+        <div class="progress">
+          <div class="progress-bar bg-info" style="width:${value}%">
+            ${value}%
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  /* 4️⃣ JOB MATCH */
   const res = await fetch(
     "https://jobmatch.onrender.com/job-match",
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
         skills: skillData.skills,
         interests: profile.interests
@@ -96,24 +143,23 @@ async function loadJobMatch() {
   renderJobs(result.jobMatch);
 }
 
-/* 5️⃣ UI */
+/* JOB UI */
 function renderJobs(data){
   const container = document.getElementById("jobResults");
   container.innerHTML = "";
 
   Object.entries(data).forEach(([job, percent]) => {
     container.innerHTML += `
-      <div class="card p-4 mb-4">
-        <h5 class="fw-bold">${job}</h5>
-        <div class="progress mt-2">
-          <div class="progress-bar bg-success"
-               style="width:${percent}%">
+      <div class="mb-4">
+        <strong>${job}</strong>
+        <div class="progress mt-1">
+          <div class="progress-bar bg-success" style="width:${percent}%">
             ${percent}%
           </div>
         </div>
-        <p class="mt-2 text-muted">
-          You are <b>${100 - percent}% away</b> from this role
-        </p>
+        <small class="text-muted">
+          ${100 - percent}% gap to reach this role
+        </small>
       </div>
     `;
   });
