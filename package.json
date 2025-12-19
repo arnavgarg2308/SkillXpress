@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/arnavgarg2308/SkillXpress#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "node-fetch": "^3.3.2"
