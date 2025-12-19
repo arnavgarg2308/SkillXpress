@@ -111,9 +111,8 @@ async function loadSkillGraph() {
 
   // 🌐 call ML backend (RENDER)
   const res = await fetch(
-    `https://skillxpress.onrender.com//full-skills/${session.user.id}/${username}
-`
-  );
+  `https://skillxpress.onrender.com/full-skills/${session.user.id}/${username}`
+);
 
   const result = await res.json();
 if (!result.skills || Object.keys(result.skills).length === 0) {
