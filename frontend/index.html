@@ -193,16 +193,17 @@ const year = document.getElementById("year").value;
   // 2️⃣ PROFILE INSERT (PHONE UNIQUE CHECK)
   const { error: profileError } = await supabaseClient
     .from("profiles")
-    .insert({
-      id: userId,
-      phone,
-      username,
-      college,
-    course,
-    branch,
-    age,
-    year
-    });
+.update({
+  username,
+  phone,
+  college,
+  course,
+  branch,
+  age,
+  year
+})
+.eq("id", userId);
+
 
   // 🔴 PHONE ALREADY REGISTERED
   if (profileError) {
