@@ -60,7 +60,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
       const languages = await langRes.json();
 
       for (const lang of Object.keys(languages)) {
-        skills[lang] = (skills[lang] || 0) + 15;
+        skills[lang] = (skills[lang] || 0) + 7;
       }
     }
 
@@ -74,7 +74,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
 
       // 🎓 Certificates
       if (item.type === "certificate") {
-        skills["Learning"] = (skills["Learning"] || 0) + 10;
+        skills["Learning"] = (skills["Learning"] || 0) + 3;
       }
 
      // 🛠 Projects
@@ -100,7 +100,7 @@ if (item.type === "project" && item.description) {
 
   Object.entries(skillMap).forEach(([skill, keywords]) => {
     if (keywords.some(k => t.includes(k))) {
-      skills[skill] = (skills[skill] || 0) + 15;
+      skills[skill] = (skills[skill] || 0) + 3;
     }
   });
 }
@@ -108,7 +108,7 @@ if (item.type === "project" && item.description) {
       // 📄 Resume (basic boost)
       if (item.type === "resume") {
         skills["Professional Readiness"] =
-          (skills["Professional Readiness"] || 0) + 15;
+          (skills["Professional Readiness"] || 0) + 6;
       }
     });
 
