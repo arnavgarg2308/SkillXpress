@@ -236,6 +236,7 @@ async function saveProject() {
   if (error) return alert(error.message);
 
   alert("Project saved ✅");
+    await loadSkillGraph();
 }
 </script>
 
