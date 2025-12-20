@@ -78,13 +78,33 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
       }
 
      // 🛠 Projects
-      if (item.type === "project" && item.description) {
-        const t = item.description.toLowerCase();
-        if (t.includes("react")) skills["React"] = (skills["React"] || 0) + 20;
-        if (t.includes("node")) skills["Node.js"] = (skills["Node.js"] || 0) + 20;
-        if (t.includes("html")) skills["HTML"] = (skills["HTML"] || 0) + 10;
-        if (t.includes("css")) skills["CSS"] = (skills["CSS"] || 0) + 10;
-      }
+if (item.type === "project" && item.description) {
+  const t = item.description.toLowerCase();
+
+  const skillMap = {
+    "REACT": ["react", "reactjs"],
+  "NODE.JS": ["nodejs", "express"],
+  "HTML": ["html"],
+  "CSS": ["css", "tailwind", "bootstrap"],
+  "JAVASCRIPT": ["javascript", " js "],
+  "TYPESCRIPT": ["typescript", " ts "],
+  "PYTHON": ["python", "django", "flask"],
+  "JAVA": ["java", "spring"],
+  "MONGODB": ["mongodb", "mongo"],
+  "SQL": ["sql", "mysql", "postgres", "postgresql"],
+  "FIREBASE": ["firebase"],
+  "AWS": ["aws", "ec2", "s3"],
+  "DOCKER": ["docker"],
+  "GIT": ["git", "github"]
+  };
+
+  Object.entries(skillMap).forEach(([skill, keywords]) => {
+    if (keywords.some(k => t.includes(k))) {
+      skills[skill] = (skills[skill] || 0) + 15;
+    }
+  });
+}
+
       // 📄 Resume (basic boost)
       if (item.type === "resume") {
         skills["Professional Readiness"] =
