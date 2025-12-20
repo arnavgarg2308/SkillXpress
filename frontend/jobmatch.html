@@ -125,7 +125,7 @@ async function loadJobMatch() {
       </div>
     `;
   });
-
+const topInterests = profile.interests.slice(0, 4);
   /* 4️⃣ JOB MATCH */
   const res = await fetch(
     "https://skillxpress-1.onrender.com/job-match",
@@ -135,13 +135,21 @@ async function loadJobMatch() {
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
         skills: skillData.skills,
-        interests: profile.interests
+        interests: topInterests
       })
     }
   );
 
   const result = await res.json();
-  renderJobs(result.jobMatch);
+const filteredResults = {};
+topInterests.forEach(job => {
+  if (result.results && result.results[job] !== undefined) {
+    filteredResults[job] = result.results[job];
+  }
+});
+
+renderJobs(filteredResults);
+
 }
 
 /* JOB UI */

@@ -223,8 +223,8 @@
   const selected = [...document.querySelectorAll(".interest:checked")]
                   .map(i => i.value);
 
-  if (selected.length !== 2) {
-    alert("Select exactly 2 interests");
+  if (selected.length < 1) {
+    alert("Select atleast 1 interests");
     return;
   }
 
@@ -243,9 +243,9 @@
   // 🔒 limit to 2 interests
 document.querySelectorAll(".interest").forEach(cb => {
   cb.addEventListener("change", () => {
-    if (document.querySelectorAll(".interest:checked").length > 2) {
+    if (document.querySelectorAll(".interest:checked").length > 4) {
       cb.checked = false;
-      alert("Only 2 interests allowed");
+      alert("Only 4 interests allowed");
     }
   });
 });

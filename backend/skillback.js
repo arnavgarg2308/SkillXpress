@@ -95,7 +95,32 @@ if (item.type === "project" && item.description) {
   "FIREBASE": ["firebase"],
   "AWS": ["aws", "ec2", "s3"],
   "DOCKER": ["docker"],
-  "GIT": ["git", "github"]
+  "GIT": ["git", "github"],
+  "DSA": ["dsa", "data structure", "algorithm"],
+  "OOP": ["oop", "object oriented", "class", "inheritance"],
+  "PROGRAMMING": ["programming", "coding"],
+
+  "EXPRESS": ["express"],
+  "APIS": ["api", "rest", "restful"],
+  "DEBUGGING": ["debug", "bug fix", "error fix"],
+
+  "EXCEL": ["excel", "spreadsheet"],
+  "DATA_ANALYSIS": ["data analysis", "analysis"],
+  "STATISTICS": ["statistics"],
+
+  "LINUX": ["linux", "ubuntu"],
+  "CICD": ["ci/cd", "github actions", "jenkins"],
+  "NETWORKING": ["network", "tcp", "http"],
+
+  "TESTING": ["testing", "test cases"],
+  "AUTOMATION": ["automation"],
+
+  "FIGMA": ["figma"],
+  "UI_DESIGN": ["ui design"],
+  "UX_RESEARCH": ["ux research"],
+
+  "MACHINE_LEARNING": ["machine learning", "ml"],
+  "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
 
   Object.entries(skillMap).forEach(([skill, keywords]) => {
