@@ -1,15 +1,17 @@
 // jobback.js — FINAL JOB MATCH BACKEND
 
 const express = require("express");
-const cors = require("cors");
+const router = express.Router();
 
-const app = express();
+// const cors = require("cors");
+
+// const app = express();
 
 /* ================================
    MIDDLEWARE
    ================================ */
-app.use(cors());
-app.use(express.json());
+// app.use(cors());
+// app.use(express.json());
 
 /* ================================
    JOB CONFIG (STATIC DATA)
@@ -412,7 +414,7 @@ const JOB_REQUIREMENTS = {
 /* ================================
    1️⃣ GET ALL JOB ROLES
    ================================ */
-app.get("/jobs", (req, res) => {
+router.get("/jobs", (req, res) => {
   res.json({
     success: true,
     jobs: Object.keys(JOB_REQUIREMENTS)
@@ -439,7 +441,7 @@ OUTPUT:
 }
 */
 
-app.post("/job-match", (req, res) => {
+router.post("/job-match", (req, res) => {
   const { skills, interests } = req.body;
 
   if (!skills || typeof skills !== "object") {
@@ -479,7 +481,8 @@ app.post("/job-match", (req, res) => {
    SERVER START
    ================================ */
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("✅ Job Match backend LIVE on Render");
-});
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log("✅ Job Match backend LIVE on Render");
+// });
+module.exports = router;
