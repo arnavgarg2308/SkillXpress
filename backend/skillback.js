@@ -14,7 +14,17 @@ const supabase = createClient(
 );
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://skill-xpress.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:5500"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.options("*", cors());
 app.use(express.json());
 app.use("/api/micro-test", microTestRoutes);
 app.use("/api/jobs", jobRoutes);
