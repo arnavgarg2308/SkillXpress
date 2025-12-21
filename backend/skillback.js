@@ -99,7 +99,7 @@ if (item.type === "project" && item.description) {
   "DSA": ["dsa", "data structure", "algorithm"],
   "OOP": ["oop", "object oriented", "class", "inheritance"],
   "PROGRAMMING": ["programming", "coding"],
-
+  
   "EXPRESS": ["express"],
   "APIS": ["api", "rest", "restful"],
   "DEBUGGING": ["debug", "bug fix", "error fix"],
