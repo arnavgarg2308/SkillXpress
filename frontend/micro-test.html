@@ -165,7 +165,7 @@ async function loadQuestions() {
   const { data, error } = await supabaseClient
     .from("micro_test_questions")
     .select("*")
-    .limit(25);
+    .limit(40);
 
   if (error) {
     document.getElementById("questions").innerHTML =
