@@ -123,12 +123,21 @@
       </div>
     </div>
 
-    <div class="col-md-4 col-sm-6">
-      <div class="feature-card">
-        <div class="feature-icon">🧠</div>
-        <div class="feature-title">Cognitive Test</div>
-      </div>
+  <div class="col-md-4 col-sm-6">
+  <div class="feature-card" onclick="goToMicroTest()">
+    <div class="feature-icon">🧠</div>
+    <div class="feature-title d-flex justify-content-between align-items-center">
+      Micro-Cognitive Test
+      <span id="testStatus" class="badge bg-secondary">Checking…</span>
     </div>
+    <p class="sub-text mt-2">
+      Monthly test for thinking, behaviour & decision-making
+    </p>
+  </div>
+</div>
+
+
+
 
     <div class="col-md-4 col-sm-6">
       <div class="feature-card">
@@ -198,7 +207,32 @@ async function checkAuth() {
   }
 }
 
+async function goToMicroTest() {
+  const { data } = await supabaseClient.auth.getUser();
+  if (!data.user) {
+    alert("Please login again");
+    window.location.href = "index.html";
+    return;
+  }
+  window.location.href = "micro-test.html";
+}
+
+/* 🧠 TEST STATUS (simple version) */
+function showTestStatus() {
+  const badge = document.getElementById("testStatus");
+  if (!badge) return;
+
+  badge.innerText = "Pending";
+  badge.className = "badge bg-warning text-dark";
+}
+
+/* RUN WHEN PAGE LOADS */
 checkAuth();
+showTestStatus();
+
+
+
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

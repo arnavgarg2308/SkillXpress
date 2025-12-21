@@ -5,6 +5,8 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const { createClient } = require("@supabase/supabase-js");
+const microTestRoutes = require("./routes/microTest");
+
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -14,6 +16,8 @@ const supabase = createClient(
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api/micro-test", microTestRoutes);
+
 
 /* ===== ML HELPERS ===== */
 
