@@ -79,9 +79,12 @@
         <a href="main.html" class="btn btn-primary">
           Go to Dashboard
         </a>
-        <button class="btn btn-outline-secondary" disabled>
-          View Detailed Analysis (Coming Soon)
-        </button>
+        <a href="micro-test-analysis.html" class="btn btn-primary">
+  View Detailed Analysis
+</a>
+<div id="analysisBox" class="mt-4 text-start"></div>
+
+
       </div>
 
     </div>
@@ -112,6 +115,41 @@ function showResultFromURL() {
 }
 
 checkAuth().then(showResultFromURL);
+async function loadAnalysis() {
+  const { data } = await supabaseClient.auth.getUser();
+  if (!data.user) {
+    alert("Please login again");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `https://skillxpress.onrender.com/api/micro-test/analysis/${data.user.id}`
+    );
+
+    if (!res.ok) throw new Error("Fetch failed");
+
+    const a = await res.json();
+
+    document.getElementById("analysisBox").innerHTML = `
+      <h5>🧠 Detailed Analysis</h5>
+      <ul class="list-group">
+        <li class="list-group-item">Attention: ${a.attention_score}</li>
+        <li class="list-group-item">Memory: ${a.memory_score}</li>
+        <li class="list-group-item">Logic: ${a.logic_score}</li>
+        <li class="list-group-item">Decision: ${a.decision_score}</li>
+        <li class="list-group-item">Behaviour: ${a.behaviour_score}</li>
+        <li class="list-group-item fw-bold">
+          Brain Efficiency: ${a.brain_efficiency}%
+        </li>
+      </ul>
+    `;
+  } catch (err) {
+    alert("Analysis load nahi ho pa raha");
+    console.error(err);
+  }
+}
+
 
 </script>
 

@@ -70,5 +70,28 @@ router.post("/submit", async (req, res) => {
     res.status(500).json({ error: "Micro test submit failed" });
   }
 });
+/* ================= GET LATEST ANALYSIS ================= */
+router.get("/analysis/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data, error } = await supabase
+      .from("micro_test_results")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Analysis fetch failed" });
+  }
+});
+
 
 module.exports = router;
