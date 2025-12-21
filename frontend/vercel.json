@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://skillxpress.onrender.com/api/$1"
+    }
+  ]
+}
