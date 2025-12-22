@@ -44,7 +44,7 @@ const JOB_REQUIREMENTS = {
   },
 
   "Backend Developer": {
-    "Node.js": 85,
+    NODEJS: 85,
     Express: 75,
     SQL: 80,
     APIs: 75
@@ -55,7 +55,7 @@ const JOB_REQUIREMENTS = {
     CSS: 70,
     JavaScript: 85,
     React: 75,
-    "Node.js": 80,
+    NODEJS: 80,
     SQL: 75
   },
 
@@ -69,14 +69,14 @@ const JOB_REQUIREMENTS = {
     MongoDB: 80,
     Express: 75,
     React: 80,
-    "Node.js": 80
+    NODEJS: 80
   },
 
   "MEAN Stack Developer": {
     MongoDB: 80,
     Express: 75,
     Angular: 80,
-    "Node.js": 80
+    NODEJS: 80
   },
 
   /* ================= MOBILE DEVELOPMENT ================= */
