@@ -7,6 +7,7 @@ const fetch = (...args) =>
 const { createClient } = require("@supabase/supabase-js");
 const microTestRoutes = require("./routes/microTest");
 const jobRoutes = require("./routes/jobback");
+const roadmapRoutes = require("./routes/roadmap");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -29,6 +30,7 @@ app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use("/api/micro-test", microTestRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/roadmap", roadmapRoutes);
 
 /* ===== ML HELPERS ===== */
 

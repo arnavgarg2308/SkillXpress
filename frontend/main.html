@@ -157,10 +157,12 @@
       </div>
     </div>
 
-    <div class="col-md-4 col-sm-6">
+   <div class="col-md-4 col-sm-6">
       <div class="feature-card">
-        <div class="feature-icon">💬</div>
-        <div class="feature-title">AI Mentor</div>
+        <div class="feature-icon">💼</div>
+        <a href="roadmap.html" class="feature-title text-decoration-none">
+   Ai Roadmap
+</a>
       </div>
     </div>
 
@@ -226,8 +228,8 @@ function showTestStatus() {
   const badge = document.getElementById("testStatus");
   if (!badge) return;
 
-  badge.innerText = "Pending";
-  badge.className = "badge bg-warning text-dark";
+  // no pending concept for now
+  badge.style.display = "none";
 }
 
 /* RUN WHEN PAGE LOADS */
