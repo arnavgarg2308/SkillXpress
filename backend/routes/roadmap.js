@@ -10,46 +10,36 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* ===== PHASE SYSTEM ===== */
-const PHASES = [
-  { name: "Foundation", months: 2 },
-  { name: "Core Skills", months: 3 },
-  { name: "Advanced Projects", months: 2 },
-  { name: "Job Preparation", months: 1 }
-];
+/* ---------- helpers ---------- */
 
-function getPhase(month) {
-  let sum = 0;
-  for (let p of PHASES) {
-    sum += p.months;
-    if (month <= sum) return p.name;
-  }
-  return "Completed";
-}
-
-/* ===== HELPERS ===== */
-function normalizeRole(role) {
-  return role.trim().toUpperCase();
+function normalizeSkill(s) {
+  return s.toLowerCase().replace(/\W/g, "");
 }
 
 function calculateGaps(userSkills, roleReqs) {
+  const u = {};
+  Object.entries(userSkills).forEach(([k, v]) => {
+    u[normalizeSkill(k)] = v;
+  });
+
   return Object.entries(roleReqs)
-    .map(([skill, required]) => ({
-      skill,
-      current: userSkills[skill] || 0,
-      required,
-      gap: required - (userSkills[skill] || 0)
-    }))
-    .filter(s => s.gap > 0)
+    .map(([skill, required]) => {
+      const current = u[normalizeSkill(skill)] || 0;
+      return { skill, current, required, gap: required - current };
+    })
+    .filter(x => x.gap > 0)
     .sort((a, b) => b.gap - a.gap);
 }
 
-/* ===== API ===== */
+/* ---------- API ---------- */
+
 router.post("/generate-month", async (req, res) => {
   try {
-    const { userId, userSkills = {} } = req.body;
+    const { userId, userSkills } = req.body;
+    if (!userId || !userSkills)
+      return res.status(400).json({ error: "Missing data" });
 
-    /* Roles */
+    /* roles */
     const { data: profile } = await supabase
       .from("profiles")
       .select("interests")
@@ -57,100 +47,90 @@ router.post("/generate-month", async (req, res) => {
       .single();
 
     const roles = profile?.interests || [];
-    if (!roles.length) {
+    if (!roles.length)
       return res.status(400).json({ error: "No roles selected" });
-    }
 
-    const primaryRoleRaw = roles[0];
-    const primaryRole = normalizeRole(primaryRoleRaw);
-    const secondaryRoles = roles.slice(1).map(normalizeRole);
+    const primaryRole = roles[0];
+    const secondaryRoles = roles.slice(1);
 
-    if (!JOB_REQUIREMENTS[primaryRole]) {
+    const roleReq = JOB_REQUIREMENTS[primaryRole];
+    if (!roleReq)
       return res.status(400).json({
-        error: "Job requirements not found for role: " + primaryRoleRaw
+        error: `Job requirements not found for role: ${primaryRole}`
       });
-    }
 
-    /* Progress */
+    /* progress */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
       .eq("user_id", userId)
       .single();
 
-    const currentMonth = row?.current_month || 1;
-    const phase = getPhase(currentMonth);
+    const month = row?.current_month || 1;
 
-    if (phase === "Completed") {
-      return res.json({ done: true });
-    }
+    /* gap analysis */
+    const gaps = calculateGaps(userSkills, roleReq).slice(0, 4);
 
-    /* Gap-based focus */
-    const gaps = calculateGaps(
-      userSkills,
-      JOB_REQUIREMENTS[primaryRole]
-    );
-
-    const focusSkills = gaps.slice(0, 3);
-
-    /* AI PROMPT */
+    /* AI PROMPT (GOOD ONE) */
     const prompt = `
-You are a senior career mentor.
+You are a senior software career mentor.
 
-Primary role: ${primaryRoleRaw}
+Target role: ${primaryRole}
 Secondary roles: ${secondaryRoles.join(", ") || "None"}
+Month number: ${month}
 
-Month: ${currentMonth}
-Phase: ${phase}
+Skill gaps:
+${JSON.stringify(gaps, null, 2)}
 
-User skills:
-${JSON.stringify(userSkills, null, 2)}
-
-Skill gaps (priority):
-${JSON.stringify(focusSkills, null, 2)}
-
-Create a DETAILED ONE-MONTH ROADMAP.
+Create a PRACTICAL ONE-MONTH roadmap.
 
 FORMAT:
-Month Objective
-Week 1 (topics, daily practice, outcome)
-Week 2
-Week 3
-Week 4
-Mini Project (idea, stack, proof)
-Explain how this month moves user closer to ${primaryRoleRaw}.
+Month Goal (2 lines)
 
-Practical. Honest. Job-ready.
-`;
+Week 1:
+- Topics
+- Daily practice
+
+Week 2:
+- Topics
+- Daily practice
+
+Week 3:
+- Topics
+- Daily practice
+
+Week 4:
+- Topics
+- Daily practice
+
+Mini Project:
+- Idea
+- Stack
+- Outcome
+
+Explain how this month moves the user closer to a job.
+
+No filler. Be realistic.`;
 
     const content = await generateMentorNote(prompt);
 
-    /* Save */
+    /* save */
     await supabase.from("roadmaps").upsert({
       user_id: userId,
-      current_month: currentMonth + 1,
+      current_month: month + 1,
       months: {
         ...(row?.months || {}),
-        [currentMonth]: {
-          month: currentMonth,
-          phase,
-          primaryRole: primaryRoleRaw,
-          content
-        }
+        [month]: { month, role: primaryRole, content }
       }
     });
 
     res.json({
       success: true,
-      roadmap: {
-        month: currentMonth,
-        phase,
-        content
-      }
+      roadmap: { month, role: primaryRole, content }
     });
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Roadmap failed" });
   }
 });
