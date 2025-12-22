@@ -27,7 +27,11 @@ function getPhase(month) {
   return "Completed";
 }
 
-/* ===== GAP CALCULATION ===== */
+/* ===== HELPERS ===== */
+function normalizeRole(role) {
+  return role.trim().toUpperCase();
+}
+
 function calculateGaps(userSkills, roleReqs) {
   return Object.entries(roleReqs)
     .map(([skill, required]) => ({
@@ -43,7 +47,7 @@ function calculateGaps(userSkills, roleReqs) {
 /* ===== API ===== */
 router.post("/generate-month", async (req, res) => {
   try {
-    const { userId, userSkills } = req.body;
+    const { userId, userSkills = {} } = req.body;
 
     /* Roles */
     const { data: profile } = await supabase
@@ -57,13 +61,15 @@ router.post("/generate-month", async (req, res) => {
       return res.status(400).json({ error: "No roles selected" });
     }
 
-    const primaryRole = roles[0];
-    const secondaryRoles = roles.slice(1);
-if (!JOB_REQUIREMENTS[primaryRole]) {
-  return res.status(400).json({
-    error: "Job requirements not found for role: " + primaryRole
-  });
-}
+    const primaryRoleRaw = roles[0];
+    const primaryRole = normalizeRole(primaryRoleRaw);
+    const secondaryRoles = roles.slice(1).map(normalizeRole);
+
+    if (!JOB_REQUIREMENTS[primaryRole]) {
+      return res.status(400).json({
+        error: "Job requirements not found for role: " + primaryRoleRaw
+      });
+    }
 
     /* Progress */
     const { data: row } = await supabase
@@ -80,15 +86,19 @@ if (!JOB_REQUIREMENTS[primaryRole]) {
     }
 
     /* Gap-based focus */
-    const gaps = calculateGaps(userSkills, JOB_REQUIREMENTS[primaryRole]);
+    const gaps = calculateGaps(
+      userSkills,
+      JOB_REQUIREMENTS[primaryRole]
+    );
+
     const focusSkills = gaps.slice(0, 3);
 
     /* AI PROMPT */
     const prompt = `
 You are a senior career mentor.
 
-Primary role: ${primaryRole}
-Secondary roles (light support): ${secondaryRoles.join(", ") || "None"}
+Primary role: ${primaryRoleRaw}
+Secondary roles: ${secondaryRoles.join(", ") || "None"}
 
 Month: ${currentMonth}
 Phase: ${phase}
@@ -102,31 +112,15 @@ ${JSON.stringify(focusSkills, null, 2)}
 Create a DETAILED ONE-MONTH ROADMAP.
 
 FORMAT:
-
 Month Objective
+Week 1 (topics, daily practice, outcome)
+Week 2
+Week 3
+Week 4
+Mini Project (idea, stack, proof)
+Explain how this month moves user closer to ${primaryRoleRaw}.
 
-Week 1:
-- Topics
-- Daily practice
-- Outcome
-
-Week 2:
-(same)
-
-Week 3:
-(same)
-
-Week 4:
-(same)
-
-Mini Project:
-- Idea
-- Tech stack
-- What it proves
-
-Explain how this month moves user closer to ${primaryRole}.
-
-No filler. Practical. Job-oriented.
+Practical. Honest. Job-ready.
 `;
 
     const content = await generateMentorNote(prompt);
@@ -140,7 +134,7 @@ No filler. Practical. Job-oriented.
         [currentMonth]: {
           month: currentMonth,
           phase,
-          primaryRole,
+          primaryRole: primaryRoleRaw,
           content
         }
       }
