@@ -26,11 +26,6 @@ function getPhase(month) {
   }
   return "Completed";
 }
-if (!JOB_REQUIREMENTS[primaryRole]) {
-  return res.status(400).json({
-    error: "Job requirements not found for role: " + primaryRole
-  });
-}
 
 /* ===== GAP CALCULATION ===== */
 function calculateGaps(userSkills, roleReqs) {
@@ -64,6 +59,11 @@ router.post("/generate-month", async (req, res) => {
 
     const primaryRole = roles[0];
     const secondaryRoles = roles.slice(1);
+if (!JOB_REQUIREMENTS[primaryRole]) {
+  return res.status(400).json({
+    error: "Job requirements not found for role: " + primaryRole
+  });
+}
 
     /* Progress */
     const { data: row } = await supabase
