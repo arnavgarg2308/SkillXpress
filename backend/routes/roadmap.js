@@ -44,17 +44,17 @@ router.post("/generate-month", async (req, res) => {
       return res.status(400).json({ error: "No roles selected" });
     }
 
-    /* 2️⃣ Merge ALL roles */
+    /* 2️⃣ Merge ALL role skills */
     let mergedSkills = {};
     roles.forEach(role => {
-      const req = JOB_REQUIREMENTS[role];
-      if (!req) return;
-      Object.entries(req).forEach(([skill, value]) => {
+      const reqSkills = JOB_REQUIREMENTS[role];
+      if (!reqSkills) return;
+      Object.entries(reqSkills).forEach(([skill, value]) => {
         mergedSkills[skill] = Math.max(mergedSkills[skill] || 0, value);
       });
     });
 
-    /* 3️⃣ Roadmap progress */
+    /* 3️⃣ Current month */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
@@ -68,39 +68,43 @@ router.post("/generate-month", async (req, res) => {
       return res.json({ done: true });
     }
 
-    /* 4️⃣ Month roadmap */
-    const skills = Object.keys(mergedSkills)
+    /* 4️⃣ Skills focus for this month */
+    const skillsForMonth = Object.keys(mergedSkills)
       .slice((currentMonth - 1) * 4, currentMonth * 4);
 
-    const roadmap = {
-      month: currentMonth,
-      phase,
-      focus: phase,
-      skills,
-      tasks: [
-        "Daily practice",
-        "Hands-on coding",
-        "Weekly revision"
-      ],
-      project:
-        phase === "Foundation"
-          ? "Mini practice project"
-          : phase === "Core Skills"
-          ? "Role-specific mini project"
-          : phase === "Advanced Projects"
-          ? "Major real-world project"
-          : "Resume + mock interviews",
-      ai_mentor_note: ""
-    };
-
-    /* 5️⃣ AI mentor note (≤450 tokens) */
+    /* 5️⃣ 🔥 AI PROMPT — FULL ROADMAP */
     const prompt = `
-Explain this ONE month roadmap briefly in mentor tone.
-Max 2–3 lines. Do NOT add new topics.
+You are a senior career mentor.
 
-${JSON.stringify(roadmap)}
-    `;
-    roadmap.ai_mentor_note = await generateMentorNote(prompt);
+Create a DETAILED, PRACTICAL roadmap for ONE MONTH ONLY.
+
+Context:
+- Target role(s): ${roles.join(", ")}
+- Current month: ${currentMonth}
+- Phase: ${phase}
+- Skills to focus this month: ${skillsForMonth.join(", ")}
+
+Rules:
+- Assume the user is a student
+- This is part of a long-term (8 month) job preparation
+- Do NOT rush topics unrealistically
+- React, backend, data skills take multiple months
+- Be honest and job-oriented
+
+Output format (MANDATORY):
+1. Month goal (2–3 lines)
+2. Week 1: topics + daily practice
+3. Week 2: topics + daily practice
+4. Week 3: topics + daily practice
+5. Week 4: topics + daily practice
+6. Mini project for this month
+7. How this month moves the user closer to a job
+
+Keep the response under 450 tokens.
+No emojis. No filler.
+`;
+
+    const aiRoadmap = await generateMentorNote(prompt);
 
     /* 6️⃣ Save */
     await supabase.from("roadmaps").upsert({
@@ -108,11 +112,25 @@ ${JSON.stringify(roadmap)}
       current_month: currentMonth + 1,
       months: {
         ...(row?.months || {}),
-        [currentMonth]: roadmap
+        [currentMonth]: {
+          month: currentMonth,
+          phase,
+          roles,
+          skills: skillsForMonth,
+          content: aiRoadmap
+        }
       }
     });
 
-    res.json({ success: true, roadmap });
+    /* 7️⃣ Respond */
+    res.json({
+      success: true,
+      roadmap: {
+        month: currentMonth,
+        phase,
+        content: aiRoadmap
+      }
+    });
 
   } catch (e) {
     console.error(e);
