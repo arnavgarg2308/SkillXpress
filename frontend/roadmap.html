@@ -61,15 +61,13 @@ async function generate() {
 
   const r = data.roadmap;
 
-  document.getElementById("roadmapBox").innerHTML = `
-    <h3>Month ${r.month} – ${r.phase}</h3>
-    ${r.skills.map(s => `<span class="badge">${s}</span>`).join("")}
-    <p><b>Project:</b> ${r.project}</p>
-    <pre style="white-space:pre-wrap; line-height:1.6;">
+document.getElementById("roadmapBox").innerHTML = `
+  <h3>Month ${r.month} – ${r.phase}</h3>
+  <pre style="white-space:pre-wrap; line-height:1.6;">
 ${r.content}
-</pre>
+  </pre>
+`;
 
-  `;
 }
 </script>
 

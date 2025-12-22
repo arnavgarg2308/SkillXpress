@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* ===== PHASE SYSTEM (JOB READY – 8 MONTHS) ===== */
+/* ===== PHASE SYSTEM ===== */
 const PHASES = [
   { name: "Foundation", months: 2 },
   { name: "Core Skills", months: 3 },
@@ -19,20 +19,33 @@ const PHASES = [
 ];
 
 function getPhase(month) {
-  let total = 0;
+  let sum = 0;
   for (let p of PHASES) {
-    total += p.months;
-    if (month <= total) return p.name;
+    sum += p.months;
+    if (month <= sum) return p.name;
   }
   return "Completed";
+}
+
+/* ===== GAP CALCULATION ===== */
+function calculateGaps(userSkills, roleReqs) {
+  return Object.entries(roleReqs)
+    .map(([skill, required]) => ({
+      skill,
+      current: userSkills[skill] || 0,
+      required,
+      gap: required - (userSkills[skill] || 0)
+    }))
+    .filter(s => s.gap > 0)
+    .sort((a, b) => b.gap - a.gap);
 }
 
 /* ===== API ===== */
 router.post("/generate-month", async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, userSkills } = req.body;
 
-    /* 1️⃣ Fetch roles */
+    /* Roles */
     const { data: profile } = await supabase
       .from("profiles")
       .select("interests")
@@ -44,17 +57,10 @@ router.post("/generate-month", async (req, res) => {
       return res.status(400).json({ error: "No roles selected" });
     }
 
-    /* 2️⃣ Merge ALL role skills */
-    let mergedSkills = {};
-    roles.forEach(role => {
-      const reqSkills = JOB_REQUIREMENTS[role];
-      if (!reqSkills) return;
-      Object.entries(reqSkills).forEach(([skill, value]) => {
-        mergedSkills[skill] = Math.max(mergedSkills[skill] || 0, value);
-      });
-    });
+    const primaryRole = roles[0];
+    const secondaryRoles = roles.slice(1);
 
-    /* 3️⃣ Current month */
+    /* Progress */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
@@ -68,45 +74,59 @@ router.post("/generate-month", async (req, res) => {
       return res.json({ done: true });
     }
 
-    /* 4️⃣ Skills focus for this month */
-    const skillsForMonth = Object.keys(mergedSkills)
-      .slice((currentMonth - 1) * 4, currentMonth * 4);
+    /* Gap-based focus */
+    const gaps = calculateGaps(userSkills, JOB_REQUIREMENTS[primaryRole]);
+    const focusSkills = gaps.slice(0, 3);
 
-    /* 5️⃣ 🔥 AI PROMPT — FULL ROADMAP */
+    /* AI PROMPT */
     const prompt = `
 You are a senior career mentor.
 
-Create a DETAILED, PRACTICAL roadmap for ONE MONTH ONLY.
+Primary role: ${primaryRole}
+Secondary roles (light support): ${secondaryRoles.join(", ") || "None"}
 
-Context:
-- Target role(s): ${roles.join(", ")}
-- Current month: ${currentMonth}
-- Phase: ${phase}
-- Skills to focus this month: ${skillsForMonth.join(", ")}
+Month: ${currentMonth}
+Phase: ${phase}
 
-Rules:
-- Assume the user is a student
-- This is part of a long-term (8 month) job preparation
-- Do NOT rush topics unrealistically
-- React, backend, data skills take multiple months
-- Be honest and job-oriented
+User skills:
+${JSON.stringify(userSkills, null, 2)}
 
-Output format (MANDATORY):
-1. Month goal (2–3 lines)
-2. Week 1: topics + daily practice
-3. Week 2: topics + daily practice
-4. Week 3: topics + daily practice
-5. Week 4: topics + daily practice
-6. Mini project for this month
-7. How this month moves the user closer to a job
+Skill gaps (priority):
+${JSON.stringify(focusSkills, null, 2)}
 
-Keep the response under 450 tokens.
-No emojis. No filler.
+Create a DETAILED ONE-MONTH ROADMAP.
+
+FORMAT:
+
+Month Objective
+
+Week 1:
+- Topics
+- Daily practice
+- Outcome
+
+Week 2:
+(same)
+
+Week 3:
+(same)
+
+Week 4:
+(same)
+
+Mini Project:
+- Idea
+- Tech stack
+- What it proves
+
+Explain how this month moves user closer to ${primaryRole}.
+
+No filler. Practical. Job-oriented.
 `;
 
-    const aiRoadmap = await generateMentorNote(prompt);
+    const content = await generateMentorNote(prompt);
 
-    /* 6️⃣ Save */
+    /* Save */
     await supabase.from("roadmaps").upsert({
       user_id: userId,
       current_month: currentMonth + 1,
@@ -115,20 +135,18 @@ No emojis. No filler.
         [currentMonth]: {
           month: currentMonth,
           phase,
-          roles,
-          skills: skillsForMonth,
-          content: aiRoadmap
+          primaryRole,
+          content
         }
       }
     });
 
-    /* 7️⃣ Respond */
     res.json({
       success: true,
       roadmap: {
         month: currentMonth,
         phase,
-        content: aiRoadmap
+        content
       }
     });
 
