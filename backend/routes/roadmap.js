@@ -36,8 +36,14 @@ function calculateGaps(userSkills, roleReqs) {
 router.post("/generate-month", async (req, res) => {
   try {
     const { userId, userSkills } = req.body;
-    if (!userId || !userSkills)
-      return res.status(400).json({ error: "Missing data" });
+    if (
+  !userId ||
+  !userSkills ||
+  typeof userSkills !== "object" ||
+  Object.keys(userSkills).length === 0
+) {
+  return res.status(400).json({ error: "Missing or empty skills" });
+}
 
     /* roles */
     const { data: profile } = await supabase
@@ -46,18 +52,32 @@ router.post("/generate-month", async (req, res) => {
       .eq("id", userId)
       .single();
 
-    const roles = profile?.interests || [];
+    let roles = profile?.interests || [];
+
+if (typeof roles === "string") {
+  roles = [roles];
+}
+
     if (!roles.length)
       return res.status(400).json({ error: "No roles selected" });
+function normalizeRole(role) {
+  return role.trim().toLowerCase();
+}
 
-    const primaryRole = roles[0];
-    const secondaryRoles = roles.slice(1);
+    const primaryRoleRaw = roles[0];
 
-    const roleReq = JOB_REQUIREMENTS[primaryRole];
-    if (!roleReq)
-      return res.status(400).json({
-        error: `Job requirements not found for role: ${primaryRole}`
-      });
+const primaryRole = Object.keys(JOB_REQUIREMENTS).find(
+  r => normalizeRole(r) === normalizeRole(primaryRoleRaw)
+);
+
+if (!primaryRole) {
+  return res.status(400).json({
+    error: `Job requirements not found for role: ${primaryRoleRaw}`
+  });
+}
+
+const roleReq = JOB_REQUIREMENTS[primaryRole];
+
 
     /* progress */
     const { data: row } = await supabase
