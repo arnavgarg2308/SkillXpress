@@ -3,7 +3,7 @@ const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 
 const generateMentorNote = require("../utils/gemini");
-const JOB_REQUIREMENTS = require("../data/jobRequirements");
+const JOB_REQUIREMENTS = require("./jobback");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
