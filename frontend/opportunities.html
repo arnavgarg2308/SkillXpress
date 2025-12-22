@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Opportunities | SkillXpress</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+
+<body class="bg-light">
+
+<div class="container my-4">
+  <h2 class="text-center mb-4">🚀 Student Opportunities</h2>
+
+  <!-- OPPORTUNITY LIST -->
+  <div id="list">Loading...</div>
+</div>
+
+<script>
+const API_URL = "http://localhost:5000/api/opportunities";
+let ALL = [];
+
+// FETCH DATA
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+    // handle both array & object response
+    if (Array.isArray(data)) {
+      ALL = data;
+    } else if (Array.isArray(data.opportunities)) {
+      ALL = data.opportunities;
+    } else {
+      document.getElementById("list").innerHTML =
+        "<p class='text-danger'>❌ No valid opportunities data</p>";
+      return;
+    }
+
+    render();
+  })
+  .catch(err => {
+    document.getElementById("list").innerHTML =
+      "<p class='text-danger'>❌ Failed to load opportunities</p>";
+    console.error(err);
+  });
+
+// RENDER FUNCTION (NO FILTER)
+function render() {
+  const box = document.getElementById("list");
+  box.innerHTML = "";
+
+  if (!ALL.length) {
+    box.innerHTML = "<p>No opportunities available.</p>";
+    return;
+  }
+
+  ALL.forEach(item => {
+    box.innerHTML += `
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">${item.title || "Opportunity"}</h5>
+          <p class="card-text">
+            <strong>${item.category || "Opportunity"}</strong> |
+            ${item.timeline || "Ongoing"}
+          </p>
+          <a href="${item.link}" target="_blank"
+             class="btn btn-primary btn-sm">
+            View / Apply
+          </a>
+        </div>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
