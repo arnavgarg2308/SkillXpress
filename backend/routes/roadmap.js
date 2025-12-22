@@ -3,7 +3,7 @@ const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 
 const generateMentorNote = require("../utils/gemini");
-const JOB_REQUIREMENTS = require("./jobback");
+const JOB_REQUIREMENTS = require("../data/jobRequirements");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -25,6 +25,11 @@ function getPhase(month) {
     if (month <= sum) return p.name;
   }
   return "Completed";
+}
+if (!JOB_REQUIREMENTS[primaryRole]) {
+  return res.status(400).json({
+    error: "Job requirements not found for role: " + primaryRole
+  });
 }
 
 /* ===== GAP CALCULATION ===== */
