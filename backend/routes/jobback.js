@@ -485,8 +485,5 @@ router.post("/job-match", (req, res) => {
 // app.listen(PORT, () => {
 //   console.log("✅ Job Match backend LIVE on Render");
 // });
-module.exports = {
-  router,
-  JOB_REQUIREMENTS
-};
-
+router.JOB_REQUIREMENTS = JOB_REQUIREMENTS;
+module.exports = router;
