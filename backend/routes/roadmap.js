@@ -83,51 +83,68 @@ router.post("/generate-month", async (req, res) => {
 
     /* 6️⃣ AI PROMPT */
     const prompt = `
-You are a senior career mentor.
+You are an industry senior ${primaryRole} mentor.
 
-Target role: ${primaryRole}
-Month: ${month}
+Create a VERY CLEAR, PRACTICAL 1-MONTH LEARNING ROADMAP.
 
-Skill gaps:
-${JSON.stringify(gaps, null, 2)}
+User goal: Get job-ready as ${primaryRole}
+Month number: ${month}
 
-Create a REALISTIC one-month roadmap.
+Skill gaps to focus on:
+${gaps.map(g => `- ${g.skill}: need ${g.required}, current ${g.current}`).join("\n")}
 
-FORMAT:
-Month Goal
+RULES:
+- Simple language
+- No motivation talk
+- No theory dump
+- Daily actionable tasks
+- Output must be useful for a beginner/intermediate student
 
-Week 1:
-- Topics
-- Daily practice
+FORMAT STRICTLY:
 
-Week 2:
-- Topics
-- Daily practice
+MONTH OBJECTIVE (2 lines max)
 
-Week 3:
-- Topics
-- Daily practice
+WEEK 1:
+Topics:
+Daily tasks:
 
-Week 4:
-- Topics
-- Daily practice
+WEEK 2:
+Topics:
+Daily tasks:
 
-Mini Project:
-- Idea
-- Tech stack
-- Outcome
+WEEK 3:
+Topics:
+Daily tasks:
 
-Explain how this month improves job readiness.
+WEEK 4:
+Topics:
+Daily tasks:
 
-No filler. Practical. Job-oriented.
+MINI PROJECT:
+Problem:
+Tech stack:
+What student will learn:
+
+End with: "Job readiness impact" (3 bullet points)
 `;
 
-    const content = await generateMentorNote(prompt);
+
+    let content = await generateMentorNote(prompt);
+
+if (!content || content.trim().length < 100) {
+  console.log("❌ Gemini returned empty / weak content");
+  return res.status(503).json({
+    success: false,
+    error: "AI is warming up. Please try again in a moment."
+  });
+}
+
 
     /* 7️⃣ SAVE ROADMAP */
     await supabase.from("roadmaps").upsert({
       user_id: userId,
-      current_month: month + 1,
+     current_month: content ? month + 1 : month,
+
       months: {
         ...(row?.months || {}),
         [month]: {

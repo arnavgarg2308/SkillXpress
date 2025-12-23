@@ -62,11 +62,12 @@ async function generate() {
   const r = data.roadmap;
 
 document.getElementById("roadmapBox").innerHTML = `
-  <h3>Month ${r.month} – ${r.phase}</h3>
+  <h3>Month ${r.month} – ${r.role}</h3>
   <pre style="white-space:pre-wrap; line-height:1.6;">
 ${r.content}
   </pre>
 `;
+
 
 }
 </script>
