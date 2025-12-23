@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const generateMentorNote = require("../utils/gemini");
 const JOB_REQUIREMENTS = require("./jobback");
+const getFullSkills = require("../utils/getFullSkills"); // 👈 function (NO HTTP)
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -27,57 +26,59 @@ function calculateGaps(userSkills, roleReq) {
 router.post("/generate-month", async (req, res) => {
   try {
     const { userId } = req.body;
-    if (!userId) return res.status(400).json({ error: "userId required" });
+    if (!userId) {
+      return res.status(400).json({ error: "userId required" });
+    }
 
-    /* 1️⃣ profile */
+    /* 1️⃣ PROFILE */
     const { data: profile } = await supabase
       .from("profiles")
       .select("github, interests")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
-    if (!profile?.github || !profile?.interests?.length) {
+    if (!profile) {
+      return res.status(400).json({ error: "Profile not found" });
+    }
+
+    if (!profile.github || !profile.interests?.length) {
       return res.status(400).json({ error: "Profile incomplete" });
     }
 
     const primaryRole = profile.interests[0];
-    if (!JOB_REQUIREMENTS[primaryRole]) {
+    const roleReq = JOB_REQUIREMENTS[primaryRole];
+
+    if (!roleReq) {
       return res.status(400).json({
-        error: `Job requirements not found for role: ${primaryRole}`
+        error: `Job requirements not found for ${primaryRole}`
       });
     }
 
-    /* 2️⃣ fetch skills (SAME AS JOB MATCH) */
+    /* 2️⃣ GITHUB USERNAME (SAFE) */
     const githubUsername = profile.github
-      .replace("https://", "")
-      .replace("http://", "")
-      .replace("www.", "")
-      .split("github.com/")[1]
-      .replace("/", "");
+      .replace(/https?:\/\/(www\.)?github\.com\//, "")
+      .replace(/\/$/, "");
 
-    const skillRes = await fetch(
-      `https://skillxpress.onrender.com/full-skills/${userId}/${githubUsername}`
-    );
-    const skillData = await skillRes.json();
-    const userSkills = skillData.skills || {};
+    /* 3️⃣ FETCH SKILLS (DIRECT FUNCTION) */
+    const userSkills = await getFullSkills(userId, githubUsername);
 
-    if (!Object.keys(userSkills).length) {
+    if (!userSkills || !Object.keys(userSkills).length) {
       return res.status(400).json({ error: "No skills found" });
     }
 
-    /* 3️⃣ progress */
+    /* 4️⃣ ROADMAP PROGRESS */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     const month = row?.current_month || 1;
 
-    /* 4️⃣ gap-based focus */
-    const gaps = calculateGaps(userSkills, JOB_REQUIREMENTS[primaryRole]).slice(0, 4);
+    /* 5️⃣ GAP ANALYSIS */
+    const gaps = calculateGaps(userSkills, roleReq).slice(0, 4);
 
-    /* 5️⃣ AI PROMPT */
+    /* 6️⃣ AI PROMPT */
     const prompt = `
 You are a senior career mentor.
 
@@ -120,24 +121,32 @@ No filler. Practical. Job-oriented.
 
     const content = await generateMentorNote(prompt);
 
-    /* 6️⃣ save */
+    /* 7️⃣ SAVE ROADMAP */
     await supabase.from("roadmaps").upsert({
       user_id: userId,
       current_month: month + 1,
       months: {
         ...(row?.months || {}),
-        [month]: { month, role: primaryRole, content }
+        [month]: {
+          month,
+          role: primaryRole,
+          content
+        }
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
-      roadmap: { month, role: primaryRole, content }
+      roadmap: {
+        month,
+        role: primaryRole,
+        content
+      }
     });
 
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Roadmap failed" });
+  } catch (err) {
+    console.error("ROADMAP ERROR:", err);
+    return res.status(500).json({ error: "Roadmap generation failed" });
   }
 });
 
