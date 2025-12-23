@@ -1,4 +1,5 @@
-const fetch = require("node-fetch");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 module.exports = async function generateMentorNote(prompt) {
   const res = await fetch(
@@ -17,5 +18,5 @@ module.exports = async function generateMentorNote(prompt) {
   );
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "Roadmap unavailable.";
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "Roadmap unavailable.";
 };
