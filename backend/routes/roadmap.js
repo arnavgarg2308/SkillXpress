@@ -5,6 +5,8 @@ const { createClient } = require("@supabase/supabase-js");
 const generateMentorNote = require("../utils/gemini");
 const jobRouter = require("./jobback");
 const JOB_REQUIREMENTS = jobRouter.JOB_REQUIREMENTS;
+console.log("FOUND:", JOB_REQUIREMENTS["Backend Developer"]);
+console.log("ALL ROLES:", Object.keys(JOB_REQUIREMENTS));
 const getFullSkills = require("../utils/getFullSkills"); // 👈 function (NO HTTP)
 
 const supabase = createClient(
