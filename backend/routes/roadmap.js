@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const generateMentorNote = require("../utils/gemini");
 const JOB_REQUIREMENTS = require("./jobback");
@@ -10,76 +12,60 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* ---------- helpers ---------- */
-
-function normalizeSkill(s) {
-  return s.toLowerCase().replace(/\W/g, "");
-}
-
-function calculateGaps(userSkills, roleReqs) {
-  const u = {};
-  Object.entries(userSkills).forEach(([k, v]) => {
-    u[normalizeSkill(k)] = v;
-  });
-
-  return Object.entries(roleReqs)
-    .map(([skill, required]) => {
-      const current = u[normalizeSkill(skill)] || 0;
-      return { skill, current, required, gap: required - current };
+/* ===== GAP CALC ===== */
+function calculateGaps(userSkills, roleReq) {
+  return Object.entries(roleReq)
+    .map(([skill, reqVal]) => {
+      const current = userSkills[skill] || 0;
+      return { skill, current, required: reqVal, gap: reqVal - current };
     })
     .filter(x => x.gap > 0)
     .sort((a, b) => b.gap - a.gap);
 }
 
-/* ---------- API ---------- */
-
+/* ===== API ===== */
 router.post("/generate-month", async (req, res) => {
   try {
-    const { userId, userSkills } = req.body;
-    if (
-  !userId ||
-  !userSkills ||
-  typeof userSkills !== "object" ||
-  Object.keys(userSkills).length === 0
-) {
-  return res.status(400).json({ error: "Missing or empty skills" });
-}
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: "userId required" });
 
-    /* roles */
+    /* 1️⃣ profile */
     const { data: profile } = await supabase
       .from("profiles")
-      .select("interests")
+      .select("github, interests")
       .eq("id", userId)
       .single();
 
-    let roles = profile?.interests || [];
+    if (!profile?.github || !profile?.interests?.length) {
+      return res.status(400).json({ error: "Profile incomplete" });
+    }
 
-if (typeof roles === "string") {
-  roles = [roles];
-}
+    const primaryRole = profile.interests[0];
+    if (!JOB_REQUIREMENTS[primaryRole]) {
+      return res.status(400).json({
+        error: `Job requirements not found for role: ${primaryRole}`
+      });
+    }
 
-    if (!roles.length)
-      return res.status(400).json({ error: "No roles selected" });
-function normalizeRole(role) {
-  return role.trim().toLowerCase();
-}
+    /* 2️⃣ fetch skills (SAME AS JOB MATCH) */
+    const githubUsername = profile.github
+      .replace("https://", "")
+      .replace("http://", "")
+      .replace("www.", "")
+      .split("github.com/")[1]
+      .replace("/", "");
 
-    const primaryRoleRaw = roles[0];
+    const skillRes = await fetch(
+      `https://skillxpress.onrender.com/full-skills/${userId}/${githubUsername}`
+    );
+    const skillData = await skillRes.json();
+    const userSkills = skillData.skills || {};
 
-const primaryRole = Object.keys(JOB_REQUIREMENTS).find(
-  r => normalizeRole(r) === normalizeRole(primaryRoleRaw)
-);
+    if (!Object.keys(userSkills).length) {
+      return res.status(400).json({ error: "No skills found" });
+    }
 
-if (!primaryRole) {
-  return res.status(400).json({
-    error: `Job requirements not found for role: ${primaryRoleRaw}`
-  });
-}
-
-const roleReq = JOB_REQUIREMENTS[primaryRole];
-
-
-    /* progress */
+    /* 3️⃣ progress */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
@@ -88,24 +74,23 @@ const roleReq = JOB_REQUIREMENTS[primaryRole];
 
     const month = row?.current_month || 1;
 
-    /* gap analysis */
-    const gaps = calculateGaps(userSkills, roleReq).slice(0, 4);
+    /* 4️⃣ gap-based focus */
+    const gaps = calculateGaps(userSkills, JOB_REQUIREMENTS[primaryRole]).slice(0, 4);
 
-    /* AI PROMPT (GOOD ONE) */
+    /* 5️⃣ AI PROMPT */
     const prompt = `
-You are a senior software career mentor.
+You are a senior career mentor.
 
 Target role: ${primaryRole}
-Secondary roles: ${secondaryRoles.join(", ") || "None"}
-Month number: ${month}
+Month: ${month}
 
 Skill gaps:
 ${JSON.stringify(gaps, null, 2)}
 
-Create a PRACTICAL ONE-MONTH roadmap.
+Create a REALISTIC one-month roadmap.
 
 FORMAT:
-Month Goal (2 lines)
+Month Goal
 
 Week 1:
 - Topics
@@ -125,16 +110,17 @@ Week 4:
 
 Mini Project:
 - Idea
-- Stack
+- Tech stack
 - Outcome
 
-Explain how this month moves the user closer to a job.
+Explain how this month improves job readiness.
 
-No filler. Be realistic.`;
+No filler. Practical. Job-oriented.
+`;
 
     const content = await generateMentorNote(prompt);
 
-    /* save */
+    /* 6️⃣ save */
     await supabase.from("roadmaps").upsert({
       user_id: userId,
       current_month: month + 1,
@@ -149,8 +135,8 @@ No filler. Be realistic.`;
       roadmap: { month, role: primaryRole, content }
     });
 
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e);
     res.status(500).json({ error: "Roadmap failed" });
   }
 });
