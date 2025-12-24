@@ -8,6 +8,8 @@ const { createClient } = require("@supabase/supabase-js");
 const microTestRoutes = require("./routes/microTest");
 const jobRoutes = require("./routes/jobback");
 const roadmapRoutes = require("./routes/roadmap");
+const jobsRouter = require("./routes/jobs");
+const opportunitiesRouter = require("./routes/opportunities");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -31,7 +33,8 @@ app.use(express.json());
 app.use("/api/micro-test", microTestRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/roadmap", roadmapRoutes);
-
+app.use("/api/jobs", jobsRouter);
+app.use("/api/opportunities", opportunitiesRouter);
 /* ===== ML HELPERS ===== */
 
 function normalize(value, max = 200) {
