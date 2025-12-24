@@ -8,8 +8,8 @@ const { createClient } = require("@supabase/supabase-js");
 const microTestRoutes = require("./routes/microTest");
 const jobRoutes = require("./routes/jobback");
 const roadmapRoutes = require("./routes/roadmap");
-const jobsRouter = require("./routes/jobs");
-const opportunitiesRouter = require("./routes/opportunities");
+const jobsRouter = require("./routes/jobserver");
+const opportunitiesRouter = require("./routes/opportunitiesServer");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
