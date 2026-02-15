@@ -112,7 +112,7 @@ const repos = await ghRes.json();
     /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
     const { data: uploads } = await supabase
       .from("uploads")
-      .select("type, description")
+      .select("type, description,file_path")
       .eq("user_id", userId);
 const skillMap = {
     "REACT": ["react", "reactjs"],
@@ -156,12 +156,34 @@ const skillMap = {
   "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
 
-    uploads.forEach(item => {
+   for (const item of uploads) {
 
       // 🎓 Certificates
-      if (item.type === "certificate" && item.description) {
+      if (item.type === "certificate" && item.file_path) {
 
-  const t = item.description.toLowerCase();
+  const { data } = await supabase
+    .storage
+    .from("certificates") // bucket name check karo
+    .createSignedUrl(item.file_path, 60);
+
+  if (!data?.signedUrl) continue;
+
+  const fileRes = await fetch(data.signedUrl);
+  const buffer = Buffer.from(await fileRes.arrayBuffer());
+
+  let extractedText = "";
+
+  if (item.file_path.endsWith(".pdf")) {
+    const pdfData = await pdf(buffer);
+    extractedText = pdfData.text;
+  }
+
+  else if (item.file_path.match(/\.(jpg|jpeg|png)$/i)) {
+    const result = await Tesseract.recognize(buffer, "eng");
+    extractedText = result.data.text;
+  }
+
+  extractedText = extractedText.toLowerCase();
 
   Object.entries(skillMap).forEach(([skill, keywords]) => {
 
@@ -169,12 +191,12 @@ const skillMap = {
 
     keywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-      const matches = t.match(regex);
+      const matches = extractedText.match(regex);
       if (matches) total += matches.length;
     });
 
     if (total > 0) {
-      skills[skill] = (skills[skill] || 0) + (total * 1.5); // cert weight lower
+      skills[skill] = (skills[skill] || 0) + total * 1.5; // certificate weight
     }
 
   });
@@ -193,9 +215,20 @@ if (item.type === "project" && item.description) {
 }
 
       // 📄 Resume (basic boost)
-      if (item.type === "resume" && item.description) {
+      if (item.type === "resume" && item.file_path) {
 
-  const t = item.description.toLowerCase();
+  const { data } = await supabase
+    .storage
+    .from("resumes")
+    .createSignedUrl(item.file_path, 60);
+
+  if (!data?.signedUrl) continue;
+
+  const fileRes = await fetch(data.signedUrl);
+  const buffer = Buffer.from(await fileRes.arrayBuffer());
+
+  const pdfData = await pdf(buffer);
+  const extractedText = pdfData.text.toLowerCase();
 
   Object.entries(skillMap).forEach(([skill, keywords]) => {
 
@@ -203,17 +236,17 @@ if (item.type === "project" && item.description) {
 
     keywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-      const matches = t.match(regex);
+      const matches = extractedText.match(regex);
       if (matches) total += matches.length;
     });
 
     if (total > 0) {
-      skills[skill] = (skills[skill] || 0) + (total * 2); // resume weight 2x
+      skills[skill] = (skills[skill] || 0) + total * 2;
     }
 
   });
 }
-    });
+    }
 
     /* ===== NORMALIZE ===== */
     Object.keys(skills).forEach(k => {
