@@ -10,6 +10,9 @@ const jobRoutes = require("./routes/jobback");
 const roadmapRoutes = require("./routes/roadmap");
 const jobsRouter = require("./routes/jobserver");
 const opportunitiesRouter = require("./routes/opportunitiesServer");
+const fs = require("fs");
+const pdf = require("pdf-parse");
+const Tesseract = require("tesseract.js");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -69,40 +72,49 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
         }
       }
     );
-
-    const repos = await ghRes.json();
-
+const repos = await ghRes.json();
     for (const repo of repos) {
-      if (repo.fork) continue;
+  if (repo.fork) continue;
 
-      const langRes = await fetch(repo.languages_url, {
-        headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
-      });
-      const languages = await langRes.json();
+  const stars = repo.stargazers_count || 0;
+  const forks = repo.forks_count || 0;
+  const size = repo.size || 0; // KB
+  const lastPush = new Date(repo.pushed_at);
+  const daysAgo = (Date.now() - lastPush) / (1000 * 60 * 60 * 24);
 
-      for (const lang of Object.keys(languages)) {
-        skills[lang] = (skills[lang] || 0) + 7;
-      }
-    }
+  // Activity weight
+  let activity = 1;
+  if (daysAgo < 30) activity = 5;
+  else if (daysAgo < 90) activity = 3;
+
+  // Repo base score
+  const repoScore =
+  (Math.log(stars + 1) * 5) +
+  (forks * 1.2) +
+  (size / 500) +
+  activity;
+  
+  const langRes = await fetch(repo.languages_url, {
+    headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+  });
+
+  const languages = await langRes.json();
+  const totalBytes = Object.values(languages).reduce((a, b) => a + b, 0);
+
+  for (const [lang, bytes] of Object.entries(languages)) {
+    const percent = bytes / totalBytes;
+    const scoreToAdd = repoScore * percent;
+
+    skills[lang] = (skills[lang] || 0) + scoreToAdd;
+  }
+}
 
     /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
     const { data: uploads } = await supabase
       .from("uploads")
       .select("type, description")
       .eq("user_id", userId);
-
-    uploads.forEach(item => {
-
-      // 🎓 Certificates
-      if (item.type === "certificate") {
-        skills["Learning"] = (skills["Learning"] || 0) + 3;
-      }
-
-     // 🛠 Projects
-if (item.type === "project" && item.description) {
-  const t = item.description.toLowerCase();
-
-  const skillMap = {
+const skillMap = {
     "REACT": ["react", "reactjs"],
   "NODE.JS": ["nodejs", "express"],
   "HTML": ["html"],
@@ -144,6 +156,35 @@ if (item.type === "project" && item.description) {
   "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
 
+    uploads.forEach(item => {
+
+      // 🎓 Certificates
+      if (item.type === "certificate" && item.description) {
+
+  const t = item.description.toLowerCase();
+
+  Object.entries(skillMap).forEach(([skill, keywords]) => {
+
+    let total = 0;
+
+    keywords.forEach(keyword => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      const matches = t.match(regex);
+      if (matches) total += matches.length;
+    });
+
+    if (total > 0) {
+      skills[skill] = (skills[skill] || 0) + (total * 1.5); // cert weight lower
+    }
+
+  });
+}
+
+     // 🛠 Projects
+if (item.type === "project" && item.description) {
+  const t = item.description.toLowerCase();
+
+  
   Object.entries(skillMap).forEach(([skill, keywords]) => {
     if (keywords.some(k => t.includes(k))) {
       skills[skill] = (skills[skill] || 0) + 3;
@@ -152,10 +193,26 @@ if (item.type === "project" && item.description) {
 }
 
       // 📄 Resume (basic boost)
-      if (item.type === "resume") {
-        skills["Professional Readiness"] =
-          (skills["Professional Readiness"] || 0) + 6;
-      }
+      if (item.type === "resume" && item.description) {
+
+  const t = item.description.toLowerCase();
+
+  Object.entries(skillMap).forEach(([skill, keywords]) => {
+
+    let total = 0;
+
+    keywords.forEach(keyword => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      const matches = t.match(regex);
+      if (matches) total += matches.length;
+    });
+
+    if (total > 0) {
+      skills[skill] = (skills[skill] || 0) + (total * 2); // resume weight 2x
+    }
+
+  });
+}
     });
 
     /* ===== NORMALIZE ===== */

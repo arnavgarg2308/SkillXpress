@@ -21,6 +21,8 @@
     "@supabase/supabase-js": "^2.89.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "pdf-parse": "^2.4.5",
+    "tesseract.js": "^7.0.0"
   }
 }
