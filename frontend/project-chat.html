@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chat</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+:root{
+  --primary:#0d6efd;
+  --me-bg:#DCF8C6;
+  --other-bg:#fff;
+  --muted:#777;
+  --chat-bg:#f5f5f7;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, Arial, sans-serif;
+  background:var(--chat-bg);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.header{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;background:var(--primary);color:#fff;
+}
+.back{cursor:pointer;font-size:18px}
+.profile{display:flex;gap:12px;align-items:center}
+.avatar{
+  width:42px;height:42px;border-radius:50%;
+  background:#ddd;background-size:cover;background-position:center;
+}
+.meta .name{font-weight:700}
+.meta .status{font-size:12px;opacity:.9}
+
+.messages{
+  flex:1;padding:16px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:8px;
+}
+.msg-row{max-width:75%}
+.me{align-self:flex-end;text-align:right}
+.other{align-self:flex-start}
+
+.bubble{
+  padding:10px 12px;border-radius:14px;font-size:14px;
+  box-shadow:0 1px 0 rgba(0,0,0,.05)
+}
+.bubble.me{background:var(--me-bg);border-top-right-radius:4px}
+.bubble.other{
+  background:var(--other-bg);
+  border:1px solid rgba(0,0,0,.08);
+  border-top-left-radius:4px;
+}
+.sender{font-size:11px;color:var(--muted);font-weight:600}
+.time{font-size:11px;color:var(--muted);margin-top:4px}
+
+.typing{font-style:italic;color:var(--muted);margin:6px 12px}
+
+.input-bar{
+  display:flex;gap:8px;padding:10px;background:#fff;border-top:1px solid #ddd
+}
+.input-bar input{
+  flex:1;padding:10px;border-radius:20px;border:1px solid #ddd
+}
+.input-bar button{
+  background:var(--primary);color:#fff;border:none;
+  padding:10px 16px;border-radius:12px;font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="back" onclick="history.back()">←</div>
+  <div class="profile">
+    <div class="avatar" id="avatar"></div>
+    <div class="meta">
+      <div class="name" id="chatName">Chat</div>
+      <div class="status" id="status">online</div>
+    </div>
+  </div>
+</div>
+
+<div class="messages" id="messages"></div>
+<div class="typing" id="typing" style="display:none">typing...</div>
+
+<div class="input-bar">
+  <input id="msg" placeholder="Message..." />
+  <button onclick="sendMsg()">Send</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+
+<script>
+const msgInput = document.getElementById("msg");
+const messagesEl = document.getElementById("messages");
+const typingEl = document.getElementById("typing");
+
+const projectId = new URLSearchParams(location.search).get("project");
+let myId, myName;
+
+// INIT
+(async()=>{
+  const {data:{session}} = await supabaseClient.auth.getSession();
+  myId = session.user.id;
+  myName = session.user.email;
+  loadMessages();
+  listenRealtime();
+  initTyping();
+})();
+
+// LOAD MESSAGES
+async function loadMessages(){
+  const {data} = await supabaseClient
+    .from("project_messages")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("created_at");
+
+  data.forEach(renderMsg);
+}
+
+// SEND
+async function sendMsg(){
+  if(!msgInput.value.trim()) return;
+  const text = msgInput.value;
+
+  await supabaseClient.from("project_messages").insert({
+    project_id: projectId,
+    user_id: myId,
+    username: myName,
+    message: text
+  });
+
+  msgInput.value="";
+  typingEl.style.display="none";
+}
+
+// REALTIME
+function listenRealtime(){
+  supabaseClient
+    .channel("chat-"+projectId)
+    .on("postgres_changes",{
+      event:"INSERT",
+      table:"project_messages",
+      filter:`project_id=eq.${projectId}`
+    },payload=>{
+      renderMsg(payload.new);
+    })
+    .subscribe();
+}
+
+// UI RENDER
+function renderMsg(m){
+  const row=document.createElement("div");
+  row.className="msg-row "+(m.user_id===myId?"me":"other");
+
+  const bubble=document.createElement("div");
+  bubble.className="bubble "+(m.user_id===myId?"me":"other");
+
+  bubble.innerHTML=`
+    <div class="sender">${m.username}</div>
+    <div>${m.message}</div>
+    <div class="time">${new Date(m.created_at).toLocaleTimeString([],{
+      hour:"2-digit",minute:"2-digit"
+    })}</div>
+  `;
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  messagesEl.scrollTop=messagesEl.scrollHeight;
+}
+
+// TYPING (Presence)
+function initTyping(){
+  const channel = supabaseClient.channel("typing-"+projectId,{config:{presence:{key:myId}}});
+
+  channel.on("presence", {event:"sync"}, ()=>{
+    const state = channel.presenceState();
+    const users = Object.keys(state);
+    typingEl.style.display = users.length>1 ? "block":"none";
+  });
+
+  msgInput.addEventListener("input",()=>{
+    channel.track({typing:true});
+  });
+
+  channel.subscribe();
+}
+</script>
+
+</body>
+</html>
