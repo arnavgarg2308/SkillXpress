@@ -5,9 +5,7 @@ const { createClient } = require("@supabase/supabase-js");
 const generateMentorNote = require("../utils/gemini");
 const jobRouter = require("./jobback");
 const JOB_REQUIREMENTS = jobRouter.JOB_REQUIREMENTS;
-console.log("FOUND:", JOB_REQUIREMENTS["Backend Developer"]);
-console.log("ALL ROLES:", Object.keys(JOB_REQUIREMENTS));
-const getFullSkills = require("../utils/getFullSkills"); // 👈 function (NO HTTP)
+const getFullSkills = require("../utils/getFullSkills");
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -21,7 +19,6 @@ function calculateGaps(userSkills, roleReq) {
       const current = userSkills[skill] || 0;
       return { skill, current, required: reqVal, gap: reqVal - current };
     })
-    .filter(x => x.gap > 0)
     .sort((a, b) => b.gap - a.gap);
 }
 
@@ -34,13 +31,13 @@ router.post("/generate-month", async (req, res) => {
     }
 
     /* 1️⃣ PROFILE */
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("github, interests")
       .eq("id", userId)
       .maybeSingle();
 
-    if (!profile) {
+    if (profileError || !profile) {
       return res.status(400).json({ error: "Profile not found" });
     }
 
@@ -57,19 +54,19 @@ router.post("/generate-month", async (req, res) => {
       });
     }
 
-    /* 2️⃣ GITHUB USERNAME (SAFE) */
+    /* 2️⃣ CLEAN GITHUB USERNAME */
     const githubUsername = profile.github
       .replace(/https?:\/\/(www\.)?github\.com\//, "")
       .replace(/\/$/, "");
 
-    /* 3️⃣ FETCH SKILLS (DIRECT FUNCTION) */
+    /* 3️⃣ FETCH SKILLS */
     const userSkills = await getFullSkills(userId, githubUsername);
 
     if (!userSkills || !Object.keys(userSkills).length) {
       return res.status(400).json({ error: "No skills found" });
     }
 
-    /* 4️⃣ ROADMAP PROGRESS */
+    /* 4️⃣ GET ROADMAP STATE */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
@@ -79,88 +76,112 @@ router.post("/generate-month", async (req, res) => {
     const month = row?.current_month || 1;
 
     /* 5️⃣ GAP ANALYSIS */
-    const gaps = calculateGaps(userSkills, roleReq).slice(0, 4);
+    const gaps = calculateGaps(userSkills, roleReq).slice(0, 5);
 
-    /* 6️⃣ AI PROMPT */
+    /* 6️⃣ STRUCTURED PROMPT */
     const prompt = `
-You are an industry senior ${primaryRole} mentor.
+You are a strict senior ${primaryRole} hiring mentor.
 
-Create a VERY CLEAR, PRACTICAL 1-MONTH LEARNING ROADMAP.
-
-User goal: Get job-ready as ${primaryRole}
-Month number: ${month}
+STEP 1: ANALYZE THE STUDENT
 
 Current Skills:
-${Object.entries(userSkills)
-  .map(([k,v]) => `- ${k}: ${v}`)
-  .join("\n")}
+${Object.entries(userSkills).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
 
 Required Skills:
-${Object.entries(roleReq)
-  .map(([k,v]) => `- ${k}: ${v}`)
-  .join("\n")}
+${Object.entries(roleReq).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
 
-RULES:
-- Simple language
-- No motivation talk
-- No theory dump
-- Daily actionable tasks
-- Output must be useful for a beginner/intermediate student
+Top Gaps:
+${gaps.map(g => `- ${g.skill}: required ${g.required}, current ${g.current}`).join("\n")}
+
+Give:
+- Strengths
+- Weaknesses
+- Job Readiness Score (realistic %)
+
+STEP 2: CREATE A PRACTICAL 1-MONTH ROADMAP
+
+Rules:
+- No motivation
+- No theory explanation
+- Only practical tasks
+- Daily breakdown
+- Clear weekly progression
+- Minimum 800 words
 
 FORMAT STRICTLY:
 
-MONTH OBJECTIVE (2 lines max)
+===== SKILL ANALYSIS =====
+Strengths:
+Weaknesses:
+Job Readiness Score:
+
+===== MONTH ${month} ROADMAP =====
+
+MONTH OBJECTIVE:
 
 WEEK 1:
 Topics:
-Daily tasks:
+Daily Tasks:
 
 WEEK 2:
 Topics:
-Daily tasks:
+Daily Tasks:
 
 WEEK 3:
 Topics:
-Daily tasks:
+Daily Tasks:
 
 WEEK 4:
 Topics:
-Daily tasks:
+Daily Tasks:
 
 MINI PROJECT:
 Problem:
-Tech stack:
-What student will learn:
+Tech Stack:
+What Student Will Build:
+Skills Improved:
 
-End with: "Job readiness impact" (3 bullet points)
+End with:
+Job Readiness Impact:
+- Bullet 1
+- Bullet 2
+- Bullet 3
 `;
 
+    /* 7️⃣ CALL GEMINI SAFELY */
+    let content;
+    try {
+      content = await generateMentorNote(prompt);
+      console.log("Gemini response length:", content?.length);
+    } catch (aiError) {
+      console.error("Gemini failed:", aiError);
+      return res.status(500).json({ error: "AI generation failed" });
+    }
 
-    let content = await generateMentorNote(prompt);
+    if (!content || content.trim().length < 200) {
+      return res.status(500).json({ error: "AI returned weak content" });
+    }
 
-if (!content ) {
-  console.log("❌ Gemini returned empty / weak content");
-  return res.status(503).json({
-    success: false,
-    error: "AI is warming up. Please try again in a moment."
-  });
-}
-
-
-    /* 7️⃣ SAVE ROADMAP */
-    await supabase.from("roadmaps").upsert({
-      user_id: userId,
-     current_month: content ? month + 1 : month,
-
-      months: {
-        ...(row?.months || {}),
-        [month]: {
-          month,
-          role: primaryRole,
-          content
+    /* 8️⃣ SAVE SAFELY */
+    const { error: saveError } = await supabase
+      .from("roadmaps")
+      .upsert({
+        user_id: userId,
+        current_month: month, // FIXED
+        months: {
+          ...(row?.months || {}),
+          [month]: {
+            month,
+            role: primaryRole,
+            content
+          }
         }
-      }
-    });
+      });
+
+    if (saveError) {
+      console.error("Save error:", saveError);
+      return res.status(500).json({ error: "Failed to save roadmap" });
+    }
 
     return res.json({
       success: true,
