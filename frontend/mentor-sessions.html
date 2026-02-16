@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mentor Sessions | SkillXpress</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+body{
+  background:linear-gradient(120deg,#eef2ff,#ecfeff);
+  font-family:'Segoe UI',sans-serif;
+}
+
+.page-header{
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:#fff;
+  padding:3rem 2rem;
+  border-radius:22px;
+  margin-bottom:3rem;
+  box-shadow:0 20px 40px rgba(79,70,229,.35);
+}
+
+.category-title{
+  font-weight:800;
+  margin:3rem 0 1.5rem;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#111827;
+}
+
+.session-card{
+  background:#fff;
+  border-radius:20px;
+  padding:1.6rem;
+  height:100%;
+  transition:.3s;
+  box-shadow:0 15px 35px rgba(0,0,0,.12);
+}
+
+.session-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 25px 55px rgba(79,70,229,.25);
+}
+
+.price{
+  font-weight:800;
+  color:#4f46e5;
+}
+
+.limit{
+  font-size:.9rem;
+  color:#6b7280;
+}
+
+.requested{
+  background:#22c55e!important;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+<div class="container py-5">
+
+<div class="page-header text-center">
+  <h2 class="fw-bold">🎓 Mentor Sessions</h2>
+  <p class="mb-0">Session starts once <b>50 students</b> request it</p>
+</div>
+<div class="dropdown text-end">
+  <button class="btn btn-light position-relative"
+          id="notifBtn"
+          data-bs-toggle="dropdown">
+    🔔
+    <span id="notifCount"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      0
+    </span>
+  </button>
+
+  <ul id="notifList"
+      class="dropdown-menu dropdown-menu-end p-2"
+      style="width:320px; max-height:400px; overflow:auto;">
+    <li class="text-muted text-center">No notifications</li>
+  </ul>
+</div>
+
+
+<!-- ================= 1 ================= -->
+<h4 class="category-title"><i class="bi bi-compass"></i> Career Clarity</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-signpost"></i> Career Clarity & Direction</h5>
+      <ul class="text-muted">
+        <li>IT, Core, Higher studies paths</li>
+        <li>Interest & skill matching</li>
+        <li>Career mistakes</li>
+      </ul>
+      <p class="price">₹99</p>
+     <p class="limit">
+  <span id="count-1">0</span> / 50 requested
+</p>
+
+      <button id="btn-1" class="btn btn-primary w-100"
+        onclick="requestSession(1,'Career Clarity & Direction',99)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-1" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 2 ================= -->
+<h4 class="category-title"><i class="bi bi-map"></i> Skill Roadmap</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-diagram-3"></i> Skill Roadmap & Learning Strategy</h5>
+      <ul class="text-muted">
+        <li>DSA vs Development</li>
+        <li>Right language choice</li>
+        <li>Job-ready roadmap</li>
+      </ul>
+      <p class="price">₹129</p>
+      <p class="limit">
+  <span id="count-2">0</span> / 50 requested
+</p>
+
+      <button id="btn-2" class="btn btn-primary w-100"
+        onclick="requestSession(2,'Skill Roadmap & Learning Strategy',129)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-2" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 3 ================= -->
+<h4 class="category-title"><i class="bi bi-github"></i> Developer Foundations</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-git"></i> Git & GitHub Mastery</h5>
+      <ul class="text-muted">
+        <li>Git basics</li>
+        <li>Clean GitHub profile</li>
+        <li>Open-source basics</li>
+      </ul>
+      <p class="price">₹99</p>
+     <p class="limit">
+  <span id="count-3">0</span> / 50 requested
+</p>
+
+      <button id="btn-3" class="btn btn-primary w-100"
+        onclick="requestSession(3,'Git & GitHub Mastery',99)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-3" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 4 ================= -->
+<h4 class="category-title"><i class="bi bi-cloud-upload"></i> Project & Deployment</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-layers"></i> Project Building & Deployment</h5>
+      <ul class="text-muted">
+        <li>Frontend + backend</li>
+        <li>Vercel, Render, Supabase</li>
+        <li>Live deployment</li>
+      </ul>
+      <p class="price">₹149</p>
+     <p class="limit">
+  <span id="count-4">0</span> / 50 requested
+</p>
+
+      <button id="btn-4" class="btn btn-primary w-100"
+        onclick="requestSession(4,'Project Building & Deployment',149)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 5 ================= -->
+<h4 class="category-title"><i class="bi bi-tools"></i> Platforms & Tools</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-boxes"></i> Learning Platforms & Tools</h5>
+      <ul class="text-muted">
+        <li>Docs-based learning</li>
+        <li>Free tiers</li>
+        <li>Cloud basics</li>
+      </ul>
+      <p class="price">₹99</p>
+      <p class="limit">
+  <span id="count-5">0</span> / 50 requested
+</p>
+
+      <button id="btn-5" class="btn btn-primary w-100"
+        onclick="requestSession(5,'Learning Platforms & Tools',99)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-5" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 6 ================= -->
+<h4 class="category-title"><i class="bi bi-briefcase"></i> Internships</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-building"></i> Internship & Placement Strategy</h5>
+      <ul class="text-muted">
+        <li>On-campus vs off-campus</li>
+        <li>LinkedIn strategy</li>
+        <li>PPO reality</li>
+      </ul>
+      <p class="price">₹129</p>
+      <p class="limit">
+  <span id="count-6">0</span> / 50 requested
+</p>
+
+      <button id="btn-6" class="btn btn-primary w-100"
+        onclick="requestSession(6,'Internship & Placement Strategy',129)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-6" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 7 ================= -->
+<h4 class="category-title"><i class="bi bi-file-earmark-text"></i> Resume & Interviews</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-chat-dots"></i> Resume & Interview Confidence</h5>
+      <ul class="text-muted">
+        <li>ATS resume</li>
+        <li>Project explanation</li>
+        <li>Interview confidence</li>
+      </ul>
+      <p class="price">₹149</p>
+      <p class="limit">
+  <span id="count-7">0</span> / 50 requested
+</p>
+
+      <button id="btn-7" class="btn btn-primary w-100"
+        onclick="requestSession(7,'Resume & Interview Confidence',149)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-7" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 8 ================= -->
+<h4 class="category-title"><i class="bi bi-heart-pulse"></i> Mental Health</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-emoji-smile"></i> Mental Health & Burnout</h5>
+      <ul class="text-muted">
+        <li>Stress management</li>
+        <li>Handling rejection</li>
+        <li>Consistency</li>
+      </ul>
+      <p class="price">₹99</p>
+      <p class="limit">
+  <span id="count-8">0</span> / 50 requested
+</p>
+
+      <button id="btn-8" class="btn btn-primary w-100"
+        onclick="requestSession(8,'Mental Health & Burnout',99)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-8" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+<!-- ================= 9 ================= -->
+<h4 class="category-title"><i class="bi bi-shuffle"></i> Career Switch</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-arrow-repeat"></i> Career Switch & Backup Planning</h5>
+      <ul class="text-muted">
+        <li>Core → IT switch</li>
+        <li>Alternate careers</li>
+        <li>Backup planning</li>
+      </ul>
+      <p class="price">₹129</p>
+      <p class="limit">
+  <span id="count-9">0</span> / 50 requested
+</p>
+
+      <button id="btn-9" class="btn btn-primary w-100"
+        onclick="requestSession(9,'Career Switch & Backup Planning',129)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-9" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script>
+  const supabaseUrl = "https://ltxrynmhihxmmzrnnduw.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0eHJ5bm1oaWh4bW16cm5uZHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MDAxNTksImV4cCI6MjA4MTQ3NjE1OX0.jpxJbr3by-75XRCY0lC9gDuU3_cLuVk6fYRzWP2f-N0";
+
+  const supabaseClient = supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+  );
+</script>
+
+<script>
+async function requestSession(id, title, price) {
+
+  // 🔹 Temporary test email (jab tak auth nahi lagaya)
+  const email = "test@student.com";
+
+  const btn = document.getElementById(`btn-${id}`);
+
+  const { error } = await supabaseClient
+    .from("session_requests")
+    .insert([
+      {
+        session_id: id,
+        student_email: email
+      }
+    ]);
+
+  if (error) {
+    console.error("Insert error:", error);
+    alert(error.message);
+    return;
+  }
+
+  // 🔹 Notification insert
+  await supabaseClient.from("notifications").insert([
+    {
+      student_email: email,
+      session_id: id,
+      title: "Request Received",
+      message:
+        "Your request has been received. This session will be scheduled once 50 students join. You will receive an email to buy the ticket.",
+      type: "request"
+    }
+  ]);
+
+  markRequested(btn);
+loadCount(id); // ✅ REQUEST KE BAAD COUNT UPDATE
+
+}
+
+
+function markRequested(btn){
+  btn.innerHTML="✔ Requested";
+  btn.classList.add("requested");
+  btn.disabled=true;
+}
+
+async function checkRequested(){
+
+  const email = "test@student.com"; // same test email
+
+  const { data: rows, error } = await supabaseClient
+    .from("session_requests")
+    .select("session_id")
+    .eq("student_email", email);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  rows?.forEach(r=>{
+    const btn = document.getElementById(`btn-${r.session_id}`);
+    if (btn) markRequested(btn);
+  });
+}
+
+checkRequested();
+[1,2,3,4,5,6,7,8,9].forEach(loadCount);
+
+
+async function loadCount(sessionId) {
+  const { count, error } = await supabaseClient
+    .from("session_requests")
+    .select("*", { count: "exact", head: true })
+    .eq("session_id", sessionId);
+
+  if (error) {
+    console.error("Count error:", error);
+    return;
+  }
+
+  const total = 50;
+  const c = count ?? 0;
+
+  // Count text
+  const el = document.getElementById(`count-${sessionId}`);
+  if (el) el.innerText = c;
+
+  // Progress bar
+  const bar = document.getElementById(`bar-${sessionId}`);
+  if (bar) {
+    const percent = Math.min(100, Math.round((c / total) * 100));
+    bar.style.width = percent + "%";
+
+    // Color states
+    bar.classList.remove("bg-primary","bg-warning","bg-success");
+    if (percent >= 100) bar.classList.add("bg-success");
+    else if (percent >= 80) bar.classList.add("bg-warning");
+    else bar.classList.add("bg-primary");
+  }
+
+  // Auto-disable at 50
+  if (c >= total) {
+    const btn = document.getElementById(`btn-${sessionId}`);
+    if (btn) {
+      btn.innerText = "Scheduled";
+      btn.disabled = true;
+      btn.classList.remove("btn-primary");
+      btn.classList.add("btn-success");
+    }
+  }
+}
+async function loadNotifications() {
+
+  // abhi test email
+  const email = "test@student.com";
+
+  const { data, error } = await supabaseClient
+    .from("notifications")
+    .select("*")
+    .eq("student_email", email)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const list = document.getElementById("notifList");
+  const count = document.getElementById("notifCount");
+
+  list.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    list.innerHTML =
+      `<li class="text-muted text-center">No notifications</li>`;
+    count.innerText = 0;
+    return;
+  }
+
+  count.innerText = data.length;
+
+  data.forEach(n => {
+    list.innerHTML += `
+      <li class="dropdown-item">
+        <div class="fw-semibold">${n.title}</div>
+        <div class="text-muted small">${n.message}</div>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+    `;
+  });
+}
+loadNotifications();
+
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

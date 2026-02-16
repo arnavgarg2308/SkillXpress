@@ -90,8 +90,15 @@ Create a VERY CLEAR, PRACTICAL 1-MONTH LEARNING ROADMAP.
 User goal: Get job-ready as ${primaryRole}
 Month number: ${month}
 
-Skill gaps to focus on:
-${gaps.map(g => `- ${g.skill}: need ${g.required}, current ${g.current}`).join("\n")}
+Current Skills:
+${Object.entries(userSkills)
+  .map(([k,v]) => `- ${k}: ${v}`)
+  .join("\n")}
+
+Required Skills:
+${Object.entries(roleReq)
+  .map(([k,v]) => `- ${k}: ${v}`)
+  .join("\n")}
 
 RULES:
 - Simple language
@@ -131,7 +138,7 @@ End with: "Job readiness impact" (3 bullet points)
 
     let content = await generateMentorNote(prompt);
 
-if (!content || content.trim().length < 100) {
+if (!content ) {
   console.log("❌ Gemini returned empty / weak content");
   return res.status(503).json({
     success: false,
