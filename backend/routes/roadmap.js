@@ -158,7 +158,7 @@ Job Readiness Impact:
       return res.status(500).json({ error: "AI generation failed" });
     }
 
-    if (!content || content.trim().length < 200) {
+    if (!content ) {
       return res.status(500).json({ error: "AI returned weak content" });
     }
 
