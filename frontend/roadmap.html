@@ -41,34 +41,38 @@ initUser();
 /* ✅ button ye function call karega */
 async function generate() {
   if (!USER_ID) {
-    alert("User not loaded yet");
+    alert("User not loaded yet or session expired");
+    console.log("USER_ID:", USER_ID);
     return;
   }
 
-  const res = await fetch("https://skillxpress.onrender.com/api/roadmap/generate-month", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: USER_ID })
-  });
+  try {
+    const res = await fetch("https://skillxpress.onrender.com/api/roadmap/generate-month", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: USER_ID })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
+    console.log("API Response:", data);
 
-  if (!data.success) {
-    document.getElementById("roadmapBox").innerHTML =
-      `<p style="color:red">${data.error}</p>`;
-    return;
-  }
+    if (!data.success) {
+      document.getElementById("roadmapBox").innerHTML =
+        `<p style="color:red">${data.error}</p>`;
+      return;
+    }
 
-  const r = data.roadmap;
+    const r = data.roadmap;
 
-document.getElementById("roadmapBox").innerHTML = `
-  <h3>Month ${r.month} – ${r.role}</h3>
-  <pre style="white-space:pre-wrap; line-height:1.6;">
+    document.getElementById("roadmapBox").innerHTML = `
+      <h3>Month ${r.month} – ${r.role}</h3>
+      <pre style="white-space:pre-wrap; line-height:1.6;">
 ${r.content}
-  </pre>
-`;
-
-
+      </pre>
+    `;
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
 }
 </script>
 
