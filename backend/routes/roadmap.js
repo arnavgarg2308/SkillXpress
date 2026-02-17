@@ -30,43 +30,37 @@ router.post("/generate-month", async (req, res) => {
       return res.status(400).json({ error: "userId required" });
     }
 
-    /* 1️⃣ PROFILE */
+    /* PROFILE */
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("github, interests")
       .eq("id", userId)
       .maybeSingle();
 
-    if (profileError || !profile) {
+    if (profileError || !profile)
       return res.status(400).json({ error: "Profile not found" });
-    }
 
-    if (!profile.github || !profile.interests?.length) {
+    if (!profile.github || !profile.interests?.length)
       return res.status(400).json({ error: "Profile incomplete" });
-    }
 
     const primaryRole = profile.interests[0];
     const roleReq = JOB_REQUIREMENTS[primaryRole];
 
-    if (!roleReq) {
-      return res.status(400).json({
-        error: `Job requirements not found for ${primaryRole}`
-      });
-    }
+    if (!roleReq)
+      return res.status(400).json({ error: "Invalid job role" });
 
-    /* 2️⃣ CLEAN GITHUB USERNAME */
+    /* GITHUB USERNAME CLEAN */
     const githubUsername = profile.github
       .replace(/https?:\/\/(www\.)?github\.com\//, "")
       .replace(/\/$/, "");
 
-    /* 3️⃣ FETCH SKILLS */
+    /* FETCH SKILLS */
     const userSkills = await getFullSkills(userId, githubUsername);
 
-    if (!userSkills || !Object.keys(userSkills).length) {
+    if (!userSkills || !Object.keys(userSkills).length)
       return res.status(400).json({ error: "No skills found" });
-    }
 
-    /* 4️⃣ GET ROADMAP STATE */
+    /* ROADMAP STATE */
     const { data: row } = await supabase
       .from("roadmaps")
       .select("*")
@@ -75,14 +69,14 @@ router.post("/generate-month", async (req, res) => {
 
     const month = row?.current_month || 1;
 
-    /* 5️⃣ GAP ANALYSIS */
+    /* GAP ANALYSIS */
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 5);
 
-    /* 6️⃣ STRUCTURED PROMPT */
+    /* PROMPT */
     const prompt = `
 You are a strict senior ${primaryRole} hiring mentor.
 
-STEP 1: ANALYZE THE STUDENT
+First analyze the student. Then create a practical 1-month roadmap.
 
 Current Skills:
 ${Object.entries(userSkills).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
@@ -93,22 +87,14 @@ ${Object.entries(roleReq).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
 Top Gaps:
 ${gaps.map(g => `- ${g.skill}: required ${g.required}, current ${g.current}`).join("\n")}
 
-Give:
-- Strengths
-- Weaknesses
-- Job Readiness Score (realistic %)
-
-STEP 2: CREATE A PRACTICAL 1-MONTH ROADMAP
-
 Rules:
-- No motivation
-- No theory explanation
-- Only practical tasks
+- Only practical steps
 - Daily breakdown
-- Clear weekly progression
-- Minimum 800 words
+- No theory
+- Clear structure
+- Minimum 600 words
 
-FORMAT STRICTLY:
+Format:
 
 ===== SKILL ANALYSIS =====
 Strengths:
@@ -116,7 +102,6 @@ Weaknesses:
 Job Readiness Score:
 
 ===== MONTH ${month} ROADMAP =====
-
 MONTH OBJECTIVE:
 
 WEEK 1:
@@ -138,36 +123,38 @@ Daily Tasks:
 MINI PROJECT:
 Problem:
 Tech Stack:
-What Student Will Build:
-Skills Improved:
+Outcome:
 
-End with:
 Job Readiness Impact:
-- Bullet 1
-- Bullet 2
-- Bullet 3
+- Point 1
+- Point 2
+- Point 3
 `;
 
-    /* 7️⃣ CALL GEMINI SAFELY */
-    let content;
+    /* CALL AI */
+    let content = "";
     try {
       content = await generateMentorNote(prompt);
-      console.log("Gemini response length:", content?.length);
-    } catch (aiError) {
-      console.error("Gemini failed:", aiError);
+      console.log("AI length:", content?.length);
+    } catch (err) {
+      console.error("Gemini error:", err);
       return res.status(500).json({ error: "AI generation failed" });
     }
 
-    if (!content ) {
-      return res.status(500).json({ error: "AI returned weak content" });
+    /* VALIDATION (No 500 for weak content) */
+    if (!content || !content.includes("WEEK 1")) {
+      return res.status(200).json({
+        success: false,
+        error: "AI response incomplete. Try again."
+      });
     }
 
-    /* 8️⃣ SAVE SAFELY */
+    /* SAVE */
     const { error: saveError } = await supabase
       .from("roadmaps")
       .upsert({
         user_id: userId,
-        current_month: month, // FIXED
+        current_month: month,
         months: {
           ...(row?.months || {}),
           [month]: {
@@ -180,7 +167,7 @@ Job Readiness Impact:
 
     if (saveError) {
       console.error("Save error:", saveError);
-      return res.status(500).json({ error: "Failed to save roadmap" });
+      return res.status(500).json({ error: "Database save failed" });
     }
 
     return res.json({
@@ -194,7 +181,7 @@ Job Readiness Impact:
 
   } catch (err) {
     console.error("ROADMAP ERROR:", err);
-    return res.status(500).json({ error: "Roadmap generation failed" });
+    return res.status(500).json({ error: "Unexpected server error" });
   }
 });
 
