@@ -12,7 +12,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-/* ===== GAP CALC ===== */
+/* GAP CALC */
 function calculateGaps(userSkills, roleReq) {
   return Object.entries(roleReq)
     .map(([skill, reqVal]) => {
@@ -22,22 +22,21 @@ function calculateGaps(userSkills, roleReq) {
     .sort((a, b) => b.gap - a.gap);
 }
 
-/* ===== API ===== */
+/* API */
 router.post("/generate-month", async (req, res) => {
   try {
     const { userId } = req.body;
-    if (!userId) {
+    if (!userId)
       return res.status(400).json({ error: "userId required" });
-    }
 
     /* PROFILE */
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
       .select("github, interests")
       .eq("id", userId)
       .maybeSingle();
 
-    if (profileError || !profile)
+    if (!profile)
       return res.status(400).json({ error: "Profile not found" });
 
     if (!profile.github || !profile.interests?.length)
@@ -49,12 +48,11 @@ router.post("/generate-month", async (req, res) => {
     if (!roleReq)
       return res.status(400).json({ error: "Invalid job role" });
 
-    /* CLEAN GITHUB USERNAME */
+    /* SKILLS */
     const githubUsername = profile.github
       .replace(/https?:\/\/(www\.)?github\.com\//, "")
       .replace(/\/$/, "");
 
-    /* FETCH SKILLS */
     const userSkills = await getFullSkills(userId, githubUsername);
 
     if (!userSkills || !Object.keys(userSkills).length)
@@ -69,45 +67,26 @@ router.post("/generate-month", async (req, res) => {
 
     const month = row?.current_month || 1;
 
-    /* GAP ANALYSIS */
+    /* ONLY TOP GAPS */
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 5);
 
-    /* PROMPT */
+    /* SIMPLIFIED PROMPT */
     const prompt = `
-You are a strict senior ${primaryRole} hiring mentor.
+You are a senior ${primaryRole} mentor.
 
-First analyze the student. Then create a practical 1-month roadmap.
+Create a detailed 1-month roadmap to improve these weak skills:
 
-IMPORTANT:
-Use EXACT headings:
-WEEK 1:
-WEEK 2:
-WEEK 3:
-WEEK 4:
+${gaps.map(g =>
+  `- ${g.skill} (required ${g.required}, current ${g.current})`
+).join("\n")}
 
-Do NOT change heading format.
+Requirements:
+- 600-900 words
+- Practical tasks only
+- Daily breakdown
+- Clear WEEK 1, WEEK 2, WEEK 3, WEEK 4 headings
 
-Current Skills:
-${Object.entries(userSkills).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
-
-Required Skills:
-${Object.entries(roleReq).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
-
-Top Gaps:
-${gaps.map(g => `- ${g.skill}: required ${g.required}, current ${g.current}`).join("\n")}
-
-Minimum 700 words.
-Only practical tasks.
-
-Format:
-
-===== SKILL ANALYSIS =====
-Strengths:
-Weaknesses:
-Job Readiness Score:
-
-===== MONTH ${month} ROADMAP =====
-MONTH OBJECTIVE:
+Structure:
 
 WEEK 1:
 Topics:
@@ -125,36 +104,23 @@ WEEK 4:
 Topics:
 Daily Tasks:
 
-MINI PROJECT:
-Problem:
+Mini Project:
 Tech Stack:
 Outcome:
-
-Job Readiness Impact:
-- Point 1
-- Point 2
-- Point 3
 `;
 
-    /* CALL AI (WITH RETRY) */
-    let content = "";
-
+    /* AI CALL */
+    let content;
     try {
       content = await generateMentorNote(prompt);
-
-      // Retry once if response too short
-      if (!content || content.length < 500) {
-        console.log("Retrying AI...");
-        content = await generateMentorNote(prompt);
-      }
-
+      console.log("AI length:", content?.length);
     } catch (err) {
       console.error("Gemini error:", err);
       return res.status(500).json({ error: "AI generation failed" });
     }
 
-    /* VALIDATION */
-    if (!content || content.length < 400) {
+    /* SOFT VALIDATION */
+    if (!content || content.length < 250) {
       return res.status(200).json({
         success: false,
         error: "AI response too short. Please try again."
@@ -177,10 +143,8 @@ Job Readiness Impact:
         }
       });
 
-    if (saveError) {
-      console.error("Save error:", saveError);
+    if (saveError)
       return res.status(500).json({ error: "Database save failed" });
-    }
 
     return res.json({
       success: true,
