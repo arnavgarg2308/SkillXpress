@@ -49,7 +49,7 @@ router.post("/generate-month", async (req, res) => {
     if (!roleReq)
       return res.status(400).json({ error: "Invalid job role" });
 
-    /* GITHUB USERNAME CLEAN */
+    /* CLEAN GITHUB USERNAME */
     const githubUsername = profile.github
       .replace(/https?:\/\/(www\.)?github\.com\//, "")
       .replace(/\/$/, "");
@@ -78,6 +78,15 @@ You are a strict senior ${primaryRole} hiring mentor.
 
 First analyze the student. Then create a practical 1-month roadmap.
 
+IMPORTANT:
+Use EXACT headings:
+WEEK 1:
+WEEK 2:
+WEEK 3:
+WEEK 4:
+
+Do NOT change heading format.
+
 Current Skills:
 ${Object.entries(userSkills).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
 
@@ -87,12 +96,8 @@ ${Object.entries(roleReq).map(([k,v]) => `- ${k}: ${v}`).join("\n")}
 Top Gaps:
 ${gaps.map(g => `- ${g.skill}: required ${g.required}, current ${g.current}`).join("\n")}
 
-Rules:
-- Only practical steps
-- Daily breakdown
-- No theory
-- Clear structure
-- Minimum 600 words
+Minimum 700 words.
+Only practical tasks.
 
 Format:
 
@@ -131,21 +136,28 @@ Job Readiness Impact:
 - Point 3
 `;
 
-    /* CALL AI */
+    /* CALL AI (WITH RETRY) */
     let content = "";
+
     try {
       content = await generateMentorNote(prompt);
-      console.log("AI length:", content?.length);
+
+      // Retry once if response too short
+      if (!content || content.length < 500) {
+        console.log("Retrying AI...");
+        content = await generateMentorNote(prompt);
+      }
+
     } catch (err) {
       console.error("Gemini error:", err);
       return res.status(500).json({ error: "AI generation failed" });
     }
 
-    /* VALIDATION (No 500 for weak content) */
-    if (!content || !content.includes("WEEK 1")) {
+    /* VALIDATION */
+    if (!content || content.length < 400) {
       return res.status(200).json({
         success: false,
-        error: "AI response incomplete. Try again."
+        error: "AI response too short. Please try again."
       });
     }
 
