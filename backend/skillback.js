@@ -68,7 +68,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
       {
         headers: {
           "User-Agent": "SkillXpress",
-          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+         // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
         }
       }
     );
@@ -95,7 +95,7 @@ const repos = await ghRes.json();
   activity;
   
   const langRes = await fetch(repo.languages_url, {
-    headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+    //headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
   });
 
   const languages = await langRes.json();
