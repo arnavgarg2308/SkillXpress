@@ -156,7 +156,9 @@ const skillMap = {
   "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
 
-   for (const item of uploads) {
+   const safeUploads = uploads || [];
+for (const item of safeUploads)
+ {
 
       // 🎓 Certificates
       if (item.type === "certificate" && item.file_path) {
