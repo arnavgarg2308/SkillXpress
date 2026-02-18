@@ -47,7 +47,7 @@ async function generate() {
   }
 
   try {
-    const res = await fetch("https://skillxpress.onrender.com/api/roadmap/generate-month", {
+    const res = await fetch("https://skillxpress.onrender-1.com/api/roadmap/generate-month", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: USER_ID })
