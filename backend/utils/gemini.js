@@ -2,9 +2,8 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 module.exports = async function generateMentorNote(prompt) {
-
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -16,9 +15,8 @@ module.exports = async function generateMentorNote(prompt) {
           }
         ],
         generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 1500,
-          topP: 0.95
+          temperature: 0.7,
+          maxOutputTokens: 2048
         }
       })
     }
@@ -26,10 +24,11 @@ module.exports = async function generateMentorNote(prompt) {
 
   const data = await res.json();
 
-  if (!res.ok) {
-    console.error("Gemini API error:", data);
-    return null;
+  console.log("Gemini raw response:", JSON.stringify(data, null, 2));
+
+  if (!data.candidates || !data.candidates.length) {
+    throw new Error("No candidates returned from Gemini");
   }
 
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  return data.candidates[0].content.parts[0].text;
 };
