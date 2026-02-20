@@ -68,13 +68,17 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
       {
         headers: {
           "User-Agent": "SkillXpress",
-         // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
         }
       }
     );
 const repos = await ghRes.json();
 console.log("Repos:", repos);
 console.log("Is Array:", Array.isArray(repos));
+if (!Array.isArray(repos)) {
+  console.log("GitHub Error:", repos);
+  return res.status(400).json({ error: "GitHub API limit hit or invalid user" });
+}
     for (const repo of repos) {
   if (repo.fork) continue;
 
@@ -97,7 +101,7 @@ console.log("Is Array:", Array.isArray(repos));
   activity;
   
   const langRes = await fetch(repo.languages_url, {
-    //headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+   headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
   });
 
   const languages = await langRes.json();
