@@ -120,6 +120,9 @@ if (!Array.isArray(repos)) {
       .from("uploads")
       .select("type, description,file_path")
       .eq("user_id", userId);
+      if (error) {
+  console.log("Supabase Error:", error);
+}
       console.log("Supabase error:", error);
 console.log("Uploads:", uploads);
       console.log("UPLOADS RAW:", uploads);
