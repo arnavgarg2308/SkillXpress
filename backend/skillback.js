@@ -123,7 +123,6 @@ if (!Array.isArray(repos)) {
       if (error) {
   console.log("Supabase Error:", error);
 }
-      console.log("Supabase error:", error);
 console.log("Uploads:", uploads);
       console.log("UPLOADS RAW:", uploads);
 console.log("UPLOADS LENGTH:", uploads?.length);
