@@ -106,7 +106,7 @@ async function loadJobMatch() {
     .replace("/", "");
 
   const skillsRes = await fetch(
-    `https://skillxpress.onrender.com/full-skills/${session.user.id}/${githubUsername}`
+    `https://skillxpress-1.onrender.com/full-skills/${session.user.id}/${githubUsername}`
   );
   const skillData = await skillsRes.json();
 
@@ -128,7 +128,7 @@ async function loadJobMatch() {
 const topInterests = profile.interests.slice(0, 4);
   /* 4️⃣ JOB MATCH */
   const res = await fetch(
-   "https://skillxpress.onrender.com/api/jobs/job-match"
+   "https://skillxpress-1.onrender.com/api/jobs/job-match"
 ,
 
     {

@@ -120,6 +120,8 @@ if (!Array.isArray(repos)) {
       .from("uploads")
       .select("type, description,file_path")
       .eq("user_id", userId);
+      console.log("Supabase error:", error);
+console.log("Uploads:", uploads);
       console.log("UPLOADS RAW:", uploads);
 console.log("UPLOADS LENGTH:", uploads?.length);
 const skillMap = {
