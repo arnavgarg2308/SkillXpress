@@ -120,6 +120,8 @@ if (!Array.isArray(repos)) {
       .from("uploads")
       .select("type, description,file_path")
       .eq("user_id", userId);
+      console.log("UPLOADS RAW:", uploads);
+console.log("UPLOADS LENGTH:", uploads?.length);
 const skillMap = {
     "REACT": ["react", "reactjs"],
   "NODE.JS": ["nodejs", "express"],
@@ -161,7 +163,7 @@ const skillMap = {
   "MACHINE_LEARNING": ["machine learning", "ml"],
   "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
-
+console.log("ENTERING UPLOAD LOOP");
    const safeUploads = uploads || [];
 for (const item of safeUploads)
  {
@@ -247,7 +249,7 @@ if (item.type === "project" && item.description) {
       const matches = extractedText.match(regex);
       if (matches) total += matches.length;
     });
-
+console.log("ITEM TYPE:", item.type);
     if (total > 0) {
       skills[skill] = (skills[skill] || 0) + total * 2;
     }
