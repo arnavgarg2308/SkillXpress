@@ -168,7 +168,7 @@ async function loadProfile(){
   if(gh){
     try{
       const res = await fetch(
-        `https://skillxpress.onrender.com/full-skills/${userId}/${gh}`
+        `https://skillxpress-1.onrender.com/full-skills/${userId}/${gh}`
       );
       const skillData = await res.json();
       drawGraph(skillData.skills || {});
