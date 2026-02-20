@@ -68,7 +68,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
       {
         headers: {
           "User-Agent": "SkillXpress",
-         // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
         }
       }
     );
