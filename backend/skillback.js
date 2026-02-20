@@ -116,13 +116,15 @@ if (!Array.isArray(repos)) {
 }
 
     /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
-    const { data: uploads } = await supabase
-      .from("uploads")
-      .select("type, description,file_path")
-      .eq("user_id", userId);
-      if (error) {
-  console.log("Supabase Error:", error);
+   const { data: uploads, error: supabaseError } = await supabase
+  .from("uploads")
+  .select("type, description, file_path")
+  .eq("user_id", userId);
+
+if (supabaseError) {
+  console.log("Supabase Error:", supabaseError);
 }
+
 console.log("Uploads:", uploads);
       console.log("UPLOADS RAW:", uploads);
 console.log("UPLOADS LENGTH:", uploads?.length);
