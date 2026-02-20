@@ -61,7 +61,7 @@ app.get("/full-skills/:userId/:username", async (req, res) => {
 
   try {
     let skills = {};
-
+console.log("TOKEN:", process.env.GITHUB_TOKEN);
     /* ===== 1️⃣ GITHUB ANALYSIS ===== */
     const ghRes = await fetch(
       `https://api.github.com/users/${username}/repos`,
