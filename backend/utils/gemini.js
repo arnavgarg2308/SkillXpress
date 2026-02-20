@@ -26,12 +26,11 @@ module.exports = async function generateMentorNote(prompt) {
     const data = await res.json();
 
     // 🔴 If API returned error
-    if (!res.ok) {
-      console.error("Gemini API error:", data);
-      throw new Error(
-        data?.error?.message || "Gemini API request failed"
-      );
-    }
+   if (!res.ok) {
+  const errorText = await res.text();
+  console.error("Gemini HTTP ERROR:", errorText);
+  throw new Error("Gemini API failed: " + errorText);
+}
 
     if (!data.candidates || !data.candidates.length) {
       console.error("No candidates:", data);
@@ -40,8 +39,9 @@ module.exports = async function generateMentorNote(prompt) {
 
     return data.candidates[0].content.parts[0].text;
 
-  } catch (err) {
-    console.error("Gemini fatal error:", err.message);
-    throw err;
+  } 
+  catch (err) {
+  console.error("Gemini error FULL:", err);
+  return res.status(500).json({ error: err.message });
   }
 };
