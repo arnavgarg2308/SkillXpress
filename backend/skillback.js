@@ -268,7 +268,14 @@ console.log("ITEM TYPE:", item.type);
     Object.keys(skills).forEach(k => {
       skills[k] = Math.min(100, skills[k]);
     });
-
+await supabase
+  .from("user_skill_snapshot")
+  .upsert({
+    user_id: userId,
+    skills: skills,
+    updated_at: new Date()
+  }, { onConflict: "user_id" });
+  
     res.json({ skills });
 
   } catch (e) {
