@@ -49,11 +49,13 @@ router.post("/generate-month", async (req, res) => {
       return res.status(400).json({ error: "Invalid job role" });
 
     /* SKILLS */
-    const githubUsername = profile.github
-      .replace(/https?:\/\/(www\.)?github\.com\//, "")
-      .replace(/\/$/, "");
+    const { data: skillRow } = await supabase
+  .from("user_skill_snapshot")
+  .select("skills")
+  .eq("user_id", userId)
+  .maybeSingle();
 
-    const userSkills = await getFullSkills(userId, githubUsername);
+const userSkills = skillRow?.skills;
 
     if (!userSkills || !Object.keys(userSkills).length)
       return res.status(400).json({ error: "No skills found" });
