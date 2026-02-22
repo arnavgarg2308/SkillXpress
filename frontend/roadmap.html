@@ -19,7 +19,7 @@ button{background:#4f46e5;color:#fff;border:none;padding:12px 20px;border-radius
   <br/>
   <button onclick="generate()">Generate Month</button>
    <br/>
-   <button onclick="downloadRoadmap(1)">
+   <button onclick="downloadRoadmap(CURRENT_MONTH)">
   Download Roadmap PDF
 </button>
 </div>
@@ -67,7 +67,7 @@ async function generate() {
     }
 
     const r = data.roadmap;
-
+window.CURRENT_MONTH = r.month; 
     document.getElementById("roadmapBox").innerHTML = `
       <h3>Month ${r.month} – ${r.role}</h3>
       <pre style="white-space:pre-wrap; line-height:1.6;">
@@ -79,16 +79,22 @@ ${r.content}
   }
 }
 async function downloadRoadmap(month) {
-  const user = await supabase.auth.getUser();
-const userId = user.data.user.id;
+
+  if (!USER_ID) {
+    alert("User not loaded yet");
+    return;
+  }
+
   const res = await fetch(
-    `/api/roadmap/download-pdf/${userId}/${month}`
+    `https://skillxpress-1.onrender.com/api/roadmap/download-pdf/${USER_ID}/${month}`
   );
 
   const data = await res.json();
 
   if (data.url) {
-    window.open(data.url, "_blank"); // opens download
+    window.open(data.url, "_blank");
+  } else {
+    alert("PDF not found");
   }
 }
 </script>
