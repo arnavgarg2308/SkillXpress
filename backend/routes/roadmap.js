@@ -67,7 +67,11 @@ const userSkills = skillRow?.skills;
       .eq("user_id", userId)
       .maybeSingle();
 
-    const month = row?.current_month || 1;
+    let month = 1;
+
+if (row) {
+  month = row.current_month || 1;
+}
 
     /* ONLY TOP GAPS */
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 5);
@@ -135,13 +139,13 @@ Outcome:
         error: "AI response too short. Please try again."
       });
     }
-
+const nextMonth = month + 1;
     /* SAVE */
     const { error: saveError } = await supabase
       .from("roadmaps")
       .upsert({
         user_id: userId,
-        current_month: month,
+        current_month: nextMonth,
         months: {
           ...(row?.months || {}),
           [month]: {
