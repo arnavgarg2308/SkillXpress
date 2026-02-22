@@ -6,7 +6,7 @@ const generateMentorNote = require("../utils/gemini");
 const jobRouter = require("./jobback");
 const JOB_REQUIREMENTS = jobRouter.JOB_REQUIREMENTS;
 const getFullSkills = require("../utils/getFullSkills");
-
+const generateAndUploadPDF = require("../utils/generateRoadmapPDF");
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
@@ -115,6 +115,12 @@ Outcome:
     let content;
     try {
       content = await generateMentorNote(prompt);
+      const pdfUrl = await generateAndUploadPDF(
+  supabase,
+  content,
+  userId,
+  month
+);
       console.log("AI length:", content?.length);
     } catch (err) {
       console.error("Gemini error:", err);
@@ -140,7 +146,8 @@ Outcome:
           [month]: {
             month,
             role: primaryRole,
-            content
+            content,
+            pdf_url: pdfUrl
           }
         }
       });

@@ -23,6 +23,7 @@
     "express": "^5.2.1",
     "node-fetch": "^2.7.0",
     "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.17.2",
     "tesseract.js": "^7.0.0"
   }
 }
