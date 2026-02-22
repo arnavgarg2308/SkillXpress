@@ -170,5 +170,40 @@ Outcome:
     return res.status(500).json({ error: "Unexpected server error" });
   }
 });
+router.post("/complete-month", async (req, res) => {
+  try {
+    const { userId } = req.body;
 
+    if (!userId)
+      return res.status(400).json({ error: "userId required" });
+
+    const { data: row } = await supabase
+      .from("roadmaps")
+      .select("current_month")
+      .eq("user_id", userId)
+      .single();
+
+    if (!row)
+      return res.status(400).json({ error: "Roadmap not found" });
+
+    const nextMonth = row.current_month + 1;
+
+    const { error } = await supabase
+      .from("roadmaps")
+      .update({ current_month: nextMonth })
+      .eq("user_id", userId);
+
+    if (error)
+      return res.status(500).json({ error: "Update failed" });
+
+    res.json({
+      success: true,
+      current_month: nextMonth
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 module.exports = router;
