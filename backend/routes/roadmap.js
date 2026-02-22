@@ -113,9 +113,10 @@ Outcome:
 
     /* AI CALL */
     let content;
+    let pdfUrl;
     try {
       content = await generateMentorNote(prompt);
-      const pdfUrl = await generateAndUploadPDF(
+     pdfUrl = await generateAndUploadPDF(
   supabase,
   content,
   userId,
