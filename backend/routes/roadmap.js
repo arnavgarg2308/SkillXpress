@@ -214,7 +214,7 @@ router.get("/download-pdf/:userId/:month", async (req, res) => {
   try {
     const { userId, month } = req.params;
 
-    const filePath = `${userId}/month-${month}.pdf`;
+    const filePath = `${userId}/roadmap-month-${month}.pdf`;
 
     const { data, error } = await supabase.storage
       .from("roadmaps")   // 👈 bucket name
