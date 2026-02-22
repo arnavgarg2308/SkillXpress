@@ -210,4 +210,25 @@ router.post("/complete-month", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+router.get("/download-pdf/:userId/:month", async (req, res) => {
+  try {
+    const { userId, month } = req.params;
+
+    const filePath = `${userId}/month-${month}.pdf`;
+
+    const { data, error } = await supabase.storage
+      .from("roadmaps")   // 👈 bucket name
+      .createSignedUrl(filePath, 60); // 60 sec valid
+
+    if (error) {
+      return res.status(400).json({ error: "File not found" });
+    }
+
+    res.json({ url: data.signedUrl });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Download failed" });
+  }
+});
 module.exports = router;
