@@ -17,7 +17,8 @@ button{background:#4f46e5;color:#fff;border:none;padding:12px 20px;border-radius
   <h2>📅 Monthly AI Roadmap</h2>
   <div id="roadmapBox">Click Generate</div>
   <br/>
-  <button onclick="generate()">Generate Month</button>
+  <button id="generateBtn" onclick="generate()">Generate Month</button>
+   <br/>
    <br/>
    <button onclick="downloadRoadmap(CURRENT_MONTH)">
   Download Roadmap PDF
@@ -49,7 +50,11 @@ async function generate() {
     console.log("USER_ID:", USER_ID);
     return;
   }
-
+ const btn = document.getElementById("generateBtn");
+  btn.innerText = "Generating... Please wait";
+  btn.disabled = true;
+  document.getElementById("roadmapBox").innerHTML =
+    "<p>⏳ Generating your AI roadmap...please wait 5 mins </p>";
   try {
     const res = await fetch("https://skillxpress-1.onrender.com/api/roadmap/generate-month", {
       method: "POST",
@@ -77,6 +82,8 @@ ${r.content}
   } catch (err) {
     console.error("Fetch error:", err);
   }
+   btn.innerText = "Generate Month";
+  btn.disabled = false;
 }
 async function downloadRoadmap(month) {
 
