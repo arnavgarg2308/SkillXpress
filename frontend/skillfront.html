@@ -54,6 +54,9 @@ body{
   <!-- SKILL GRAPH -->
   <div class="card p-4 mb-5">
     <h4 class="section-title mb-3">📊 Your Skill Graph</h4>
+    <button id="generateBtn" class="btn btn-primary mb-3" onclick="loadSkillGraph()">
+    Generate Skill Graph
+  </button>
     <canvas id="skillChart" height="120"></canvas>
   </div>
 
@@ -81,7 +84,9 @@ body{
 
 <script>
 async function loadSkillGraph() {
-
+const btn = document.getElementById("generateBtn");
+  btn.innerText = "Generating.. please wait 5 mins";
+  btn.disabled = true;
   // 🔐 session
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
@@ -121,6 +126,8 @@ if (!result.skills || Object.keys(result.skills).length === 0) {
 }
 console.log("GRAPH DATA:", result.skills);
   drawGraph(result.skills);
+    btn.innerText = "Generate Skill Graph";
+  btn.disabled = false;
 }
 
 // 📊 chart
@@ -163,7 +170,7 @@ function drawGraph(skills) {
   });
 }
 
-loadSkillGraph();
+
 async function uploadResume() {
   const file = document.getElementById("resumeFile").files[0];
   if (!file) return alert("Select resume");
@@ -236,7 +243,6 @@ async function saveProject() {
   if (error) return alert(error.message);
 
   alert("Project saved ✅");
-    await loadSkillGraph();
 }
 </script>
 
