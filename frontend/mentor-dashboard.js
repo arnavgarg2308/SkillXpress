@@ -72,7 +72,10 @@ async function openChat(userId){
   document.getElementById("chatUserName")
     .innerText = "Chat with User";
 
-  await loadMessages();
+  appendMentorMessage({
+  sender_id: mentor.id,
+  message: text
+});
 
   startRealtime();
 }
@@ -153,7 +156,7 @@ function startRealtime(){
           (m.sender_id == mentor.id && m.receiver_id == selectedUser) ||
           (m.sender_id == selectedUser && m.receiver_id == mentor.id)
         ){
-         requestAnimationFrame(loadMessages);
+         appendMentorMessage(m);
         }
       }
     )
@@ -172,3 +175,21 @@ window.addEventListener("beforeunload", async () => {
     .eq("id", mentor.id);
 
 });
+function appendMentorMessage(msg){
+
+  const box = document.getElementById("mentorChatBox");
+
+  const div = document.createElement("div");
+  div.classList.add("msg");
+
+  if(String(msg.sender_id) === String(mentor.id)){
+    div.classList.add("sent");
+  }else{
+    div.classList.add("received");
+  }
+
+  div.innerText = msg.message;
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}

@@ -73,7 +73,10 @@ async function sendMessage(){
   ]);
 
   input.value = "";
-  await loadMessages();
+  appendMessage({
+  sender_id: currentUser.id,
+  message: text
+});
 }
 
 /* REALTIME */
@@ -100,7 +103,7 @@ function startRealtime(){
           (m.sender_id == currentUser.id && m.receiver_id == mentorId) ||
           (m.sender_id == mentorId && m.receiver_id == currentUser.id)
         ){
-          requestAnimationFrame(loadMessages);
+            appendMessage(m);
         }
       }
     )
@@ -119,3 +122,21 @@ window.addEventListener("beforeunload", async () => {
     .eq("id", currentUser.id);
 
 });
+function appendMessage(msg){
+
+  const box = document.getElementById("chatBox");
+
+  const div = document.createElement("div");
+  div.classList.add("msg");
+
+  if(String(msg.sender_id) === String(currentUser.id)){
+    div.classList.add("sent");
+  }else{
+    div.classList.add("received");
+  }
+
+  div.innerText = msg.message;
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
