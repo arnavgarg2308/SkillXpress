@@ -74,45 +74,64 @@ if (row) {
 }
 
     /* ONLY TOP GAPS */
-    const gaps = calculateGaps(userSkills, roleReq).slice(0, 5);
+    const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
 
     /* SIMPLIFIED PROMPT */
-    const prompt = `
+ const prompt = `
 You are a senior ${primaryRole} mentor.
 
-Create a detailed 1-month roadmap to improve these weak skills:
+The student wants to prepare for ${primaryRole}.
+This is Month ${month} of preparation.
+Study time: 2.5 hours per day.
+
+Skill gaps detected:
 
 ${gaps.map(g =>
   `- ${g.skill} (required ${g.required}, current ${g.current})`
 ).join("\n")}
 
-Requirements:
-- 600-900 words
-- Practical tasks only
-- Daily breakdown
-- Clear WEEK 1, WEEK 2, WEEK 3, WEEK 4 headings
+IMPORTANT INTERPRETATION RULES:
 
-Structure:
+1. Required level represents industry expectation (not monthly target).
+2. Current level represents estimated ability.
+3. You are NOT expected to close the full gap in one month.
+4. This month should aim for realistic improvement, not mastery.
+5. Improve at most 1–2 level points in a skill this month.
+6. Focus on top 2 skills only.
+7. Large gaps must be broken into beginner milestones.
+8. Work must fit within 2.5 hours per day.
+9. Think long-term multi-month progression.
+
+OUTPUT FORMAT:
+
+MONTH ${month} GOAL:
+
+FOCUS SKILLS THIS MONTH:
 
 WEEK 1:
-Topics:
-Daily Tasks:
+Focus:
+Daily Plan:
 
 WEEK 2:
-Topics:
-Daily Tasks:
+Focus:
+Daily Plan:
 
 WEEK 3:
-Topics:
-Daily Tasks:
+Focus:
+Daily Plan:
 
 WEEK 4:
-Topics:
-Daily Tasks:
+Focus:
+Daily Plan:
 
-Mini Project:
+MINI PROJECT:
+Project Title:
+What to Build:
 Tech Stack:
-Outcome:
+Expected Outcome:
+
+Keep it realistic, structured and progressive.
+Length: 700–900 words.
 `;
 
     /* AI CALL */
