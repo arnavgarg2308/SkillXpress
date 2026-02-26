@@ -25,17 +25,28 @@
 
 <script>
 async function uploadProject(){
+
   const { data:{session} } = await supabaseClient.auth.getSession();
   if(!session) return alert("Login required");
 
-  const file = image.files[0];
+  const file = document.getElementById("image").files[0];
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("desc").value.trim();
+  const techStack = document.getElementById("tech").value.trim();
+
   let imageUrl = null;
 
   if(file){
     const path = `${session.user.id}/${Date.now()}_${file.name}`;
-    await supabaseClient.storage
+
+    const { error: uploadError } = await supabaseClient.storage
       .from("project-images")
-      .upload(path, file);
+      .upload(path, file, { upsert: true });
+
+    if(uploadError){
+      alert(uploadError.message);
+      return;
+    }
 
     const { data } = supabaseClient
       .storage
@@ -45,18 +56,24 @@ async function uploadProject(){
     imageUrl = data.publicUrl;
   }
 
-  await supabaseClient.from("projects").insert({
-    owner_id: session.user.id,
-    title: title.value,
-    description: desc.value,
-    tech_stack: tech.value.split(","),
-    image_url: imageUrl
-  });
+  const { error } = await supabaseClient
+    .from("projects")
+    .insert({
+      owner_id: session.user.id,
+      title: title,
+      description: description,
+      tech_stack: techStack,
+      image_url: imageUrl
+    });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
 
   alert("Project uploaded 🚀");
   window.location.href = "projects.html";
 }
 </script>
-
 </body>
 </html>

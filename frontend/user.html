@@ -7,23 +7,21 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
   font-family:"Segoe UI",sans-serif;
   background:#f3f4f6;
 }
-
 .card{
   border:none;
   border-radius:16px;
   box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
-
 .username{
   font-weight:800;
   color:#4f46e5;
 }
-
 .chat-btn{
   background:#4f46e5;
   color:white;
@@ -31,8 +29,6 @@ body{
   border-radius:12px;
   padding:8px 16px;
 }
-
-/* 🔻 BOTTOM NAV (FIXED) */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -46,14 +42,12 @@ body{
   align-items:center;
   z-index:1000;
 }
-
 .bottom-nav div{
   text-align:center;
   font-size:20px;
   cursor:pointer;
   color:#555;
 }
-
 .bottom-nav span{
   display:block;
   font-size:12px;
@@ -67,9 +61,24 @@ body{
 
   <!-- PROFILE HEADER -->
   <div class="card p-4 mb-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <h3 id="username" class="username">User</h3>
-      <button class="chat-btn" onclick="openChat()">💬 Chat</button>
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h2 id="username" class="username mb-1">User</h2>
+        <p class="text-muted mb-0" id="collegeInfo"></p>
+      </div>
+      <button id="chatButton" class="chat-btn mt-2 mt-md-0" onclick="openChat()">💬 Chat</button>
+    </div>
+  </div>
+
+  <!-- ACADEMIC DETAILS -->
+  <div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-3">🎓 Academic Details</h5>
+    <div class="row">
+      <div class="col-md-6 mb-2"><strong>College:</strong> <span id="college">-</span></div>
+      <div class="col-md-6 mb-2"><strong>Course:</strong> <span id="course">-</span></div>
+      <div class="col-md-6 mb-2"><strong>Branch:</strong> <span id="branch">-</span></div>
+      <div class="col-md-6 mb-2"><strong>Year:</strong> <span id="year">-</span></div>
+      <div class="col-md-6 mb-2"><strong>Age:</strong> <span id="age">-</span></div>
     </div>
   </div>
 
@@ -80,11 +89,21 @@ body{
   </div>
 
   <!-- PROJECTS -->
-  <div class="card p-4">
+  <div class="card p-4 mb-4">
     <h5 class="fw-bold mb-3">🚀 Projects</h5>
-    <div id="userProjects">
-      <p class="text-muted">Loading projects...</p>
-    </div>
+    <div id="userProjects"></div>
+  </div>
+
+  <!-- TEAM REQUESTS -->
+  <div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-3">🤝 Team Requests</h5>
+    <div id="teamRequests"></div>
+  </div>
+
+  <!-- SENT REQUESTS -->
+  <div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-3">📤 My Sent Requests</h5>
+    <div id="myRequests"></div>
   </div>
 
 </div>
@@ -93,25 +112,21 @@ body{
 <script src="auth.js"></script>
 
 <script>
-/* =======================
-   GET USER ID FROM URL
-======================= */
 const params = new URLSearchParams(window.location.search);
-const userId = params.get("id");
-console.log("Opened profile ID:", userId);
-
+let userId = params.get("id");
 let skillChart;
 
-/* =======================
+/* ===========================
    DRAW SKILL GRAPH
-======================= */
+=========================== */
 function drawGraph(skills){
   const ctx = document.getElementById("skillChart");
+  if(!ctx) return;
 
   if(skillChart) skillChart.destroy();
 
-  const labels = Object.keys(skills);
-  const values = Object.values(skills);
+  const labels = Object.keys(skills || {});
+  const values = Object.values(skills || {});
 
   skillChart = new Chart(ctx,{
     type:"radar",
@@ -126,118 +141,182 @@ function drawGraph(skills){
       }]
     },
     options:{
-      scales:{ r:{ beginAtZero:true, max:100 } }
+      scales:{ 
+        r:{ beginAtZero:true, max:100 } 
+      }
     }
   });
 }
 
-/* =======================
-   LOAD PROFILE DATA
-======================= */
+/* ===========================
+   LOAD PROFILE
+=========================== */
 async function loadProfile(){
 
-  if(!userId){
-    alert("User ID missing");
+  const { data:{session} } = await supabaseClient.auth.getSession();
+
+  if(!session){
+    alert("Login required");
+    window.location.href="index.html";
     return;
   }
 
-  /* PROFILE INFO */
-  const { data:profile, error } = await supabaseClient
+  if(!userId) userId = session.user.id;
+  const isOwner = session.user.id === userId;
+
+  if(isOwner){
+    document.getElementById("chatButton").style.display = "none";
+  }
+
+  /* PROFILE DATA */
+  const { data:profile } = await supabaseClient
     .from("profiles")
-    .select("id, username, github")
+    .select("*")
     .eq("id", userId)
     .single();
 
-  if(error || !profile){
-    console.error("Profile error:", error);
-    alert("Profile not found");
-    return;
-  }
+  if(!profile) return;
 
-  document.getElementById("username").innerText =
-    profile.username || "User";
+  document.getElementById("username").innerText = profile.username || "User";
+  document.getElementById("collegeInfo").innerText = profile.college || "";
 
-  /* SKILLS */
-  let gh = null;
-  if(profile.github){
-    gh = profile.github.includes("github.com")
-      ? profile.github.split("github.com/")[1]
-      : profile.github;
-  }
+  document.getElementById("college").innerText = profile.college || "-";
+  document.getElementById("course").innerText = profile.course || "-";
+  document.getElementById("branch").innerText = profile.branch || "-";
+  document.getElementById("year").innerText = profile.year || "-";
+  document.getElementById("age").innerText = profile.age || "-";
 
-  if(gh){
-    try{
-      const res = await fetch(
-        `https://skillxpress.onrender.com/full-skills/${userId}/${gh}`
-      );
-      const skillData = await res.json();
-      drawGraph(skillData.skills || {});
-    }catch(e){
-      drawGraph({});
-    }
-  }else{
-    drawGraph({});
-  }
+  drawGraph(profile.skills || {});
 
-  /* PROJECTS */
-  const { data:projects, error:pErr } = await supabaseClient
+  /* USER PROJECTS */
+  const { data:projects } = await supabaseClient
     .from("projects")
     .select("*")
     .eq("owner_id", userId)
     .order("created_at",{ascending:false});
 
-  const box = document.getElementById("userProjects");
-  box.innerHTML = "";
-
-  if(pErr){
-    box.innerHTML="<p class='text-danger'>Failed to load projects</p>";
-    return;
-  }
+  const projectBox=document.getElementById("userProjects");
+  projectBox.innerHTML="";
 
   if(!projects || projects.length===0){
-    box.innerHTML="<p class='text-muted'>No projects yet</p>";
-    return;
+    projectBox.innerHTML="<p class='text-muted'>No projects yet</p>";
+  } else {
+    projects.forEach(p=>{
+      projectBox.innerHTML+=`
+        <div class="card p-3 mb-2">
+          <h6 class="fw-bold">${p.title}</h6>
+          <p class="text-muted">${p.description || ""}</p>
+        </div>`;
+    });
   }
 
-  projects.forEach(p=>{
-    box.innerHTML += `
-      <div class="card p-3 mb-3">
-        ${p.image_url ? `<img src="${p.image_url}" class="img-fluid rounded mb-2">` : ""}
-        <h6 class="fw-bold">${p.title}</h6>
-        <p class="text-muted">${p.description || ""}</p>
-      </div>
-    `;
-  });
+  /* INCOMING REQUESTS */
+  const reqBox = document.getElementById("teamRequests");
+  reqBox.innerHTML = "";
+
+  if(isOwner){
+
+    const { data:requests } = await supabaseClient
+      .from("project_team_requests")
+      .select("id, status, from_user, project_id")
+      .eq("to_user", session.user.id)
+      .order("created_at",{ascending:false});
+
+    if(!requests || requests.length===0){
+      reqBox.innerHTML="<p class='text-muted'>No requests yet</p>";
+    } else {
+
+      for(const r of requests){
+
+        const { data:sender } = await supabaseClient
+          .from("profiles")
+          .select("username")
+          .eq("id", r.from_user)
+          .single();
+
+        const senderName = sender?.username || "User";
+
+        reqBox.innerHTML+=`
+          <div class="border rounded p-2 mb-2">
+            <strong>${senderName}</strong>
+            <div class="mt-2">
+              ${
+                r.status === "pending"
+                ? `
+                  <button class="btn btn-sm btn-success me-2"
+                    onclick="updateRequest('${r.id}','accepted')">Accept</button>
+                  <button class="btn btn-sm btn-danger"
+                    onclick="updateRequest('${r.id}','rejected')">Reject</button>
+                `
+                : `<span class="badge bg-secondary">${r.status.toUpperCase()}</span>`
+              }
+            </div>
+          </div>`;
+      }
+    }
+  }
+
+  /* SENT REQUESTS */
+  const sentBox = document.getElementById("myRequests");
+  sentBox.innerHTML="";
+
+  const { data:sent } = await supabaseClient
+    .from("project_team_requests")
+    .select("id, status, to_user")
+    .eq("from_user", session.user.id)
+    .order("created_at",{ascending:false});
+
+  if(!sent || sent.length===0){
+    sentBox.innerHTML="<p class='text-muted'>No sent requests</p>";
+  } else {
+
+    for(const r of sent){
+
+      const { data:receiver } = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .eq("id", r.to_user)
+        .single();
+
+      const receiverName = receiver?.username || "User";
+
+      const badge =
+        r.status==="accepted" ? "bg-success" :
+        r.status==="rejected" ? "bg-danger" :
+        "bg-warning";
+
+      sentBox.innerHTML+=`
+        <div class="border rounded p-2 mb-2">
+          <strong>To: ${receiverName}</strong>
+          <div class="mt-2">
+            <span class="badge ${badge}">
+              ${r.status.toUpperCase()}
+            </span>
+          </div>
+        </div>`;
+    }
+  }
 }
 
-/* =======================
-   OPEN CHAT (USER TO USER)
-======================= */
-function openChat(){
-  localStorage.setItem("chatReceiver", userId);
-  window.location.href = `project-chat.html?user=${userId}`;
-}
+async function updateRequest(id,status){
 
-/* INIT */
-loadProfile();
-async function goProfile(){
   const { data:{session} } = await supabaseClient.auth.getSession();
-  if(!session) return alert("Login required");
-  window.location.href = `user.html?id=${session.user.id}`;
-}
-function goProjects(){
-  window.location.href = "projects.html";
-}
-function goInbox(){
-  window.location.href = "inbox.html";
+
+  await supabaseClient
+    .from("project_team_requests")
+    .update({status})
+    .eq("id",id)
+    .eq("to_user",session.user.id);
+
+  loadProfile();
 }
 
+function openChat(){
+  window.location.href=`chat.html?user=${userId}`;
+}
+
+loadProfile();
 </script>
-<!-- 🔻 BOTTOM NAV -->
-<div class="bottom-nav">
-  <div onclick="goProjects()">🏠<span>Projects</span></div>
-  <div onclick="goProfile()">👤<span>Profile</span></div>
-  <div onclick="goInbox()">💬<span>Chats</span></div>
-</div>
+
 </body>
 </html>
