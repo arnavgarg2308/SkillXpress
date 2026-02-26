@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Upload Project</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Upload Project</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
@@ -25,49 +25,53 @@
 
 <script>
 async function uploadProject(){
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
 
-  const { data:{session} } = await supabaseClient.auth.getSession();
-  if(!session) return alert("Login required");
+  if(sessionError || !sessionData.session){
+    alert("User not logged in");
+    return;
+  }
+
+  const session = sessionData.session;
+  const userId = session.user.id;
 
   const file = document.getElementById("image").files[0];
-  const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("desc").value.trim();
-  const techStack = document.getElementById("tech").value.trim();
-
   let imageUrl = null;
 
   if(file){
-    const path = `${session.user.id}/${Date.now()}_${file.name}`;
+    const path = `${userId}/${Date.now()}_${file.name}`;
 
-    const { error: uploadError } = await supabaseClient.storage
+    const { error: uploadError } = await supabaseClient
+      .storage
       .from("project-images")
-      .upload(path, file, { upsert: true });
+      .upload(path, file);
 
     if(uploadError){
-      alert(uploadError.message);
+      alert("Image upload failed: " + uploadError.message);
       return;
     }
 
-    const { data } = supabaseClient
+    const { data: publicData } = supabaseClient
       .storage
       .from("project-images")
       .getPublicUrl(path);
 
-    imageUrl = data.publicUrl;
+    imageUrl = publicData.publicUrl;
   }
 
-  const { error } = await supabaseClient
+  const { error: insertError } = await supabaseClient
     .from("projects")
     .insert({
-      owner_id: session.user.id,
-      title: title,
-      description: description,
-      tech_stack: techStack,
+      owner_id: userId,
+      title: document.getElementById("title").value,
+      description: document.getElementById("desc").value,
+      tech_stack: document.getElementById("tech").value.split(","),
       image_url: imageUrl
     });
 
-  if(error){
-    alert(error.message);
+  if(insertError){
+    alert("DB error: " + insertError.message);
     return;
   }
 
@@ -75,5 +79,6 @@ async function uploadProject(){
   window.location.href = "projects.html";
 }
 </script>
+
 </body>
 </html>

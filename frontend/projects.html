@@ -127,11 +127,14 @@ body{
 <script src="auth.js"></script>
 
 <script>
+
+function openUser(userId){
+  window.location.href = `user.html?id=${userId}`;
+}
+
 function goUpload(){
   window.location.href = "upload-project.html";
 }
-
-
 
 /* 📥 LOAD PROJECTS */
 async function loadProjects(){
@@ -140,9 +143,6 @@ async function loadProjects(){
     .from("projects")
     .select("*")
     .order("created_at",{ascending:false});
-
-  console.log("Projects:", projects);
-  console.log("Error:", error);
 
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
@@ -153,12 +153,10 @@ async function loadProjects(){
   }
 
   const { data:{session} } = await supabaseClient.auth.getSession();
+  const currentUserId = session?.user?.id;
 
   for(const p of projects){
 
-  console.log("Owner ID:", p.owner_id);
-
-  
     const { data:likes } = await supabaseClient
       .from("project_likes")
       .select("id")
@@ -174,6 +172,41 @@ async function loadProjects(){
       .select("username")
       .eq("id", p.owner_id)
       .single();
+
+    // 🔎 Check if already requested
+    let requestStatus = null;
+    if(currentUserId){
+      const { data:req } = await supabaseClient
+        .from("project_team_requests")
+        .select("status")
+        .eq("project_id",p.id)
+        .eq("from_user",currentUserId)
+        .maybeSingle();
+
+      requestStatus = req?.status || null;
+    }
+
+    let teamButtonHTML = "";
+
+    if(currentUserId === p.owner_id){
+      teamButtonHTML = "";
+    }
+    else if(requestStatus === "pending"){
+      teamButtonHTML = `<span class="action-btn text-warning">⏳ Requested</span>`;
+    }
+    else if(requestStatus === "accepted"){
+      teamButtonHTML = `<span class="action-btn text-success">✅ Joined</span>`;
+    }
+    else if(requestStatus === "rejected"){
+      teamButtonHTML = `<span class="action-btn text-danger">❌ Rejected</span>`;
+    }
+    else{
+      teamButtonHTML = `
+        <span class="action-btn" onclick="requestTeam('${p.id}','${p.owner_id}')">
+          🤝 Create Team
+        </span>
+      `;
+    }
 
     feed.innerHTML += `
       <div class="card post-card mb-4 p-3">
@@ -200,9 +233,7 @@ async function loadProjects(){
             💬 ${comments?.length || 0}
           </span>
 
-          <span class="action-btn" onclick="requestTeam('${p.id}','${p.owner_id}')">
-            🤝 Create Team
-          </span>
+          ${teamButtonHTML}
         </div>
 
         <div id="comments-${p.id}" style="display:none" class="mt-3">
@@ -226,69 +257,7 @@ async function loadProjects(){
     `;
   }
 }
-async function renderProjects(projects){
 
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
-
-  if(!projects || projects.length===0){
-    feed.innerHTML = "<p class='text-muted'>No matching projects found</p>";
-    return;
-  }
-
-  const { data:{session} } = await supabaseClient.auth.getSession();
-
-  for(const p of projects){
-
-    const { data:likes } = await supabaseClient
-      .from("project_likes")
-      .select("id")
-      .eq("project_id",p.id);
-
-    const { data:comments } = await supabaseClient
-      .from("project_comments")
-      .select("comment")
-      .eq("project_id",p.id);
-
-    const { data:profile } = await supabaseClient
-      .from("profiles")
-      .select("username")
-      .eq("id", p.owner_id)
-      .single();
-
-    feed.innerHTML += `
-      <div class="card post-card mb-4 p-3">
-
-        ${p.image_url ? `<img src="${p.image_url}" class="post-img mb-3">` : ""}
-
-        <div style="cursor:pointer; font-weight:600; color:#4f46e5;"
-             onclick="openUser('${p.owner_id}')">
-          👤 ${profile?.username || "User"}
-        </div>
-
-        <h5 class="fw-bold">${p.title}</h5>
-        <p class="text-muted">${p.description || ""}</p>
-
-        <div class="d-flex gap-3 mt-2">
-          <span class="action-btn"
-            onclick="likeProject('${p.id}')">
-            ❤️ ${likes?.length || 0}
-          </span>
-
-          <span class="action-btn">
-            💬 ${comments?.length || 0}
-          </span>
-
-          <span class="action-btn"
-            onclick="requestTeam('${p.id}','${p.owner_id}')">
-            🤝 Create Team
-          </span>
-        </div>
-
-      </div>
-    `;
-  }
-}
 /* ❤️ LIKE */
 async function likeProject(projectId){
   const { data:{session} } = await supabaseClient.auth.getSession();
@@ -308,11 +277,7 @@ async function likeProject(projectId){
     user_id:session.user.id
   });
 
-  const span = document.querySelector(`[data-like="${projectId}"]`);
-if(span){
-  span.innerText = "❤️ " + (Number(span.dataset.count) + 1);
-}
-
+  loadProjects();
 }
 
 /* 💬 COMMENTS */
@@ -329,86 +294,50 @@ async function addComment(e,projectId){
   const { data:{session} } = await supabaseClient.auth.getSession();
 
   await supabaseClient.from("project_comments").insert({
-  project_id:projectId,
-  user_id:session.user.id,
-  comment:text
-});
+    project_id:projectId,
+    user_id:session.user.id,
+    comment:text
+  });
 
-// ✅ append comment only
-const box = document.getElementById(`comments-${projectId}`);
-box.insertAdjacentHTML("beforeend",
-  `<div class="comment">${text}</div>`
-);
-e.target.value = "";
-
+  loadProjects();
 }
 
-/* 🤝 TEAM REQUEST - PRODUCTION SAFE */
+/* 🤝 TEAM REQUEST */
 async function requestTeam(projectId, ownerId){
 
-  try {
+  const { data:{session} } = await supabaseClient.auth.getSession();
+  if(!session) return alert("Login required");
 
-    const { data:{session}, error:authError } =
-      await supabaseClient.auth.getSession();
-
-    if(authError || !session){
-      alert("Login required");
-      return;
-    }
-
-    const currentUserId = session.user.id;
-
-    // 🚫 Prevent self request
-    if(currentUserId === ownerId){
-      alert("You cannot send a request to your own project.");
-      return;
-    }
-
-    // 🔎 Check duplicate request
-    const { data:existing, error:checkError } =
-      await supabaseClient
-        .from("project_team_requests")
-        .select("id, status")
-        .eq("project_id", projectId)
-        .eq("from_user", currentUserId)
-        .eq("to_user", ownerId)
-        .maybeSingle();
-
-    if(checkError){
-      console.error(checkError);
-      alert("Something went wrong.");
-      return;
-    }
-
-    if(existing){
-      alert(`You already sent a request. Status: ${existing.status}`);
-      return;
-    }
-
-    // ✅ Insert request
-    const { error:insertError } =
-      await supabaseClient
-        .from("project_team_requests")
-        .insert({
-          project_id: projectId,
-          from_user: currentUserId,
-          to_user: ownerId,
-          status: "pending"
-        });
-
-    if(insertError){
-      console.error(insertError);
-      alert("Failed to send team request.");
-      return;
-    }
-
-    alert("Team request sent successfully 🤝");
-
-  } catch(err){
-    console.error("Unexpected error:", err);
-    alert("Unexpected error occurred.");
+  if(session.user.id === ownerId){
+    alert("You cannot send request to your own project.");
+    return;
   }
+
+  const { data:existing } = await supabaseClient
+    .from("project_team_requests")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("from_user", session.user.id)
+    .maybeSingle();
+
+  if(existing){
+    alert("Already requested.");
+    return;
+  }
+
+  await supabaseClient
+    .from("project_team_requests")
+    .insert({
+      project_id: projectId,
+      from_user: session.user.id,
+      to_user: ownerId,
+      status: "pending"
+    });
+
+  alert("Request sent 🤝");
+  loadProjects();
 }
+
 /* 🗑 DELETE */
 async function deleteProject(projectId){
   if(!confirm("Delete project?")) return;
@@ -417,96 +346,22 @@ async function deleteProject(projectId){
 }
 
 loadProjects();
+
+/* NAVIGATION */
 async function goProfile(){
   const { data:{session} } = await supabaseClient.auth.getSession();
   if(!session) return alert("Login required");
   window.location.href = `user.html?id=${session.user.id}`;
 }
+
 function goProjects(){
   window.location.href = "projects.html";
 }
+
 function goInbox(){
   window.location.href = "inbox.html";
 }
-async function goProfile(){
-  const { data:{session} } = await supabaseClient.auth.getSession();
-  if(!session) return alert("Login required");
-  window.location.href = `user.html?id=${session.user.id}`;
-}
-function goProjects(){
-  window.location.href = "projects.html";
-}
-function goInbox(){
-  window.location.href = "inbox.html";
-}
-async function searchProjects(){
 
-  const query = document
-    .getElementById("projectSearch")
-    .value
-    .trim()
-    .toLowerCase();
-
-  if(query.length < 2){
-    loadProjects();
-    return;
-  }
-
-  const { data:projects, error } = await supabaseClient
-    .from("projects")
-    .select("*");
-
-  if(error){
-    console.error(error);
-    return;
-  }
-
-  const filtered = projects.filter(p => {
-
-    const title = (p.title || "").toLowerCase();
-    const description = (p.description || "").toLowerCase();
-    const techStack = (p.tech_stack || []).join(" ").toLowerCase();
-
-    return (
-      title.includes(query) ||
-      description.includes(query) ||
-      techStack.includes(query)
-    );
-  });
-
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
-
-  if(filtered.length === 0){
-    feed.innerHTML = "<p class='text-muted'>No matching projects found</p>";
-    return;
-  }
-
-  for(const p of filtered){
-
-    const { data:profile } = await supabaseClient
-      .from("profiles")
-      .select("username")
-      .eq("id", p.owner_id)
-      .single();
-
-    feed.innerHTML += `
-      <div class="card post-card mb-4 p-3">
-
-        ${p.image_url ? `<img src="${p.image_url}" class="post-img mb-3">` : ""}
-
-        <div style="cursor:pointer; font-weight:600; color:#4f46e5;"
-             onclick="openUser('${p.owner_id}')">
-          👤 ${profile?.username || "User"}
-        </div>
-
-        <h5 class="fw-bold">${p.title}</h5>
-        <p class="text-muted">${p.description || ""}</p>
-
-      </div>
-    `;
-  }
-}
 </script>
 <!-- 🔻 BOTTOM NAV -->
 <div class="bottom-nav">
