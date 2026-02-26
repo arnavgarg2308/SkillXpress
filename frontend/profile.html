@@ -61,23 +61,22 @@ const username = document.getElementById("username")?.value || null;
 
   // 3. update DB
   const { error } = await supabaseClient
-    .from("profiles")
     .upsert({
-     id: user.id,                  // ⭐ MUST
-      username,
-      college,
-      course,
-      branch,
-      year,
-      age,
-      github,
-      leetcode,
-      codechef,
-      hackerrank,
-      is_profile_completed: true  
-    })
-    .eq("id", user.id);
-
+  id: user.id,
+  username,
+  college,
+  course,
+  branch,
+  year,
+  age,
+  github,
+  leetcode,
+  codechef,
+  hackerrank,
+  is_profile_completed: true
+}, {
+  onConflict: 'id'
+});
   if (error) {
     console.error(error);
     alert("Failed to save profile links");

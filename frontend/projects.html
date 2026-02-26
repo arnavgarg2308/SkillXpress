@@ -7,7 +7,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<style>
+<style>    
 body{
   background:#f3f4f6;
   font-family:"Segoe UI",sans-serif;
@@ -69,10 +69,7 @@ body{
   cursor:pointer;
   color:#555;
 }
-.bottom-nav span{
-  display:block;
-  font-size:12px;
-  .bottom-nav{
+.bottom-nav{
   position:fixed;
   bottom:0;
   left:0;
@@ -96,7 +93,7 @@ body{
   font-size:12px;
 }
 
-}
+
 
 </style>
 </head>
@@ -106,15 +103,16 @@ body{
 <div class="container py-4" style="max-width:720px">
 
   <h3 class="fw-bold mb-3 text-primary">🚀 Project Feed</h3>
+ 
 
-  <!-- 🔍 SEARCH USERS -->
-  <input
-    type="text"
-    id="userSearch"
-    class="form-control mb-4"
-    placeholder="Search users by username or email"
-    oninput="searchUsers()"
-  />
+<!-- PROJECT SEARCH -->
+<input
+  type="text"
+  id="projectSearch"
+  class="form-control mb-4"
+  placeholder="Search projects"
+  oninput="searchProjects()"
+/>
   <div id="searchResults" class="mb-3"></div>
 
   <div id="feed">
@@ -133,49 +131,18 @@ function goUpload(){
   window.location.href = "upload-project.html";
 }
 
-/* 🔍 SEARCH USERS */
-async function searchUsers(){
-  const q = document.getElementById("userSearch").value.trim();
-  if(q.length < 3){
-    document.getElementById("searchResults").innerHTML = "";
-    return;
-  }
 
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("id, username, email")
-    .or(`username.ilike.%${q}%,email.ilike.%${q}%`)
-    .limit(5);
-
-  const box = document.getElementById("searchResults");
-  box.innerHTML = "";
-
-  if(error || !data) return;
-
-  data.forEach(u=>{
-    box.innerHTML += `
-      <div class="border rounded p-2 mb-1 action-btn"
-           onclick="openUser('${u.id}')">
-        <strong>${u.username || "User"}</strong><br>
-        <small class="text-muted">${u.email}</small>
-      </div>`;
-  });
-}
-
-
-function openUser(id){
-  window.location.href = `user.html?id=${id}`;
-}
 
 /* 📥 LOAD PROJECTS */
 async function loadProjects(){
 
-  const { data:{session} } = await supabaseClient.auth.getSession();
-
-  const { data:projects } = await supabaseClient
+  const { data:projects, error } = await supabaseClient
     .from("projects")
     .select("*")
     .order("created_at",{ascending:false});
+
+  console.log("Projects:", projects);
+  console.log("Error:", error);
 
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
@@ -185,8 +152,13 @@ async function loadProjects(){
     return;
   }
 
+  const { data:{session} } = await supabaseClient.auth.getSession();
+
   for(const p of projects){
 
+  console.log("Owner ID:", p.owner_id);
+
+  
     const { data:likes } = await supabaseClient
       .from("project_likes")
       .select("id")
@@ -197,25 +169,37 @@ async function loadProjects(){
       .select("comment")
       .eq("project_id",p.id);
 
+    const { data:profile } = await supabaseClient
+      .from("profiles")
+      .select("username")
+      .eq("id", p.owner_id)
+      .single();
+
     feed.innerHTML += `
       <div class="card post-card mb-4 p-3">
 
         ${p.image_url ? `<img src="${p.image_url}" class="post-img mb-3">` : ""}
+
+        <div style="cursor:pointer; font-weight:600; color:#4f46e5;"
+             onclick="openUser('${p.owner_id}')">
+          👤 ${profile?.username || "User"}
+        </div>
 
         <h5 class="fw-bold">${p.title}</h5>
         <p class="text-muted">${p.description || ""}</p>
 
         <div class="d-flex gap-3 mt-2">
           <span class="action-btn"
-      data-like="${p.id}"
-      data-count="${likes?.length || 0}"
-      onclick="likeProject('${p.id}')">
-  ❤️ ${likes?.length || 0}
-</span>
+            data-like="${p.id}"
+            data-count="${likes?.length || 0}"
+            onclick="likeProject('${p.id}')">
+            ❤️ ${likes?.length || 0}
+          </span>
 
           <span class="action-btn" onclick="toggleComments('${p.id}')">
             💬 ${comments?.length || 0}
           </span>
+
           <span class="action-btn" onclick="requestTeam('${p.id}','${p.owner_id}')">
             🤝 Create Team
           </span>
@@ -242,7 +226,69 @@ async function loadProjects(){
     `;
   }
 }
+async function renderProjects(projects){
 
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "";
+
+  if(!projects || projects.length===0){
+    feed.innerHTML = "<p class='text-muted'>No matching projects found</p>";
+    return;
+  }
+
+  const { data:{session} } = await supabaseClient.auth.getSession();
+
+  for(const p of projects){
+
+    const { data:likes } = await supabaseClient
+      .from("project_likes")
+      .select("id")
+      .eq("project_id",p.id);
+
+    const { data:comments } = await supabaseClient
+      .from("project_comments")
+      .select("comment")
+      .eq("project_id",p.id);
+
+    const { data:profile } = await supabaseClient
+      .from("profiles")
+      .select("username")
+      .eq("id", p.owner_id)
+      .single();
+
+    feed.innerHTML += `
+      <div class="card post-card mb-4 p-3">
+
+        ${p.image_url ? `<img src="${p.image_url}" class="post-img mb-3">` : ""}
+
+        <div style="cursor:pointer; font-weight:600; color:#4f46e5;"
+             onclick="openUser('${p.owner_id}')">
+          👤 ${profile?.username || "User"}
+        </div>
+
+        <h5 class="fw-bold">${p.title}</h5>
+        <p class="text-muted">${p.description || ""}</p>
+
+        <div class="d-flex gap-3 mt-2">
+          <span class="action-btn"
+            onclick="likeProject('${p.id}')">
+            ❤️ ${likes?.length || 0}
+          </span>
+
+          <span class="action-btn">
+            💬 ${comments?.length || 0}
+          </span>
+
+          <span class="action-btn"
+            onclick="requestTeam('${p.id}','${p.owner_id}')">
+            🤝 Create Team
+          </span>
+        </div>
+
+      </div>
+    `;
+  }
+}
 /* ❤️ LIKE */
 async function likeProject(projectId){
   const { data:{session} } = await supabaseClient.auth.getSession();
@@ -297,19 +343,72 @@ e.target.value = "";
 
 }
 
-/* 🤝 TEAM REQUEST */
+/* 🤝 TEAM REQUEST - PRODUCTION SAFE */
 async function requestTeam(projectId, ownerId){
-  const { data:{session} } = await supabaseClient.auth.getSession();
 
-  await supabaseClient.from("project_team_requests").insert({
-    project_id:projectId,
-    from_user:session.user.id,
-    to_user:ownerId
-  });
+  try {
 
-  alert("Team request sent 🤝");
+    const { data:{session}, error:authError } =
+      await supabaseClient.auth.getSession();
+
+    if(authError || !session){
+      alert("Login required");
+      return;
+    }
+
+    const currentUserId = session.user.id;
+
+    // 🚫 Prevent self request
+    if(currentUserId === ownerId){
+      alert("You cannot send a request to your own project.");
+      return;
+    }
+
+    // 🔎 Check duplicate request
+    const { data:existing, error:checkError } =
+      await supabaseClient
+        .from("project_team_requests")
+        .select("id, status")
+        .eq("project_id", projectId)
+        .eq("from_user", currentUserId)
+        .eq("to_user", ownerId)
+        .maybeSingle();
+
+    if(checkError){
+      console.error(checkError);
+      alert("Something went wrong.");
+      return;
+    }
+
+    if(existing){
+      alert(`You already sent a request. Status: ${existing.status}`);
+      return;
+    }
+
+    // ✅ Insert request
+    const { error:insertError } =
+      await supabaseClient
+        .from("project_team_requests")
+        .insert({
+          project_id: projectId,
+          from_user: currentUserId,
+          to_user: ownerId,
+          status: "pending"
+        });
+
+    if(insertError){
+      console.error(insertError);
+      alert("Failed to send team request.");
+      return;
+    }
+
+    alert("Team request sent successfully 🤝");
+
+  } catch(err){
+    console.error("Unexpected error:", err);
+    alert("Unexpected error occurred.");
+  }
 }
-
 /* 🗑 DELETE */
 async function deleteProject(projectId){
   if(!confirm("Delete project?")) return;
@@ -340,7 +439,74 @@ function goProjects(){
 function goInbox(){
   window.location.href = "inbox.html";
 }
+async function searchProjects(){
 
+  const query = document
+    .getElementById("projectSearch")
+    .value
+    .trim()
+    .toLowerCase();
+
+  if(query.length < 2){
+    loadProjects();
+    return;
+  }
+
+  const { data:projects, error } = await supabaseClient
+    .from("projects")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const filtered = projects.filter(p => {
+
+    const title = (p.title || "").toLowerCase();
+    const description = (p.description || "").toLowerCase();
+    const techStack = (p.tech_stack || []).join(" ").toLowerCase();
+
+    return (
+      title.includes(query) ||
+      description.includes(query) ||
+      techStack.includes(query)
+    );
+  });
+
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "";
+
+  if(filtered.length === 0){
+    feed.innerHTML = "<p class='text-muted'>No matching projects found</p>";
+    return;
+  }
+
+  for(const p of filtered){
+
+    const { data:profile } = await supabaseClient
+      .from("profiles")
+      .select("username")
+      .eq("id", p.owner_id)
+      .single();
+
+    feed.innerHTML += `
+      <div class="card post-card mb-4 p-3">
+
+        ${p.image_url ? `<img src="${p.image_url}" class="post-img mb-3">` : ""}
+
+        <div style="cursor:pointer; font-weight:600; color:#4f46e5;"
+             onclick="openUser('${p.owner_id}')">
+          👤 ${profile?.username || "User"}
+        </div>
+
+        <h5 class="fw-bold">${p.title}</h5>
+        <p class="text-muted">${p.description || ""}</p>
+
+      </div>
+    `;
+  }
+}
 </script>
 <!-- 🔻 BOTTOM NAV -->
 <div class="bottom-nav">

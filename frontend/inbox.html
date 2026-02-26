@@ -93,9 +93,9 @@ async function loadInbox(){
 
   // fetch chats involving me
   const { data:chats } = await supabaseClient
-    .from("chats")
+    .from("messages")
     .select("*")
-    .or(`from_user.eq.${myId},to_user.eq.${myId}`)
+    .or(`sender_id.eq.${myId},receiver_id.eq.${myId}`)
     .order("created_at",{ascending:false});
 
   const box = document.getElementById("chatList");
@@ -109,8 +109,10 @@ async function loadInbox(){
   const seenUsers = new Set();
 
   for(const c of chats){
-    const otherId = c.from_user === myId ? c.to_user : c.from_user;
-    if(seenUsers.has(otherId)) continue;
+const otherId =
+  c.sender_id === myId
+    ? c.receiver_id
+    : c.sender_id;    if(seenUsers.has(otherId)) continue;
     seenUsers.add(otherId);
 
     // get other user's profile
@@ -139,7 +141,7 @@ async function loadInbox(){
 
 function openChat(userId){
   localStorage.setItem("chatReceiver", userId);
-  window.location.href = `chat.html?user=${userId}`;
+  window.location.href = `project-chat.html?user=${userId}`;
 }
 
 loadInbox();
