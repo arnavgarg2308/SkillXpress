@@ -92,17 +92,30 @@ async function downloadRoadmap(month) {
     return;
   }
 
-  const res = await fetch(
-    `https://skillxpress-1.onrender.com/api/roadmap/download-pdf/${USER_ID}/${month}`
-  );
+  const btn = event.target;   // 👈 clicked button
 
-  const data = await res.json();
+  try {
+    btn.innerText = "Downloading...";
+    btn.disabled = true;
 
-  if (data.url) {
-    window.open(data.url, "_blank");
-  } else {
-    alert("PDF not found");
+    const res = await fetch(
+      `https://skillxpress-1.onrender.com/api/roadmap/download-pdf/${USER_ID}/${month}`
+    );
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.open(data.url, "_blank");
+    } else {
+      alert("PDF not found");
+    }
+
+  } catch (err) {
+    alert("Download failed");
   }
+
+  btn.innerText = "Download Roadmap PDF";
+  btn.disabled = false;
 }
 </script>
 
