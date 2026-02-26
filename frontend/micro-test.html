@@ -79,10 +79,9 @@
     <div id="questions"></div>
 
 
-    <button class="btn btn-success mt-4" onclick="submitTest()">
+    <button id="submitBtn" class="btn btn-success mt-4" onclick="submitTest()">
   Submit Test
 </button>
-
   </div>
 
 </div>
@@ -203,7 +202,9 @@ async function loadQuestions() {
 /* ================= SUBMIT TEST ================= */
 async function submitTest() {
   clearInterval(timerInterval);
-
+const btn = document.getElementById("submitBtn");
+btn.innerText = "Submitting...";
+btn.disabled = true;
   const totalAnswered = Object.keys(answers).length;
   if (totalAnswered === 0) {
     alert("Please attempt at least one question");
