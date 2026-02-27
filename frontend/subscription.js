@@ -1,8 +1,8 @@
+const API = "https://skillxpress-1.onrender.com";
 async function pay(amount, plan, days){
 
   const { data:{user} } = await supabaseClient.auth.getUser();
-
-  const orderRes = await fetch("/subscription/create-order",{
+  const orderRes = await fetch(`${API}/subscription/create-order`,{
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ amount })
@@ -17,7 +17,7 @@ async function pay(amount, plan, days){
     order_id: order.id,
     handler: async function(response){
 
-      await fetch("/subscription/verify",{
+      await fetch(`${API}/subscription/verify`,{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
