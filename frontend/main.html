@@ -374,6 +374,11 @@ async function checkFeatureAccess(feature){
 
   return true;
 }
+async function openFeature(type, url){
+  if(await checkFeatureAccess(type)){
+    window.location.href = url;
+  }
+}
 /* RUN WHEN PAGE LOADS */
 checkAuth();
 showTestStatus();
