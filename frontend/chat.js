@@ -73,10 +73,6 @@ async function sendMessage(){
   ]);
 
   input.value = "";
-  appendMessage({
-  sender_id: currentUser.id,
-  message: text
-});
 }
 
 /* REALTIME */

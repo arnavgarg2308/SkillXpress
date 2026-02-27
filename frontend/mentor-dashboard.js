@@ -72,12 +72,8 @@ async function openChat(userId){
   document.getElementById("chatUserName")
     .innerText = "Chat with User";
 
-  appendMentorMessage({
-  sender_id: mentor.id,
-  message: text
-});
-
-  startRealtime();
+  await loadMessages();   // 👈 pehle old messages load karo
+  startRealtime();        // 👈 fir realtime start karo
 }
 
 /* LOAD MESSAGES */
@@ -129,7 +125,6 @@ async function sendMentorMessage(){
   ]);
 
   input.value = "";
-  await loadMessages();
 }
 
 /* REALTIME */
