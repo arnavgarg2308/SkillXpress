@@ -312,7 +312,8 @@ async function updateRequest(id,status){
 }
 
 function openChat(){
-  window.location.href=`chat.html?user=${userId}`;
+  console.log("Opening chat with:", userId);
+  window.location.href=`project-chat.html?user=${userId}`;
 }
 
 loadProfile();

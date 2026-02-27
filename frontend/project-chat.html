@@ -79,7 +79,6 @@ body{
     <div class="avatar" id="avatar"></div>
     <div class="meta">
       <div class="name" id="chatName">Chat</div>
-      <div class="status" id="status">online</div>
     </div>
   </div>
 </div>
@@ -121,20 +120,22 @@ let myId, myName;
 // LOAD MESSAGES (User to User)
 async function loadMessages(){
 
+  if(!receiverId) return;
+
+  const filter = `and(sender_id.eq.${myId},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${myId})`;
+
   const { data, error } = await supabaseClient
     .from("messages")
     .select("*")
-    .or(`and(sender_id.eq.${myId},receiver_id.eq.${receiverId}),
-         and(sender_id.eq.${receiverId},receiver_id.eq.${myId})`)
+    .or(filter)
     .order("created_at",{ascending:true});
 
   if(error){
-    console.error(error);
+    console.error("Load error:", error);
     return;
   }
 
   messagesEl.innerHTML="";
-
   data.forEach(renderMsg);
 }
 
