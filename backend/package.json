@@ -6,12 +6,13 @@
     "start": "node skillback.js"
   },
   "dependencies": {
-    "pdf-parse": "^1.1.1",
-  "tesseract.js": "^4.0.0",
     "@supabase/supabase-js": "^2.89.0",
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1",
+    "razorpay": "^2.9.6",
+    "tesseract.js": "^4.0.0"
   }
 }
