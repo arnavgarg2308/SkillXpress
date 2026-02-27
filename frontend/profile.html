@@ -61,6 +61,7 @@ const username = document.getElementById("username")?.value || null;
 
   // 3. update DB
   const { error } = await supabaseClient
+  .from("profiles") 
     .upsert({
   id: user.id,
   username,
