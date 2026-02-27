@@ -64,10 +64,112 @@
     .sub-text{
       color:#6b7280;
     }
+.premium-wrapper{
+  min-height:100vh;
+  background: radial-gradient(circle at top, #1f2937, #111827);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+
+.plan-card{
+  background:#1e293b;
+  border-radius:20px;
+  padding:30px;
+  transition:0.3s;
+  border:1px solid #334155;
+}
+
+.plan-card:hover{
+  transform:scale(1.05);
+  border-color:#6366f1;
+  box-shadow:0 0 40px rgba(99,102,241,0.4);
+}
+
+.price{
+  font-size:2rem;
+  font-weight:700;
+}
+
+.plan-badge{
+  background:#6366f1;
+  padding:4px 10px;
+  border-radius:10px;
+  font-size:0.7rem;
+}
   </style>
 </head>
 <body>
+<!-- SUBSCRIPTION SCREEN -->
 
+<div id="subscriptionScreen" class="premium-wrapper" style="display:none;">
+
+  <h1 class="fw-bold mb-2">Unlock SkillXpress Premium 🚀</h1>
+  <p class="mb-5 text-secondary">AI Roadmap • Mentor Chat • Job Match • Career Risk</p>
+
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+
+      <!-- Starter -->
+      <div class="col-md-3">
+        <div class="plan-card text-center">
+          <h5>Starter</h5>
+          <div class="price">₹29</div>
+          <p>28 Days</p>
+          <button class="btn btn-outline-light w-100"
+            onclick="pay(29,'starter',28)">
+            Subscribe
+          </button>
+        </div>
+      </div>
+
+      <!-- Growth -->
+      <div class="col-md-3">
+        <div class="plan-card text-center">
+          <span class="plan-badge">Most Popular</span>
+          <h5 class="mt-2">Growth</h5>
+          <div class="price">₹49</div>
+          <p>28 Days + Career Risk</p>
+          <button class="btn btn-primary w-100"
+            onclick="pay(49,'growth',28)">
+            Subscribe
+          </button>
+        </div>
+      </div>
+
+      <!-- Pro -->
+      <div class="col-md-3">
+        <div class="plan-card text-center">
+          <h5>Pro</h5>
+          <div class="price">₹249</div>
+          <p>6 Months</p>
+          <button class="btn btn-outline-light w-100"
+            onclick="pay(249,'pro',180)">
+            Subscribe
+          </button>
+        </div>
+      </div>
+
+      <!-- Elite -->
+      <div class="col-md-3">
+        <div class="plan-card text-center">
+          <h5>Elite</h5>
+          <div class="price">₹499</div>
+          <p>1 Year</p>
+          <button class="btn btn-outline-light w-100"
+            onclick="pay(499,'elite',365)">
+            Subscribe
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- DASHBOARD SECTION -->
+<div id="dashboardContent" style="display:none;">
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg fixed-top">
   <div class="container">
@@ -146,7 +248,7 @@
     <div class="col-md-4 col-sm-6">
       <div class="feature-card">
         <div class="feature-icon">⚠</div>
-        <a href="opportunities.html" class="feature-title text-decoration-none">
+        <a href="#" onclick="openFeature('career-risk','opportunities.html')" class="feature-title text-decoration-none">
  Career Risk
 </a>
       </div>
@@ -165,7 +267,7 @@
     <div class="col-md-4 col-sm-6">
       <div class="feature-card">
         <div class="feature-icon">🎯</div>
-        <a href="jobs.html" class="feature-title text-decoration-none">
+        <a href="#" onclick="openFeature('career-risk','jobs.html')" class="feature-title text-decoration-none">
    Upcoming Jobs
 </a>
       </div>
@@ -198,8 +300,11 @@
 
   </div>
 </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="subscription.js"></script>
 <script>
 async function checkAuth() {
   const { data } = await supabaseClient.auth.getUser();
@@ -226,11 +331,53 @@ function showTestStatus() {
   // no pending concept for now
   badge.style.display = "none";
 }
+async function checkSubscription(){
 
+  const { data:{user} } = await supabaseClient.auth.getUser();
+
+  if(!user){
+    window.location.href = "index.html";
+    return;
+  }
+
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("is_premium,subscription_end")
+    .eq("id", user.id)
+    .single();
+
+  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
+    document.getElementById("subscriptionScreen").style.display = "block";
+  } else {
+    document.getElementById("dashboardContent").style.display = "block";
+  }
+}
+async function checkFeatureAccess(feature){
+
+  const { data:{user} } = await supabaseClient.auth.getUser();
+
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("plan_type,subscription_end")
+    .eq("id", user.id)
+    .single();
+
+  if(!data.plan_type || new Date(data.subscription_end) < new Date()){
+    location.reload();
+    return false;
+  }
+
+  if(feature === "career-risk" && data.plan_type === "starter"){
+    alert("Upgrade to Growth plan to access Career Risk");
+    return false;
+  }
+
+  return true;
+}
 /* RUN WHEN PAGE LOADS */
 checkAuth();
 showTestStatus();
-
+checkSubscription();
 
 
 

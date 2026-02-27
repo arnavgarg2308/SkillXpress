@@ -10,6 +10,7 @@ const jobRoutes = require("./routes/jobback");
 const roadmapRoutes = require("./routes/roadmap");
 const jobsRouter = require("./routes/jobserver");
 const opportunitiesRouter = require("./routes/opportunitiesServer");
+const subscriptionRoutes = require("./routes/subscription");
 const fs = require("fs");
 const pdf = require("pdf-parse");
 const Tesseract = require("tesseract.js");
@@ -39,6 +40,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/roadmap", roadmapRoutes);
 app.use("/api/jobs", jobsRouter);
 app.use("/api/opportunities", opportunitiesRouter);
+app.use("/subscription", subscriptionRoutes);
 /* ===== ML HELPERS ===== */
 
 function normalize(value, max = 200) {
