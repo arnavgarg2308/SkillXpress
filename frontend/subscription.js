@@ -11,7 +11,7 @@ async function pay(amount, plan, days){
   const order = await orderRes.json();
 
   const options = {
-    key: "RAZORPAY_KEY_ID",
+    key: "rzp_live_SLHKbzoN2sNWCD",
     amount: order.amount,
     currency: "INR",
     order_id: order.id,
