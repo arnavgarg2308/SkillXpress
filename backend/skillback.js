@@ -60,7 +60,31 @@ function mlScore({ repos, stars, forks, activity }) {
 
 app.get("/full-skills/:userId/:username", async (req, res) => {
   const { userId, username } = req.params;
+/* =========================
+   🔒 WEEKLY CHECK
+========================= */
 
+const { data: existing } = await supabase
+  .from("user_skill_snapshot")
+  .select("skills, updated_at")
+  .eq("user_id", userId)
+  .single();
+
+if (existing?.updated_at) {
+
+  const lastUpdate = new Date(existing.updated_at);
+  const now = new Date();
+  const diffDays = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+
+  if (diffDays < 7) {
+
+    const remainingDays = Math.ceil(7 - diffDays);
+
+    return res.status(403).json({
+      message: `Graph will be generated after ${remainingDays} day(s).`
+    });
+  }
+}
   try {
     let skills = {};
 console.log("TOKEN:", process.env.GITHUB_TOKEN);
@@ -274,7 +298,8 @@ const { data, error } = await supabase
   .from("user_skill_snapshot")
   .upsert({
     user_id: userId,
-    skills: skills
+    skills: skills,
+    updated_at: new Date().toISOString()
   }, { onConflict: "user_id" });
 
 console.log("SAVE RESULT:", data, error);

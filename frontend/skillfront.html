@@ -120,10 +120,21 @@ const btn = document.getElementById("generateBtn");
 );
 
   const result = await res.json();
-if (!result.skills || Object.keys(result.skills).length === 0) {
-  alert("No GitHub activity found yet");
+  if (!res.ok) {
+  alert(result.message);
+  btn.innerText = "Generate Skill Graph";
+  btn.disabled = false;
   return;
 }
+
+if (!result.skills || Object.keys(result.skills).length === 0) {
+  alert("No GitHub activity found yet");
+  btn.innerText = "Generate Skill Graph";
+  btn.disabled = false;
+  return;
+}
+
+
 console.log("GRAPH DATA:", result.skills);
   drawGraph(result.skills);
     btn.innerText = "Generate Skill Graph";
