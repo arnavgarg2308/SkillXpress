@@ -277,7 +277,11 @@ if (snapErr) {
 
         reqBox.innerHTML+=`
           <div class="border rounded p-2 mb-2">
-            <strong>${senderName}</strong>
+            <strong 
+  style="cursor:pointer;color:#4f46e5"
+  onclick="openUserProfile('${r.from_user}')">
+  ${senderName}
+</strong>
             <div class="mt-2">
               ${
                 r.status === "pending"
@@ -326,7 +330,11 @@ if (snapErr) {
 
       sentBox.innerHTML+=`
         <div class="border rounded p-2 mb-2">
-          <strong>To: ${receiverName}</strong>
+          <strong 
+  style="cursor:pointer;color:#4f46e5"
+  onclick="openUserProfile('${r.to_user}')">
+  To: ${receiverName}
+</strong>
           <div class="mt-2">
             <span class="badge ${badge}">
               ${r.status.toUpperCase()}
@@ -369,6 +377,12 @@ function goInbox(){
 }
 function goexplore(){
   window.location.href = "explore.html";
+}
+function openUserProfile(uid){
+  window.location.href = `user.html?id=${uid}`;
+}
+function openUserProfile(uid){
+  window.location.href = `user.html?id=${uid}`;
 }
 </script>
 <div class="bottom-nav">
