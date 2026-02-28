@@ -35,7 +35,23 @@ router.post("/generate-month", async (req, res) => {
       .select("github, interests")
       .eq("id", userId)
       .maybeSingle();
+/* ================= MONTHLY LOCK ================= */
 
+if (row?.last_generated_at) {
+
+  const lastDate = new Date(row.last_generated_at);
+  const now = new Date();
+
+  const sameMonth =
+    lastDate.getFullYear() === now.getFullYear() &&
+    lastDate.getMonth() === now.getMonth();
+
+  if (sameMonth) {
+    return res.status(403).json({
+      error: "Roadmap already generated for this month."
+    });
+  }
+}
     if (!profile)
       return res.status(400).json({ error: "Profile not found" });
 
@@ -165,6 +181,7 @@ const nextMonth = month + 1;
       .upsert({
         user_id: userId,
         current_month: nextMonth,
+        last_generated_at: new Date().toISOString(), 
         months: {
           ...(row?.months || {}),
           [month]: {

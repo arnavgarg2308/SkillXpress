@@ -62,14 +62,18 @@ async function generate() {
       body: JSON.stringify({ userId: USER_ID })
     });
 
-    const data = await res.json();
-    console.log("API Response:", data);
+   const data = await res.json();
+console.log("API Response:", data);
 
-    if (!data.success) {
-      document.getElementById("roadmapBox").innerHTML =
-        `<p style="color:red">${data.error}</p>`;
-      return;
-    }
+// 🔒 Monthly lock check
+if (!res.ok) {
+  document.getElementById("roadmapBox").innerHTML =
+    `<p style="color:red; font-weight:bold;">${data.error}</p>`;
+
+  btn.innerText = "Generate Month";
+  btn.disabled = false;
+  return;
+}
 
     const r = data.roadmap;
 CURRENT_MONTH = r.month; 
