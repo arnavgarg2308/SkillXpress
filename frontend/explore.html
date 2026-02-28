@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SkillXpress | Explore</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  background:#f1f5f9;
+  font-family:"Segoe UI",sans-serif;
+}
+.feed-container{
+  max-width:900px;
+  margin:auto;
+}
+.skill-card{
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  padding:20px;
+  margin-bottom:30px;
+}
+.username{
+  font-weight:700;
+  color:#4f46e5;
+  cursor:pointer;
+}
+.bio{
+  font-size:14px;
+  color:#475569;
+}
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:60px;
+  background:#fff;
+  border-top:1px solid #ddd;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index:1000;
+}
+.bottom-nav div{
+  text-align:center;
+  font-size:20px;
+  cursor:pointer;
+  color:#555;
+}
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:60px;
+  background:#fff;
+  border-top:1px solid #ddd;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index:1000;
+}
+.bottom-nav div{
+  text-align:center;
+  font-size:20px;
+  cursor:pointer;
+  color:#555;
+}
+.bottom-nav span{
+  display:block;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar bg-white shadow-sm px-4">
+  <span class="navbar-brand fw-bold text-primary">
+    SkillXpress • Explore
+  </span>
+</nav>
+
+<div class="container py-5 feed-container" id="feed">
+  <p class="text-center text-muted">Loading skill graphs...</p>
+</div>
+
+<script src="auth.js"></script>
+
+<script>
+async function loadFeed() {
+
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "";
+
+  /* =======================
+     1️⃣ FETCH SKILL SNAPSHOTS
+     ======================= */
+  const { data: snapshots, error: snapErr } =
+    await supabaseClient
+      .from("user_skill_snapshot")
+      .select("user_id, skills");
+
+  if (snapErr) {
+    console.error("Snapshot error:", snapErr);
+    feed.innerHTML = "<p class='text-danger text-center'>Failed to load skills</p>";
+    return;
+  }
+
+  if (!snapshots || snapshots.length === 0) {
+    feed.innerHTML = "<p class='text-muted text-center'>No skill graphs yet</p>";
+    return;
+  }
+
+  /* =======================
+     2️⃣ FETCH ALL PROFILES (SAFE)
+     ======================= */
+  const { data: profiles, error: profErr } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, username, bio");
+
+  if (profErr) {
+    console.error("Profiles error:", profErr);
+    feed.innerHTML = "<p class='text-danger text-center'>Failed to load profiles</p>";
+    return;
+  }
+
+  /* =======================
+     3️⃣ MAP PROFILES BY ID
+     ======================= */
+  const profileMap = {};
+  profiles.forEach(p => {
+    profileMap[p.id] = p;
+  });
+
+  /* =======================
+     4️⃣ RENDER FEED
+     ======================= */
+  snapshots.forEach((snap, i) => {
+    const user = profileMap[snap.user_id];
+    if (!user || !snap.skills) return;
+
+    const canvasId = `chart-${i}`;
+    const card = document.createElement("div");
+    card.className = "skill-card";
+
+    card.innerHTML = `
+      <div class="username" onclick="openProfile('${user.id}')">
+        @${user.username || user.id.slice(0,8)}
+      </div>
+      <p class="bio">${user.bio || ""}</p>
+      <canvas id="${canvasId}" height="220"></canvas>
+    `;
+
+    feed.appendChild(card);
+    drawChart(canvasId, snap.skills);
+  });
+
+  if (!feed.children.length) {
+    feed.innerHTML = "<p class='text-muted text-center'>No valid skill data found</p>";
+  }
+}
+
+function drawChart(id, skills) {
+  new Chart(document.getElementById(id), {
+    type: "radar",
+    data: {
+      labels: Object.keys(skills),
+      datasets: [{
+        data: Object.values(skills),
+        backgroundColor: "rgba(99,102,241,0.25)",
+        borderColor: "#4f46e5",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+}
+
+function openProfile(uid) {
+  window.location.href = `user.html?uid=${uid}`;
+}
+
+loadFeed();
+async function goProfile(){
+  const { data:{session} } = await supabaseClient.auth.getSession();
+  if(!session) return alert("Login required");
+  window.location.href = `user.html?id=${session.user.id}`;
+}
+function goProjects(){
+  window.location.href = "projects.html";
+}
+function goInbox(){
+  window.location.href = "inbox.html";
+}
+function goexplore(){
+  window.location.href = "explore.html";
+}
+</script>
+<div class="bottom-nav">
+  <div onclick="goProjects()">🏠<span>Projects</span></div>
+  <div onclick="goProfile()">👤<span>Profile</span></div>
+  <div onclick="goInbox()">💬<span>Chats</span></div>
+   <div onclick="goexplore()"><span>explore graphs</span></div>
+</div>
+
+</body>
+</html>

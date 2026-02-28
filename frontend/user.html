@@ -13,6 +13,17 @@ body{
   font-family:"Segoe UI",sans-serif;
   background:#f3f4f6;
 }
+.skill-graph-wrapper{
+  width:100%;
+  height:300px;      /* 👈 yahan se size control */
+  max-height:320px;
+  position:relative;
+}
+@media(max-width:768px){
+  .skill-graph-wrapper{
+    height:240px;
+  }
+}
 .card{
   border:none;
   border-radius:16px;
@@ -117,32 +128,46 @@ let userId = params.get("id");
 let skillChart;
 
 /* ===========================
-   DRAW SKILL GRAPH
+   DRAW SKILL GRAPH (FIXED)
 =========================== */
 function drawGraph(skills){
+
   const ctx = document.getElementById("skillChart");
-  if(!ctx) return;
+  if (!ctx) return;
 
-  if(skillChart) skillChart.destroy();
+  // 🔥 SAFE destroy (error-proof)
+  if (window.skillChart && typeof window.skillChart.destroy === "function") {
+    window.skillChart.destroy();
+  }
 
-  const labels = Object.keys(skills || {});
-  const values = Object.values(skills || {});
+  if (!skills || typeof skills !== "object") {
+    skills = {};
+  }
 
-  skillChart = new Chart(ctx,{
-    type:"radar",
-    data:{
-      labels: labels.length ? labels : ["No Data"],
-      datasets:[{
-        label:"Skill Strength",
-        data: values.length ? values : [0],
-        backgroundColor:"rgba(79,70,229,.3)",
-        borderColor:"#4f46e5",
-        borderWidth:2
+  window.skillChart = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: Object.keys(skills).length
+        ? Object.keys(skills)
+        : ["No Skills"],
+      datasets: [{
+        label: "Skill Strength",
+        data: Object.values(skills).length
+          ? Object.values(skills)
+          : [0],
+        backgroundColor: "rgba(79,70,229,0.25)",
+        borderColor: "#4f46e5",
+        borderWidth: 2
       }]
     },
-    options:{
-      scales:{ 
-        r:{ beginAtZero:true, max:100 } 
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100
+        }
       }
     }
   });
@@ -317,7 +342,27 @@ function openChat(){
 }
 
 loadProfile();
+async function goProfile(){
+  const { data:{session} } = await supabaseClient.auth.getSession();
+  if(!session) return alert("Login required");
+  window.location.href = `user.html?id=${session.user.id}`;
+}
+function goProjects(){
+  window.location.href = "projects.html";
+}
+function goInbox(){
+  window.location.href = "inbox.html";
+}
+function goexplore(){
+  window.location.href = "explore.html";
+}
 </script>
+<div class="bottom-nav">
+  <div onclick="goProjects()">🏠<span>Projects</span></div>
+  <div onclick="goProfile()">👤<span>Profile</span></div>
+  <div onclick="goInbox()">💬<span>Chats</span></div>
+   <div onclick="goexplore()"><span>explore graphs</span></div>
+</div>
 
 </body>
 </html>
