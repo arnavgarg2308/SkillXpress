@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +33,9 @@ body{
 <script src="auth.js"></script>
 
 <script>
+  let currentUser;
+let unreadCounts = {};
+let notifyChannel;
 async function loadMentors(){
 
   const { data, error } = await supabaseClient
@@ -60,22 +64,78 @@ async function loadMentors(){
 
           <p class="text-muted">${mentor.description}</p>
 
-          <button class="btn btn-primary w-100"
-            onclick="openChat('${mentor.id}')">
-            Chat
-          </button>
+       <button class="btn btn-primary w-100"
+  data-mentor="${mentor.id}"
+  onclick="openChat('${mentor.id}')">
+
+  Chat
+</button>
 
         </div>
       </div>
     `;
   });
 }
+async function initMentorPage(){
+
+  const { data } = await supabaseClient.auth.getUser();
+
+  if(!data.user) return;
+
+  currentUser = data.user;
+
+  await loadMentors();      // mentors load
+  startRealtimeNotify();    // realtime start
+}
 
 function openChat(id){
+
+  unreadCounts[id] = 0;   // 🔥 unread reset
+  updateMentorButtons();  // 🔥 button update
+
   window.location.href = `chat.html?mentor=${id}`;
 }
 
-loadMentors();
+//loadMentors();
+function startRealtimeNotify(){
+
+  notifyChannel = supabaseClient
+    .channel("mentor-notify")
+    .on(
+      "postgres_changes",
+      {
+        event:"INSERT",
+        schema:"public",
+        table:"messages"
+      },
+      payload => {
+
+        const m = payload.new;
+
+        // only mentor messages
+        if(String(m.sender_id) !== String(currentUser.id)){
+
+          unreadCounts[m.sender_id] =
+            (unreadCounts[m.sender_id] || 0) + 1;
+
+          updateMentorButtons();
+        }
+      }
+    )
+    .subscribe();
+}
+function updateMentorButtons(){
+
+  document.querySelectorAll("[data-mentor]").forEach(btn => {
+
+    const id = btn.dataset.mentor;
+    const count = unreadCounts[id] || 0;
+
+    btn.innerText = count ? `Chat +${count}` : "Chat";
+  });
+
+}
+initMentorPage();
 </script>
 
 </body>

@@ -1,6 +1,8 @@
 let mentor;
 let selectedUser = null;
 let chatChannel = null;
+let unreadCounts = {};
+
 
 async function init(){
 
@@ -58,7 +60,7 @@ async function loadUsers(){
       <div class="user-item p-3 border-bottom"
         onclick="openChat('${userId}')">
         👤 ${user ? user.username : "User"}
-${user?.is_online ? "🟢 Online" : "⚫ Offline"}
+${unreadCounts[userId] ? ` +${unreadCounts[userId]}` : ""}
       </div>
     `;
   });
@@ -68,6 +70,9 @@ ${user?.is_online ? "🟢 Online" : "⚫ Offline"}
 async function openChat(userId){
 
   selectedUser = userId;
+  unreadCounts[userId] = 0;
+loadUsers();
+  
 
   document.getElementById("chatUserName")
     .innerText = "Chat with User";
@@ -116,13 +121,26 @@ async function sendMentorMessage(){
 
   if(!text || !selectedUser) return;
 
-  await supabaseClient.from("messages").insert([
-    {
-      sender_id: mentor.id,
-      receiver_id: selectedUser,
-      message: text
-    }
-  ]);
+  // 🔥 insert + message wapas lo
+  const { data, error } = await supabaseClient
+    .from("messages")
+    .insert([
+      {
+        sender_id: mentor.id,
+        receiver_id: selectedUser,
+        message: text
+      }
+    ])
+    .select()
+    .single();
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  // 🔥 instant UI show (NO RELOAD)
+  appendMentorMessage(data);
 
   input.value = "";
 }
@@ -139,19 +157,29 @@ function startRealtime(){
     .on(
       "postgres_changes",
       {
-        event:"INSERT",
-        schema:"public",
-        table:"messages"
+        event: "INSERT",
+        schema: "public",
+        table: "messages"
       },
       payload => {
 
         const m = payload.new;
 
-        if(
-          (m.sender_id == mentor.id && m.receiver_id == selectedUser) ||
-          (m.sender_id == selectedUser && m.receiver_id == mentor.id)
-        ){
-         appendMentorMessage(m);
+        // 🔥 sirf mentor ko bheje gaye messages listen karo
+        if(String(m.receiver_id) !== String(mentor.id)) return;
+
+        // ===== CASE 1: current open chat =====
+        if(String(selectedUser) === String(m.sender_id)){
+          appendMentorMessage(m);
+        }
+
+        // ===== CASE 2: dusra user (sidebar counter) =====
+        else{
+
+          unreadCounts[m.sender_id] =
+            (unreadCounts[m.sender_id] || 0) + 1;
+
+          loadUsers();   // sidebar update
         }
       }
     )
