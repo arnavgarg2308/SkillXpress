@@ -211,7 +211,21 @@ async function loadProfile(){
   document.getElementById("year").innerText = profile.year || "-";
   document.getElementById("age").innerText = profile.age || "-";
 
-  drawGraph(profile.skills || {});
+ /* ===========================
+   FETCH SKILL SNAPSHOT (LIKE EXPLORE)
+=========================== */
+const { data: snapshot, error: snapErr } = await supabaseClient
+  .from("user_skill_snapshot")
+  .select("skills")
+  .eq("user_id", userId)
+  .single();
+
+if (snapErr) {
+  console.error("Snapshot error:", snapErr);
+  drawGraph({});
+} else {
+  drawGraph(snapshot?.skills || {});
+}
 
   /* USER PROJECTS */
   const { data:projects } = await supabaseClient
