@@ -104,11 +104,26 @@ checkAuth();
 
 /* ================= MONTHLY ATTEMPT CHECK ================= */
 async function checkMonthlyAttempt() {
-  // 🔓 DEV MODE (temporary)
-  // Abhi backend ready nahi hai, isliye test allow kar rahe hain
-  return false;
-}
 
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  if (!user) return true;
+
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const { data, error } = await supabaseClient
+    .from("micro_test_attempts")
+    .select("*")
+    .eq("user_id", user.id)
+    .gte("submitted_at", firstDay.toISOString());  // 🔥 yaha change
+
+  if (error) {
+    console.error(error);
+    return false;
+  }
+
+  return data.length > 0;
+}
 
 
 async function startTest() {
@@ -241,6 +256,14 @@ btn.disabled = true;
     if (!response.ok) {
       throw new Error(result.error || "Submit failed");
     }
+    // ✅ Save attempt record
+// ✅ Save attempt record (with timestamp)
+await supabaseClient
+  .from("micro_test_attempts")
+  .insert({
+    user_id: data.user.id,
+    submitted_at: new Date().toISOString()
+  });
 
     // ✅ backend se aaya brain efficiency
     window.location.href =
