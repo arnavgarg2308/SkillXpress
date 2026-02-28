@@ -2,6 +2,7 @@ let currentUser;
 let mentorId;
 let channel;
 
+
 async function init(){
 
   const { data } = await supabaseClient.auth.getUser();
@@ -99,7 +100,7 @@ function startRealtime(){
           (m.sender_id == currentUser.id && m.receiver_id == mentorId) ||
           (m.sender_id == mentorId && m.receiver_id == currentUser.id)
         ){
-            appendMessage(m);
+          appendMessage(m);
         }
       }
     )
