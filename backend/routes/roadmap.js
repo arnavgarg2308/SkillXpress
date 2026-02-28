@@ -35,23 +35,7 @@ router.post("/generate-month", async (req, res) => {
       .select("github, interests")
       .eq("id", userId)
       .maybeSingle();
-/* ================= MONTHLY LOCK ================= */
 
-if (row?.last_generated_at) {
-
-  const lastDate = new Date(row.last_generated_at);
-  const now = new Date();
-
-  const sameMonth =
-    lastDate.getFullYear() === now.getFullYear() &&
-    lastDate.getMonth() === now.getMonth();
-
-  if (sameMonth) {
-    return res.status(403).json({
-      error: "Roadmap already generated for this month."
-    });
-  }
-}
     if (!profile)
       return res.status(400).json({ error: "Profile not found" });
 
@@ -82,7 +66,23 @@ const userSkills = skillRow?.skills;
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
+/* ================= MONTHLY LOCK ================= */
 
+if (row && row.last_generated_at) {
+
+  const lastDate = new Date(row.last_generated_at);
+  const now = new Date();
+
+  const sameMonth =
+    lastDate.getFullYear() === now.getFullYear() &&
+    lastDate.getMonth() === now.getMonth();
+
+  if (sameMonth) {
+    return res.status(403).json({
+      error: "You have already generated this month's roadmap."
+    });
+  }
+}
     let month = 1;
 
 if (row) {
