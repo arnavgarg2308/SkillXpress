@@ -97,7 +97,7 @@ if (row) {
 You are a senior ${primaryRole} mentor.
 
 The student wants to prepare for ${primaryRole}.
-This is Month ${month} of preparation.
+This is Month ${month} of preparation. 
 Study time: 2.5 hours per day.
 
 Skill gaps detected:
@@ -147,20 +147,15 @@ Tech Stack:
 Expected Outcome:
 
 Keep it realistic, structured and progressive.
-Length: 700–900 words.
+Length: 500–600 words.
 `;
 
     /* AI CALL */
     let content;
-    let pdfUrl;
+   
     try {
       content = await generateMentorNote(prompt);
-     pdfUrl = await generateAndUploadPDF(
-  supabase,
-  content,
-  userId,
-  month
-);
+   
       console.log("AI length:", content?.length);
     } catch (err) {
       console.error("Gemini error:", err);
@@ -188,7 +183,7 @@ const nextMonth = month + 1;
             month,
             role: primaryRole,
             content,
-            pdf_url: pdfUrl
+            pdf_url: null
           }
         }
       });
@@ -196,7 +191,7 @@ const nextMonth = month + 1;
     if (saveError)
       return res.status(500).json({ error: "Database save failed" });
 
-    return res.json({
+     res.json({
       success: true,
       roadmap: {
         month,
@@ -204,7 +199,26 @@ const nextMonth = month + 1;
         content
       }
     });
+generateAndUploadPDF(supabase, content, userId, month)
+  .then(async (pdfUrl) => {
 
+    const updatedMonths = {
+      ...(row?.months || {}),
+      [month]: {
+        month,
+        role: primaryRole,
+        content,
+        pdf_url: pdfUrl
+      }
+    };
+
+    await supabase
+      .from("roadmaps")
+      .update({ months: updatedMonths })
+      .eq("user_id", userId);
+
+  })
+  .catch(err => console.error("PDF error:", err));
   } catch (err) {
     console.error("ROADMAP ERROR:", err);
     return res.status(500).json({ error: "Unexpected server error" });
