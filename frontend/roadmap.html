@@ -1,14 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AI Roadmap</title>
 <style>
-body{font-family:sans-serif;background:#eef2ff}
-.card{max-width:650px;margin:40px auto;background:#fff;
-padding:25px;border-radius:14px;box-shadow:0 15px 40px #0002}
+body{font-family:sans-serif;background:#eef2ff; margin:0; padding:10px;}
+.card{
+  /* ✅ max-width hata kar width aur margin set kiya taaki phone pe stretch ho */
+  width: 95%; 
+  max-width: 650px;
+  margin: 20px auto;                
+  background:#fff;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 15px 40px #0002;
+  box-sizing: border-box; /* Padding ko width ke andar rakhne ke liye */
+}
 .badge{background:#e0e7ff;padding:6px 12px;border-radius:20px;margin:4px;display:inline-block}
 .note{background:#f0f9ff;padding:14px;border-left:4px solid #0ea5e9;margin-top:12px}
-button{background:#4f46e5;color:#fff;border:none;padding:12px 20px;border-radius:8px;cursor:pointer}
+button{
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:12px 20px;
+  border-radius:8px;
+  cursor:pointer;
+  width: 100%; /* ✅ Button puri width le lega phone pe */
+  margin-bottom: 10px;
+}
+/* ✅ Font size adjust kiya taaki phone pe readable ho */
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+pre { font-size: 0.95rem; }
 </style>
 </head>
 <body>
@@ -18,11 +42,10 @@ button{background:#4f46e5;color:#fff;border:none;padding:12px 20px;border-radius
   <div id="roadmapBox">Click Generate</div>
   <br/>
   <button id="generateBtn" onclick="generate()">Generate Month</button>
-   <br/>
-   <br/>
-   <button onclick="downloadRoadmap(CURRENT_MONTH)">
-  Download Roadmap PDF
-</button>
+  <br/>
+  <button onclick="downloadRoadmap(CURRENT_MONTH)">
+    Download Roadmap PDF
+  </button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -72,7 +95,7 @@ async function generate() {
     }
 
     const r = data.roadmap;
-CURRENT_MONTH = r.month; 
+    CURRENT_MONTH = r.month; 
     document.getElementById("roadmapBox").innerHTML = `
       <h3>Month ${r.month} – ${r.role}</h3>
       <pre style="white-space:pre-wrap; line-height:1.6;">
@@ -82,7 +105,7 @@ ${r.content}
   } catch (err) {
     console.error("Fetch error:", err);
   }
-   btn.innerText = "Generate Month";
+    btn.innerText = "Generate Month";
   btn.disabled = false;
 }
 async function downloadRoadmap(month) {
