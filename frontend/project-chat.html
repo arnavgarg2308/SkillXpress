@@ -134,7 +134,13 @@ async function loadMessages(){
     console.error("Load error:", error);
     return;
   }
-
+await supabaseClient
+  .from("messages")
+  .update({ is_read: true })
+  .eq("receiver_id", myId)
+  .eq("sender_id", receiverId)
+  .eq("is_read", false);
+  console.log(error);
   messagesEl.innerHTML="";
   data.forEach(renderMsg);
 }
