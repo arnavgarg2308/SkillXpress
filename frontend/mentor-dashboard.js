@@ -1,7 +1,6 @@
 let mentor;
 let selectedUser = null;
 let chatChannel = null;
-let unreadCounts = {};
 
 
 async function init(){
@@ -28,39 +27,58 @@ async function init(){
 /* LOAD USERS */
 async function loadUsers(){
 
-  const { data } = await supabaseClient
+  // 🔥 1️⃣ Get all users jinhone kabhi message bheja
+  const { data: allMessages } = await supabaseClient
     .from("messages")
     .select("sender_id")
     .eq("receiver_id", mentor.id);
-    
 
-  const uniqueUsers = [...new Set((data || []).map(x => x.sender_id))];
+  const allUsers = [...new Set((allMessages || []).map(m => m.sender_id))];
 
-  if(uniqueUsers.length === 0){
+  if(allUsers.length === 0){
     document.getElementById("userList").innerHTML =
       "<div class='p-3 text-muted'>No chats yet</div>";
     return;
   }
 
-  // 🔥 profiles table se username lao
+  // 🔥 2️⃣ Get unread counts
+  const { data: unread } = await supabaseClient
+    .from("messages")
+    .select("sender_id")
+    .eq("receiver_id", mentor.id)
+    .eq("is_read", false);
+
+  const unreadMap = {};
+  (unread || []).forEach(m=>{
+    unreadMap[m.sender_id] =
+      (unreadMap[m.sender_id] || 0) + 1;
+  });
+
+  // 🔥 3️⃣ Get user profiles
   const { data: users } = await supabaseClient
     .from("profiles")
-   .select("id,username,is_online")
-    .in("id", uniqueUsers);
+    .select("id,username")
+    .in("id", allUsers);
 
   const list = document.getElementById("userList");
   list.innerHTML = "";
 
-  uniqueUsers.forEach(userId => {
+  allUsers.forEach(userId => {
 
-    // 🔥 id match karke user nikalo
     const user = users.find(u => u.id === userId);
 
     list.innerHTML += `
       <div class="user-item p-3 border-bottom"
         onclick="openChat('${userId}')">
         👤 ${user ? user.username : "User"}
-${unreadCounts[userId] ? ` +${unreadCounts[userId]}` : ""}
+        ${unreadMap[userId] ? 
+          `<span style="background:#25D366;
+          color:white;
+          padding:3px 8px;
+          border-radius:20px;
+          font-size:12px;">
+          ${unreadMap[userId]}
+          </span>` : ""}
       </div>
     `;
   });
@@ -70,15 +88,23 @@ ${unreadCounts[userId] ? ` +${unreadCounts[userId]}` : ""}
 async function openChat(userId){
 
   selectedUser = userId;
-  unreadCounts[userId] = 0;
-loadUsers();
-  
 
   document.getElementById("chatUserName")
     .innerText = "Chat with User";
 
-  await loadMessages();   // 👈 pehle old messages load karo
-  startRealtime();        // 👈 fir realtime start karo
+  await loadMessages();
+
+  // ✅ MARK READ
+  await supabaseClient
+    .from("messages")
+    .update({ is_read: true })
+    .eq("receiver_id", mentor.id)
+    .eq("sender_id", userId)
+    .eq("is_read", false);
+
+  loadUsers();
+
+  startRealtime();
 }
 
 /* LOAD MESSAGES */
@@ -175,10 +201,6 @@ function startRealtime(){
 
         // ===== CASE 2: dusra user (sidebar counter) =====
         else{
-
-          unreadCounts[m.sender_id] =
-            (unreadCounts[m.sender_id] || 0) + 1;
-
           loadUsers();   // sidebar update
         }
       }

@@ -19,7 +19,7 @@ async function init(){
     last_seen:new Date()
   })
   .eq("id", currentUser.id);
-  
+  await updateUnreadBadge();
 
   const params = new URLSearchParams(window.location.search);
   mentorId = params.get("mentor");
@@ -55,6 +55,14 @@ console.log("me:", String(currentUser.id));
   });
 
   box.scrollTop = box.scrollHeight;
+  // ✅ MARK MESSAGES AS READ
+await supabaseClient
+  .from("messages")
+  .update({ is_read: true })
+  .eq("receiver_id", currentUser.id)
+  .eq("sender_id", mentorId)
+  .eq("is_read", false);
+  await updateUnreadBadge();
 }
 
 /* SEND MESSAGE */
@@ -130,10 +138,33 @@ function appendMessage(msg){
     div.classList.add("sent");
   }else{
     div.classList.add("received");
+
+    // ✅ MARK AS READ (Realtime case)
+    supabaseClient
+      .from("messages")
+      .update({ is_read: true })
+      .eq("id", msg.id);
   }
 
   div.innerText = msg.message;
 
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
+  updateUnreadBadge();
+}
+async function updateUnreadBadge(){
+
+  const { data } = await supabaseClient
+    .from("messages")
+    .select("id")
+    .eq("receiver_id", currentUser.id)
+    .eq("is_read", false);
+
+  const count = data?.length || 0;
+
+  if(count > 0){
+    document.title = `(${count}) New Messages`;
+  } else {
+    document.title = "Mentor Chat";
+  }
 }
