@@ -108,14 +108,24 @@ ${gaps.map(g =>
 
 IMPORTANT INTERPRETATION RULES:
 
-1. Required level represents industry expectation (not monthly target).
-2. Current level represents estimated ability.
-3. You are NOT expected to close the full gap in one month.
-4. This month should aim for realistic improvement, not mastery.
-5. Improve at most 1–2 level points in a skill this month.
-6. Focus on top 2 skills only.
-7. Large gaps must be broken into beginner milestones.
-8. Work must fit within 2.5 hours per day.
+1. If current level is 0–20:
+   Teach fundamentals from scratch with simple explanations and exercises.
+
+2. If current level is 20–40:
+   Strengthen core concepts and introduce practical applications.
+
+3. If current level is 40–60:
+   Assume fundamentals are known.
+   Focus on deeper understanding, edge cases, patterns, and real-world usage.
+
+4. If current level is 60+:
+   Do NOT teach basics.
+   Focus on optimization, architecture, advanced patterns, performance, and project-level thinking.
+
+5. Never repeat beginner topics for users above level 40.
+6. Month plan must match the user's actual level.
+7. Improve realistically by 1–2 levels only.
+8. Keep it challenging but achievable in 2.5 hours/day.
 9. Think long-term multi-month progression.
 
 OUTPUT FORMAT:
