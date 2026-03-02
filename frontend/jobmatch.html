@@ -134,10 +134,9 @@ const topInterests = profile.interests.slice(0, 4);
     {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        skills: skillData.skills,
-        interests: topInterests
-      })
+     body: JSON.stringify({
+  userId: session.user.id
+})
     }
   );
 

@@ -16,6 +16,12 @@ const router = express.Router();
 /* ================================
    JOB CONFIG (STATIC DATA)
    ================================ */
+   const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 const JOB_REQUIREMENTS = {
 
@@ -440,40 +446,61 @@ OUTPUT:
   }
 }
 */
+router.post("/job-match", async (req, res) => {
+  const { userId } = req.body;
 
-router.post("/job-match", (req, res) => {
-  const { skills, interests } = req.body;
+  if (!userId)
+    return res.status(400).json({ success:false, error:"userId required" });
 
-  if (!skills || typeof skills !== "object") {
-    return res.status(400).json({ success:false, error:"Skills required" });
-  }
+  try {
 
-  const selectedJobs =
-  interests && interests.length
-    ? Object.keys(JOB_REQUIREMENTS).filter(job =>
-        interests.includes(job)
-      )
-    : [];
+    // 🔥 1️⃣ Fetch Skills from Supabase
+    const { data: skillRow } = await supabase
+      .from("user_skill_snapshot")
+      .select("skills")
+      .eq("user_id", userId)
+      .maybeSingle();
 
+    if (!skillRow?.skills)
+      return res.status(400).json({ success:false, error:"No skills found" });
 
+    const skills = skillRow.skills;
 
-  let results = {};
+    // 🔥 2️⃣ Fetch Interests
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("interests")
+      .eq("id", userId)
+      .maybeSingle();
 
-  selectedJobs.forEach(job => {
-    const requirements = JOB_REQUIREMENTS[job];
-    if (!requirements) return;
+    const interests = profile?.interests || [];
 
-    let total = 0, matched = 0;
+    if (!interests.length)
+      return res.status(400).json({ success:false, error:"No interests found" });
 
-    Object.entries(requirements).forEach(([skill, reqVal]) => {
-      total += reqVal;
-      matched += Math.min(skills[skill] || 0, reqVal);
+    // 🔥 3️⃣ Calculate Match
+    let results = {};
+
+    interests.forEach(job => {
+      const requirements = JOB_REQUIREMENTS[job];
+      if (!requirements) return;
+
+      let total = 0, matched = 0;
+
+      Object.entries(requirements).forEach(([skill, reqVal]) => {
+        total += reqVal;
+        matched += Math.min(skills[skill] || 0, reqVal);
+      });
+
+      results[job] = Math.round((matched / total) * 100);
     });
 
-    results[job] = Math.round((matched / total) * 100);
-  });
+    res.json({ success:true, results });
 
-  res.json({ success:true, results });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success:false, error:"Server error" });
+  }
 });
 
 
