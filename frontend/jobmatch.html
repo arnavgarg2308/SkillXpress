@@ -115,6 +115,26 @@ const topInterests = profile.interests.slice(0, 4);
   );
 
   const result = await res.json();
+  /* SHOW SKILLS */
+const skillBox = document.getElementById("skillBox");
+skillBox.innerHTML = "";
+
+if (result.skills) {
+  Object.entries(result.skills).forEach(([skill, value]) => {
+    skillBox.innerHTML += `
+      <div class="mb-2">
+        <strong>${skill}</strong>
+        <div class="progress">
+          <div class="progress-bar bg-info" style="width:${value}%">
+            ${value}%
+          </div>
+        </div>
+      </div>
+    `;
+  });
+} else {
+  skillBox.innerHTML = `<span class="text-muted">No skills found</span>`;
+}
 const filteredResults = {};
 topInterests.forEach(job => {
   if (result.results && result.results[job] !== undefined) {
