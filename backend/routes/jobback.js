@@ -495,7 +495,11 @@ router.post("/job-match", async (req, res) => {
       results[job] = Math.round((matched / total) * 100);
     });
 
-    res.json({ success:true, results });
+    res.json({ 
+  success:true, 
+  skills,
+  results 
+});
 
   } catch (err) {
     console.error(err);

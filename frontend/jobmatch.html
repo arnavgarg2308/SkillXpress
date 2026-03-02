@@ -98,33 +98,7 @@ async function loadJobMatch() {
   });
 
   /* 3️⃣ FETCH SKILLS */
-  const githubUsername = profile.github
-    .replace("https://", "")
-    .replace("http://", "")
-    .replace("www.", "")
-    .split("github.com/")[1]
-    .replace("/", "");
-
-  const skillsRes = await fetch(
-    `https://skillxpress-1.onrender.com/full-skills/${session.user.id}/${githubUsername}`
-  );
-  const skillData = await skillsRes.json();
-
-  const skillBox = document.getElementById("skillBox");
-  skillBox.innerHTML = "";
-
-  Object.entries(skillData.skills).forEach(([skill, value]) => {
-    skillBox.innerHTML += `
-      <div class="mb-2">
-        <strong>${skill}</strong>
-        <div class="progress">
-          <div class="progress-bar bg-info" style="width:${value}%">
-            ${value}%
-          </div>
-        </div>
-      </div>
-    `;
-  });
+  
 const topInterests = profile.interests.slice(0, 4);
   /* 4️⃣ JOB MATCH */
   const res = await fetch(
