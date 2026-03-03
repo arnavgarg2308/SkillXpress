@@ -1,325 +1,4 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkillXpress | Dashboard</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    /* --- Body Style --- */
-    body {
-      min-height: 100vh;
-      background: linear-gradient(120deg, #eef2ff, #ecfeff); /* Light gradient background */
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-    }
-
-    /* --- Navbar Styling --- */
-    .navbar {
-      backdrop-filter: blur(10px); /* Frosted glass effect */
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-
-    .brand { font-weight: 900; color: #4f46e5; font-size: 1.6rem; }
-
-    /* --- Feature Card Styling (All Blocks) --- */
-    .feature-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-radius: 22px;
-      padding: 1.5rem; /* Padding for uniform look */
-      height: 100%; /* Ensures all cards in a row have equal height */
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      border: 1px solid rgba(255,255,255,0.3);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-      transition: all 0.3s ease;
-      cursor: pointer; 
-    }
-
-    /* Hover effect for interactivity */
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(79,70,229,0.1);
-      border-color: #4f46e5;
-    }
-
-    .feature-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-    .feature-title { font-weight: 700; font-size: 1.1rem; color: #111827; margin: 0; }
-
-    /* --- SKILL GRAPH SPECIFIC FIX --- */
-    .skill-graph-card {
-      /* Forcefully card ki height kam karna taaki wo baki blocks ke barabar dikhe */
-      max-height: 150px; 
-    }
-
-    #skillChart {
-      width: 100% !important;
-      height: 50px !important; /* Canvas ko chota kiya graph card ke liye */
-      margin-top: auto;
-    }
-
-    /* --- Typography --- */
-    .header-text { font-weight: 800; color: #111827; }
-    .sub-dashboard-text { color: #6b7280; font-size: 0.9rem; }
-
-    /* --- Mobile Responsive Fixes --- */
-    @media (max-width: 576px) {
-      .feature-card { padding: 1.2rem; }
-      .feature-icon { font-size: 1.5rem; }
-      .feature-title { font-size: 1rem; }
-    }
-
-    /* --- Subscription Screen (Premium Paywall) --- */
-    .premium-wrapper {
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #1f2937, #111827);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 20px;
-      text-align: center;
-    }
-    .plan-card { 
-      background: #1e293b; 
-      border-radius: 20px; 
-      padding: 20px; 
-      border: 1px solid #334155; 
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-
-<div id="subscriptionScreen" class="premium-wrapper" style="display:none;">
-  <h1 class="fw-bold mb-2">Unlock SkillXpress Premium 🚀</h1>
-  <p class="mb-5 text-secondary">AI Roadmap • Mentor Chat • Job Match • Career Risk</p>
-  <div class="container">
-    <div class="row g-4 justify-content-center">
-      <div class="col-md-3 col-sm-6">
-        <div class="plan-card text-center">
-          <h5>Starter</h5>
-          <div class="price" style="font-size: 1.5rem; font-weight:700;">₹29</div>
-          <p>28 Days</p>
-          <button class="btn btn-outline-light w-100" onclick="pay(29,'starter',28)">Subscribe</button>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="plan-card text-center">
-          <span class="badge bg-primary mb-2">Most Popular</span>
-          <h5>Growth</h5>
-          <div class="price" style="font-size: 1.5rem; font-weight:700;">₹49</div>
-          <p>28 Days + Career Risk</p>
-          <button class="btn btn-primary w-100" onclick="pay(49,'growth',28)">Subscribe</button>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="plan-card text-center">
-          <h5>Pro</h5>
-          <div class="price" style="font-size: 1.5rem; font-weight:700;">₹249</div>
-          <p>6 Months</p>
-          <button class="btn btn-outline-light w-100" onclick="pay(249,'pro',180)">Subscribe</button>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="plan-card text-center">
-          <h5>Elite</h5>
-          <div class="price" style="font-size: 1.5rem; font-weight:700;">₹499</div>
-          <p>1 Year</p>
-          <button class="btn btn-outline-light w-100" onclick="pay(499,'elite',365)">Subscribe</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="dashboardContent" style="display:none;">
-  <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a class="navbar-brand brand" href="#">SkillXpress</a>
-      <div class="ms-auto d-flex align-items-center gap-3">
-        <span class="fw-semibold d-none d-sm-inline">Hi, Student 👋</span>
-        <div class="dropdown">
-          <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">👤</button>
-          <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-            <li><a class="dropdown-item" href="user-profile.html">Profile</a></li>
-            <li><a class="dropdown-item" href="support.html">Support</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="index.html">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <div class="container" style="padding-top:110px; padding-bottom: 60px;">
-    <div class="mb-4">
-      <h2 class="header-text">Your Career Dashboard</h2>
-      <p class="sub-dashboard-text">All your skills, growth & opportunities in one place</p>
-    </div>
-
-    <div class="row g-4 align-items-stretch">
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card skill-graph-card" onclick="location.href='skillfront.html'">
-          <div class="feature-icon">📊</div>
-          <div class="feature-title">Skill Graph</div>
-          <canvas id="skillChart"></canvas>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='interests.html'">
-          <div class="feature-icon">💼</div>
-          <div class="feature-title">Dream Role</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='jobmatch.html'">
-          <div class="feature-icon">📈</div>
-          <div class="feature-title">Job Match</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="goToMicroTest()">
-          <div class="feature-icon">🧠</div>
-          <div class="feature-title d-flex justify-content-between align-items-center w-100">
-            Micro-Cognitive Test
-            <span id="testStatus" class="badge bg-secondary" style="font-size: 0.7rem;">Checking…</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','opportunities.html')">
-          <div class="feature-icon">⚠</div>
-          <div class="feature-title">Career Risk</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='roadmap.html'">
-          <div class="feature-icon">🤖</div>
-          <div class="feature-title">AI Roadmap</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','jobs.html')">
-          <div class="feature-icon">🎯</div>
-          <div class="feature-title">Upcoming Jobs</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='projects.html'">
-          <div class="feature-icon">🧪</div>
-          <div class="feature-title">Projects</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-new.html'">
-          <div class="feature-icon">🎓</div>
-          <div class="feature-title">Mentors</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-sessions.html'">
-          <div class="feature-icon">📅</div>
-          <div class="feature-title">Mentor Sessions</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="subscription.js"></script>
-
-<script>
-// Authentication check
-async function checkAuth() { 
-  const { data } = await supabaseClient.auth.getUser(); 
-  if (!data.user) window.location.href = "index.html"; 
-}
-
-// Micro Test Navigation
-async function goToMicroTest() { 
-  const { data } = await supabaseClient.auth.getUser(); 
-  if (!data.user) { 
-    alert("Please login again"); 
-    window.location.href = "index.html"; 
-    return; 
-  } 
-  window.location.href = "micro-test.html"; 
-}
-
-// Hide test status badge initially
-function showTestStatus() { 
-  const badge = document.getElementById("testStatus"); 
-  if (badge) badge.style.display = "none"; 
-}
-
-// Check if user has active subscription
-async function checkSubscription(){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  if(!user) return;
-  const { data } = await supabaseClient.from("profiles").select("is_premium,subscription_end").eq("id", user.id).single();
-  
-  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
-    document.getElementById("subscriptionScreen").style.display = "block";
-    document.getElementById("dashboardContent").style.display = "none";
-  } else {
-    document.getElementById("dashboardContent").style.display = "block";
-    document.getElementById("subscriptionScreen").style.display = "none";
-  }
-}
-
-// Check feature access based on plan type
-async function checkFeatureAccess(feature){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  const { data } = await supabaseClient.from("profiles").select("plan_type,subscription_end").eq("id", user.id).single();
-  
-  if(!data.plan_type || new Date(data.subscription_end) < new Date()){ 
-    location.reload(); 
-    return false; 
-  }
-  
-  if(feature === "career-risk" && data.plan_type === "starter"){ 
-    alert("Upgrade to Growth plan to access Career Risk and Upcoming Jobs"); 
-    return false; 
-  }
-  return true;
-}
-
-// Function to open specific feature pages
-async function openFeature(type, url){ 
-  if(await checkFeatureAccess(type)) window.location.href = url; 
-}
-
-// Run essential functions on page load
-checkAuth(); 
-showTestStatus(); 
-checkSubscription();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>                         -->
-
-
-
+<!-- 
  <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -718,4 +397,434 @@ checkSubscription();
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>  -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillXpress | Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* --- Body Style --- */
+    body {
+      min-height: 100vh;
+      background: linear-gradient(120deg, #eef2ff, #ecfeff);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+
+    /* --- Navbar Styling --- */
+    .navbar {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .brand { font-weight: 900; color: #4f46e5; font-size: 1.6rem; }
+
+    /* Upgrade Button Styling */
+    .btn-upgrade {
+      background: linear-gradient(135deg, #4f46e5, #818cf8);
+      color: white !important;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+      filter: brightness(1.1);
+    }
+
+    /* --- Feature Card Styling --- */
+    .feature-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 22px;
+      padding: 1.5rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border: 1px solid rgba(255,255,255,0.3);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      cursor: pointer; 
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(79,70,229,0.1);
+      border-color: #4f46e5;
+    }
+
+    .feature-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .feature-title { font-weight: 700; font-size: 1.1rem; color: #111827; margin: 0; }
+
+    .skill-graph-card { max-height: 150px; }
+    #skillChart { width: 100% !important; height: 50px !important; margin-top: auto; }
+
+    .header-text { font-weight: 800; color: #111827; }
+    .sub-dashboard-text { color: #6b7280; font-size: 0.9rem; }
+
+    /* --- WHITE PREMIUM SUBSCRIPTION STYLING --- */
+    .premium-wrapper {
+      min-height: 100vh;
+      background: #f8fafc;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .feature-badges-container {
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .feature-tag {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: #4f46e5;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .plan-card { 
+      background: #ffffff;
+      border-radius: 24px; 
+      padding: 35px 25px; 
+      border: 1px solid #e2e8f0; 
+      height: 100%;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
+      border-color: #4f46e5;
+    }
+
+    .popular-plan {
+      border: 2px solid #4f46e5;
+      background: #fdfdff;
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4f46e5;
+      color: white;
+      padding: 5px 20px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+
+    .price-text {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 10px 0;
+    }
+
+    .extra-features {
+      font-size: 0.9rem;
+      color: #4f46e5;
+      font-weight: 700;
+      margin: 15px 0;
+      min-height: 45px;
+    }
+
+    .btn-subscribe {
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      background: #4f46e5;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .premium-wrapper { padding: 40px 15px; }
+      .price-text { font-size: 2rem; }
+      .btn-upgrade { padding: 5px 12px; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="subscriptionScreen" class="premium-wrapper" style="display:none;">
+  <button id="backToDashBtn" class="btn btn-link text-decoration-none text-muted mb-4" onclick="closeUpgrade()" style="display: none;">← Back to Dashboard</button>
+  
+  <h1 class="header-text mb-2" style="font-size: 2.5rem;">Ready to Level Up? 🚀</h1>
+  <p class="text-secondary mb-4">Choose a plan that fits your career goals</p>
+  
+  <div class="feature-badges-container">
+    <div class="feature-tag">📊 Skill Graph</div>
+    <div class="feature-tag">📈 Job Match</div>
+    <div class="feature-tag">🧠 Micro-Cognitive Test</div>
+    <div class="feature-tag">🤖 AI Roadmap</div>
+    <div class="feature-tag">🧪 Projects</div>
+    <div class="feature-tag">🎓 Mentors</div>
+    <div class="feature-tag">📅 Mentor Sessions</div>
+  </div>
+
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card text-center">
+          <div class="feature-icon">⚡</div>
+          <h5 class="fw-bold text-muted">Starter</h5>
+          <div class="price-text">₹29</div>
+          <p class="text-secondary small">Validity: 28 Days</p>
+          <div class="extra-features">Essential Features</div>
+          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(29,'starter',28)">Subscribe Now</button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card text-center popular-plan">
+          <div class="popular-badge">Most Popular</div>
+          <div class="feature-icon">🚀</div>
+          <h5 class="fw-bold text-dark">Growth</h5>
+          <div class="price-text">₹49</div>
+          <p class="text-secondary small">Validity: 28 Days</p>
+          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div>
+          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(49,'growth',28)">Subscribe Now</button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card text-center">
+          <div class="feature-icon">💎</div>
+          <h5 class="fw-bold text-muted">Pro</h5>
+          <div class="price-text">₹249</div>
+          <p class="text-secondary small">Validity: 6 Months</p>
+          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div>
+          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(249,'pro',180)">Subscribe Now</button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card text-center">
+          <div class="feature-icon">👑</div>
+          <h5 class="fw-bold text-muted">Elite</h5>
+          <div class="price-text">₹499</div>
+          <p class="text-secondary small">Validity: 1 Year</p>
+          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div>
+          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(499,'elite',365)">Subscribe Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboardContent" style="display:none;">
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand brand" href="#">SkillXpress</a>
+      <div class="ms-auto d-flex align-items-center gap-2 gap-sm-3">
+        <button id="navUpgradeBtn" class="btn btn-upgrade" onclick="openUpgrade()">🚀 Upgrade</button>
+        
+        <span class="fw-semibold d-none d-sm-inline">Hi, Student 👋</span>
+        <div class="dropdown">
+          <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">👤</button>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+            <li><a class="dropdown-item" href="user-profile.html">Profile</a></li>
+            <li><a class="dropdown-item" href="support.html">Support</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="index.html">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top:110px; padding-bottom: 60px;">
+    <div class="mb-4">
+      <h2 class="header-text">Your Career Dashboard</h2>
+      <p class="sub-dashboard-text">All your skills, growth & opportunities in one place</p>
+    </div>
+
+    <div class="row g-4 align-items-stretch">
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card skill-graph-card" onclick="location.href='skillfront.html'">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Skill Graph</div>
+          <canvas id="skillChart"></canvas>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='interests.html'">
+          <div class="feature-icon">💼</div>
+          <div class="feature-title">Job Match</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='jobmatch.html'">
+          <div class="feature-icon">📈</div>
+          <div class="feature-title">Job Opportunities</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="goToMicroTest()">
+          <div class="feature-icon">🧠</div>
+          <div class="feature-title d-flex justify-content-between align-items-center w-100">
+            Micro-Cognitive Test
+            <span id="testStatus" class="badge bg-secondary" style="font-size: 0.7rem;">Checking…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="openFeature('career-risk','opportunities.html')">
+          <div class="feature-icon">⚠</div>
+          <div class="feature-title">Career Risk</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='roadmap.html'">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-title">AI Roadmap</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="openFeature('career-risk','jobs.html')">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-title">Upcoming Jobs</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='projects.html'">
+          <div class="feature-icon">🧪</div>
+          <div class="feature-title">Projects</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='mentor-new.html'">
+          <div class="feature-icon">🎓</div>
+          <div class="feature-title">Mentors</div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="feature-card" onclick="location.href='mentor-sessions.html'">
+          <div class="feature-icon">📅</div>
+          <div class="feature-title">Mentor Sessions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="subscription.js"></script>
+
+<script>
+// Logic to handle Upgrade Screen visibility
+let canGoBack = false;
+
+async function checkAuth() { 
+  const { data } = await supabaseClient.auth.getUser(); 
+  if (!data.user) window.location.href = "index.html"; 
+}
+
+async function checkSubscription(){
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  if(!user) return;
+  const { data } = await supabaseClient.from("profiles").select("is_premium,subscription_end").eq("id", user.id).single();
+  
+  const subScreen = document.getElementById("subscriptionScreen");
+  const dashContent = document.getElementById("dashboardContent");
+  const backBtn = document.getElementById("backToDashBtn");
+
+  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
+    subScreen.style.display = "block";
+    dashContent.style.display = "none";
+    canGoBack = false;
+    backBtn.style.display = "none"; // Naye user ko back button nahi dikhega
+  } else {
+    subScreen.style.display = "none";
+    dashContent.style.display = "block";
+  }
+}
+
+function openUpgrade() {
+  document.getElementById("subscriptionScreen").style.display = "block";
+  document.getElementById("dashboardContent").style.display = "none";
+  document.getElementById("backToDashBtn").style.display = "block"; // Manual click par dikhega
+  window.scrollTo(0,0);
+}
+
+function closeUpgrade() {
+  checkSubscription();
+}
+
+// Baki functions same rahenge...
+async function goToMicroTest() { window.location.href = "micro-test.html"; }
+function showTestStatus() { 
+  const badge = document.getElementById("testStatus"); 
+  if (badge) badge.style.display = "none"; 
+}
+
+async function checkFeatureAccess(feature){
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  const { data } = await supabaseClient.from("profiles").select("plan_type,subscription_end").eq("id", user.id).single();
+  if(!data.plan_type || new Date(data.subscription_end) < new Date()){ location.reload(); return false; }
+  if(feature === "career-risk" && data.plan_type === "starter"){ 
+    alert("Upgrade to Growth plan to access Career Risk"); 
+    openUpgrade(); 
+    return false; 
+  }
+  return true;
+}
+
+async function openFeature(type, url){ if(await checkFeatureAccess(type)) window.location.href = url; }
+
+checkAuth(); 
+showTestStatus(); 
+checkSubscription();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
