@@ -1,4 +1,4 @@
-const API = "https://skillxpress-1.onrender.com";
+const API = "https://api.skillxpress.me";
 async function pay(amount, plan, days){
 
   const { data:{user} } = await supabaseClient.auth.getUser();

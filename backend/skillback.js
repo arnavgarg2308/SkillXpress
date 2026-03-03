@@ -23,10 +23,10 @@ const supabase = createClient(
 const app = express();
 const corsOptions = {
   origin: [
-    "https://skill-xpress.vercel.app",
+    "https://skillxpress.me",
     "http://localhost:3000",
     "http://127.0.0.1:5500",
-    "https://skillxpress.onrender.com" 
+    "https://api.skillxpress.me" 
   ],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]

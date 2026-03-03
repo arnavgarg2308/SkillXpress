@@ -124,7 +124,7 @@ async function loadAnalysis() {
 
   try {
     const res = await fetch(
-      `https://skillxpress-1.onrender.com/api/micro-test/analysis/${data.user.id}`
+      `https://api.skillxpress.me/api/micro-test/analysis/${data.user.id}`
     );
 
     if (!res.ok) throw new Error("Fetch failed");

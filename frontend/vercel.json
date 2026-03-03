@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://skillxpress.onrender.com/api/$1"
+      "destination": "https://api.skillxpress.me/api/$1"
     }
   ]
 }

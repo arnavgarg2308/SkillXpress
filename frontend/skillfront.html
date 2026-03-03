@@ -116,7 +116,7 @@ const btn = document.getElementById("generateBtn");
 
   // 🌐 call ML backend (RENDER)
   const res = await fetch(
-  `https://skillxpress-1.onrender.com/full-skills/${session.user.id}/${username}`
+  `https://api.skillxpress.me/full-skills/${session.user.id}/${username}`
 );
 
   const result = await res.json();

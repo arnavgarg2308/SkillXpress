@@ -79,7 +79,7 @@ async function generate() {
   document.getElementById("roadmapBox").innerHTML =
     "<p>⏳ Generating your AI roadmap...please wait 5 mins </p>";
   try {
-    const res = await fetch("https://skillxpress-1.onrender.com/api/roadmap/generate-month", {
+    const res = await fetch("https://api.skillxpress.me/api/roadmap/generate-month", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: USER_ID })
@@ -126,7 +126,7 @@ async function downloadRoadmap(month) {
     btn.disabled = true;
 
     const res = await fetch(
-      `https://skillxpress-1.onrender.com/api/roadmap/download-pdf/${USER_ID}/${month}`
+      `https://api.skillxpress.me/api/roadmap/download-pdf/${USER_ID}/${month}`
     );
 
     const data = await res.json();
