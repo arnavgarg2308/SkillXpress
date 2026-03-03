@@ -101,22 +101,20 @@ const btn = document.getElementById("generateBtn");
     .eq("id", session.user.id)
     .single();
 
-  if (error || !data.github) {
-    alert("GitHub profile not connected");
-    return;
-  }
+  let username = "";
 
-  // 🔗 extract username
-  const username = data.github
+if (data && data.github) {
+  username = data.github
     .replace("https://", "")
     .replace("http://", "")
     .replace("www.", "")
     .split("github.com/")[1]
-    .replace("/", "");
+    ?.replace("/", "") || "";
+}
 
   // 🌐 call ML backend (RENDER)
   const res = await fetch(
-  `https://api.skillxpress.me/full-skills/${session.user.id}/${username}`
+  `https://api.skillxpress.me/full-skills/${session.user.id}/${username || "none"}`
 );
 
   const result = await res.json();

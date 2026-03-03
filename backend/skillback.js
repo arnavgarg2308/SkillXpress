@@ -89,7 +89,8 @@ if (existing?.updated_at) {
   try {
     let skills = {};
 console.log("TOKEN:", process.env.GITHUB_TOKEN);
-    /* ===== 1️⃣ GITHUB ANALYSIS ===== */
+   /* ===== 1️⃣ GITHUB ANALYSIS ===== */
+   if (username && username !== "none") {
     const ghRes = await fetch(
       `https://api.github.com/users/${username}/repos`,
       {
@@ -141,7 +142,7 @@ else {
 
     skills[lang] = (skills[lang] || 0) + scoreToAdd;
   }
-}}
+}}}
 
     /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
    const { data: uploads, error: supabaseError } = await supabase
