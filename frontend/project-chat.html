@@ -163,6 +163,12 @@ async function sendMsg(){
     message: text
   });
 }
+msgInput.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    sendMsg();
+  }
+});
 
 // REALTIME LISTENER
 function listenRealtime(){

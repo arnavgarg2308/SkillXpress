@@ -116,6 +116,13 @@ function startRealtime(){
 }
 
 init();
+document.getElementById("messageInput")
+  .addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      sendMessage();
+    }
+});
 window.addEventListener("beforeunload", async () => {
 
   await supabaseClient
