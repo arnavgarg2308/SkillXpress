@@ -104,8 +104,9 @@ console.log("Repos:", repos);
 console.log("Is Array:", Array.isArray(repos));
 if (!Array.isArray(repos)) {
   console.log("GitHub Error:", repos);
-  return res.status(400).json({ error: "GitHub API limit hit or invalid user" });
+  //return res.status(400).json({ error: "GitHub API limit hit or invalid user" });
 }
+else {
     for (const repo of repos) {
   if (repo.fork) continue;
 
@@ -140,7 +141,7 @@ if (!Array.isArray(repos)) {
 
     skills[lang] = (skills[lang] || 0) + scoreToAdd;
   }
-}
+}}
 
     /* ===== 2️⃣ SUPABASE UPLOADS FETCH ===== */
    const { data: uploads, error: supabaseError } = await supabase
