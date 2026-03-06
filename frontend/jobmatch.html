@@ -85,8 +85,8 @@ async function loadJobMatch() {
     .eq("id", session.user.id)
     .single();
 
-  if (!profile || !profile.interests || !profile.github) {
-    alert("Profile incomplete");
+  if (!profile || !profile.interests || !profile.interests.length === 0) {
+    alert("Please select your interests first");
     return;
   }
 

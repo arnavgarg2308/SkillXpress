@@ -198,6 +198,11 @@ const skillMap = {
   "MACHINE_LEARNING": ["machine learning", "ml"],
   "MODEL_DEPLOYMENT": ["deployment", "model serving"]
   };
+  const levelMap = {
+  beginner: ["basic", "learning", "beginner", "simple", "practice"],
+  intermediate: ["built", "developed", "implemented", "created"],
+  advanced: ["scalable", "optimized", "architecture", "production", "deployed", "microservices"]
+};
 console.log("ENTERING UPLOAD LOOP");
    const safeUploads = uploads || [];
 for (const item of safeUploads)
@@ -254,7 +259,19 @@ if (item.type === "project" && item.description) {
   
   Object.entries(skillMap).forEach(([skill, keywords]) => {
     if (keywords.some(k => t.includes(k))) {
-      skills[skill] = (skills[skill] || 0) + 3;
+      let weight = 3;
+
+if (levelMap.beginner.some(k => t.includes(k))) {
+  weight = 2;
+}
+if (levelMap.intermediate.some(k => t.includes(k))) {
+  weight = 4;
+}
+if (levelMap.advanced.some(k => t.includes(k))) {
+  weight = 7;
+}
+
+skills[skill] = (skills[skill] || 0) + weight;
     }
   });
 }
