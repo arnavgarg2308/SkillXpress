@@ -85,7 +85,60 @@ body{
   </ul>
 </div>
 
+<!-- ================= 11 ================= -->
+<h4 class="category-title"><i class="bi bi-linkedin"></i> LinkedIn Growth</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-person-badge"></i> LinkedIn Personal Branding</h5>
+      <ul class="text-muted">
+        <li>Optimize LinkedIn profile</li>
+        <li>Networking strategy</li>
+        <li>Getting recruiter reachouts</li>
+      </ul>
+      <p class="price">₹99</p>
+      <p class="limit">
+        <span id="count-10">0</span> / 50 requested
+      </p>
 
+      <button id="btn-10" class="btn btn-primary w-100"
+        onclick="requestSession(10,'LinkedIn Personal Branding',99)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-10" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+<!-- ================= 10 ================= -->
+<h4 class="category-title"><i class="bi bi-lightbulb"></i> Startup & Innovation</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-rocket"></i> Startup Ideas & Building a Startup</h5>
+      <ul class="text-muted">
+        <li>How to validate startup ideas</li>
+        <li>Building MVP products</li>
+        <li>Funding & startup ecosystem</li>
+      </ul>
+      <p class="price">₹149</p>
+      <p class="limit">
+        <span id="count-11">0</span> / 50 requested
+      </p>
+
+      <button id="btn-11" class="btn btn-primary w-100"
+        onclick="requestSession(11,'Startup Ideas & Building a Startup',149)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-11" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
 <!-- ================= 1 ================= -->
 <h4 class="category-title"><i class="bi bi-compass"></i> Career Clarity</h4>
 <div class="row g-4">
@@ -220,7 +273,60 @@ body{
 <div class="progress mt-2" style="height:8px;">
   <div id="bar-5" class="progress-bar bg-primary" style="width:0%"></div>
 </div>
+<!-- ================= 11 ================= -->
+<h4 class="category-title"><i class="bi bi-lightbulb"></i> Startup & Innovation</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-rocket"></i> Startup Ideas & Building a Startup</h5>
+      <ul class="text-muted">
+        <li>How to validate startup ideas</li>
+        <li>Building MVP products</li>
+        <li>Funding & startup ecosystem</li>
+      </ul>
+      <p class="price">₹149</p>
+      <p class="limit">
+        <span id="count-11">0</span> / 50 requested
+      </p>
 
+      <button id="btn-11" class="btn btn-primary w-100"
+        onclick="requestSession(11,'Startup Ideas & Building a Startup',149)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-11" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
+<!-- ================= 13 ================= -->
+<h4 class="category-title"><i class="bi bi-file-earmark-text"></i> Research & Publications</h4>
+<div class="row g-4">
+  <div class="col-md-6 col-lg-4">
+    <div class="session-card">
+      <h5><i class="bi bi-pencil-square"></i> How to Make a Research Paper from Your Project</h5>
+      <ul class="text-muted">
+        <li>Turning projects into research papers</li>
+        <li>Choosing journals & conferences</li>
+        <li>Publication process</li>
+      </ul>
+      <p class="price">₹149</p>
+      <p class="limit">
+        <span id="count-13">0</span> / 50 requested
+      </p>
+
+      <button id="btn-13" class="btn btn-primary w-100"
+        onclick="requestSession(13,'How to Make Research Paper from Project',149)">
+        Request Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="progress mt-2" style="height:8px;">
+  <div id="bar-13" class="progress-bar bg-primary" style="width:0%"></div>
+</div>
 
 <!-- ================= 6 ================= -->
 <h4 class="category-title"><i class="bi bi-briefcase"></i> Internships</h4>
@@ -230,7 +336,6 @@ body{
       <h5><i class="bi bi-building"></i> Internship & Placement Strategy</h5>
       <ul class="text-muted">
         <li>On-campus vs off-campus</li>
-        <li>LinkedIn strategy</li>
         <li>PPO reality</li>
       </ul>
       <p class="price">₹129</p>
@@ -396,13 +501,7 @@ function markRequested(btn){
 
   btn.onclick = () => cancelRequest(id);
 
-  // NEW CODE
-  const bar = document.getElementById(`bar-${id}`);
-  if(bar){
-    bar.style.width = "100%";
-    bar.classList.remove("bg-warning","bg-success");
-    bar.classList.add("bg-primary");
-  }
+ 
 
 }
 async function checkRequested(){
@@ -426,7 +525,7 @@ async function checkRequested(){
 }
 
 checkRequested();
-[1,2,3,4,5,6,7,8,9].forEach(loadCount);
+[1,2,3,4,5,6,7,8,9,10,11,12,13].forEach(loadCount);
  
 async function cancelRequest(sessionId){
 
