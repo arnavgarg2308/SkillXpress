@@ -47,13 +47,11 @@ body{
 }
 
 .price{
-  font-weight:800;
-  color:#4f46e5;
+  display:none;
 }
 
 .limit{
-  font-size:.9rem;
-  color:#6b7280;
+  display:none;
 }
 
 .requested{
@@ -68,8 +66,7 @@ body{
 
 <div class="page-header text-center">
   <h2 class="fw-bold">🎓 Mentor Sessions</h2>
-  <p class="mb-0">Session starts once <b>50 students</b> request it</p>
-</div>
+<p class="mb-0">Explore mentor-led sessions and request topics you want</p></div>
 <div class="dropdown text-end">
   <button class="btn btn-light position-relative"
           id="notifBtn"
@@ -354,10 +351,21 @@ body{
 <script>
 async function requestSession(id, title, price) {
 
-  // 🔹 Temporary test email (jab tak auth nahi lagaya)
   const email = "test@student.com";
-
   const btn = document.getElementById(`btn-${id}`);
+
+  // 🔹 Check if already exists
+  const { data: existing } = await supabaseClient
+    .from("session_requests")
+    .select("*")
+    .eq("session_id", id)
+    .eq("student_email", email);
+
+  if (existing && existing.length > 0) {
+    console.log("Already requested");
+    markRequested(btn);
+    return;
+  }
 
   const { error } = await supabaseClient
     .from("session_requests")
@@ -374,30 +382,29 @@ async function requestSession(id, title, price) {
     return;
   }
 
-  // 🔹 Notification insert
-  await supabaseClient.from("notifications").insert([
-    {
-      student_email: email,
-      session_id: id,
-      title: "Request Received",
-      message:
-        "Your request has been received. This session will be scheduled once 50 students join. You will receive an email to buy the ticket.",
-      type: "request"
-    }
-  ]);
-
   markRequested(btn);
-loadCount(id); // ✅ REQUEST KE BAAD COUNT UPDATE
-
+  loadCount(id);
 }
 
 
 function markRequested(btn){
-  btn.innerHTML="✔ Requested";
-  btn.classList.add("requested");
-  btn.disabled=true;
-}
 
+  const id = btn.id.split("-")[1];
+
+  btn.innerHTML="Cancel Request";
+  btn.classList.add("requested");
+
+  btn.onclick = () => cancelRequest(id);
+
+  // NEW CODE
+  const bar = document.getElementById(`bar-${id}`);
+  if(bar){
+    bar.style.width = "100%";
+    bar.classList.remove("bg-warning","bg-success");
+    bar.classList.add("bg-primary");
+  }
+
+}
 async function checkRequested(){
 
   const email = "test@student.com"; // same test email
@@ -413,14 +420,43 @@ async function checkRequested(){
   }
 
   rows?.forEach(r=>{
-    const btn = document.getElementById(`btn-${r.session_id}`);
-    if (btn) markRequested(btn);
-  });
+  const btn = document.getElementById(`btn-${r.session_id}`);
+  if (btn) markRequested(btn);
+});
 }
 
 checkRequested();
 [1,2,3,4,5,6,7,8,9].forEach(loadCount);
+ 
+async function cancelRequest(sessionId){
 
+  const email = "test@student.com";
+
+  const btn = document.getElementById(`btn-${sessionId}`);
+
+  const { error } = await supabaseClient
+    .from("session_requests")
+    .delete()
+    .eq("session_id", sessionId)
+    .eq("student_email", email);
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+ // Button reset
+btn.innerHTML = "Request Session";
+btn.classList.remove("requested");
+btn.disabled = false;
+
+// IMPORTANT: onclick reset
+btn.onclick = () => requestSession(sessionId, "", "");
+
+loadCount(sessionId);
+  loadCount(sessionId);
+
+}
 
 async function loadCount(sessionId) {
   const { count, error } = await supabaseClient
