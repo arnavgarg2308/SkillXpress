@@ -151,7 +151,7 @@ async function signup() {
   password,
   options: {
     data: {  phone },
-    emailRedirectTo: "https://skill-xpress.vercel.app/index.html"
+    emailRedirectTo: "https://skillxpress.me/index.html"
   }
 });
 
@@ -205,7 +205,7 @@ async function forgotPassword() {
   const email = prompt("Please enter your registered email id");
 
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: "https://skill-xpress.vercel.app/reset.html"
+    redirectTo: "https://skillxpress.me/reset.html"
   });
 
   if (error) alert(error.message);
