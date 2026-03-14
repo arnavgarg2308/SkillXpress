@@ -310,7 +310,15 @@ console.log("ITEM TYPE:", item.type);
   });
 }
     }
+const normalizedSkills = {};
 
+for (const [key, value] of Object.entries(skills)) {
+  const upper = key.toUpperCase();
+
+  normalizedSkills[upper] = (normalizedSkills[upper] || 0) + value;
+}
+
+skills = normalizedSkills;
     /* ===== NORMALIZE ===== */
     Object.keys(skills).forEach(k => {
       skills[k] = Math.min(100, skills[k]);
