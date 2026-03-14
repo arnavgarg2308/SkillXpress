@@ -85,7 +85,7 @@ body{
   </ul>
 </div>
 
-<!-- ================= 11 ================= -->
+<!-- ================= 10 ================= -->
 <h4 class="category-title"><i class="bi bi-linkedin"></i> LinkedIn Growth</h4>
 <div class="row g-4">
   <div class="col-md-6 col-lg-4">
@@ -112,33 +112,7 @@ body{
 <div class="progress mt-2" style="height:8px;">
   <div id="bar-10" class="progress-bar bg-primary" style="width:0%"></div>
 </div>
-<!-- ================= 10 ================= -->
-<h4 class="category-title"><i class="bi bi-lightbulb"></i> Startup & Innovation</h4>
-<div class="row g-4">
-  <div class="col-md-6 col-lg-4">
-    <div class="session-card">
-      <h5><i class="bi bi-rocket"></i> Startup Ideas & Building a Startup</h5>
-      <ul class="text-muted">
-        <li>How to validate startup ideas</li>
-        <li>Building MVP products</li>
-        <li>Funding & startup ecosystem</li>
-      </ul>
-      <p class="price">₹149</p>
-      <p class="limit">
-        <span id="count-11">0</span> / 50 requested
-      </p>
 
-      <button id="btn-11" class="btn btn-primary w-100"
-        onclick="requestSession(11,'Startup Ideas & Building a Startup',149)">
-        Request Session
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="progress mt-2" style="height:8px;">
-  <div id="bar-11" class="progress-bar bg-primary" style="width:0%"></div>
-</div>
 <!-- ================= 1 ================= -->
 <h4 class="category-title"><i class="bi bi-compass"></i> Career Clarity</h4>
 <div class="row g-4">
@@ -456,7 +430,8 @@ body{
 <script>
 async function requestSession(id, title, price) {
 
-  const email = "test@student.com";
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const email = user.email;
   const btn = document.getElementById(`btn-${id}`);
 
   // 🔹 Check if already exists
@@ -506,7 +481,8 @@ function markRequested(btn){
 }
 async function checkRequested(){
 
-  const email = "test@student.com"; // same test email
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const email = user.email; // same test email
 
   const { data: rows, error } = await supabaseClient
     .from("session_requests")
@@ -529,9 +505,9 @@ checkRequested();
  
 async function cancelRequest(sessionId){
 
-  const email = "test@student.com";
-
-  const btn = document.getElementById(`btn-${sessionId}`);
+   const { data: { user } } = await supabaseClient.auth.getUser();
+   const email = user.email;
+   const btn = document.getElementById(`btn-${sessionId}`);
 
   const { error } = await supabaseClient
     .from("session_requests")
@@ -601,9 +577,8 @@ async function loadCount(sessionId) {
 }
 async function loadNotifications() {
 
-  // abhi test email
-  const email = "test@student.com";
-
+  const { data: { user } } = await supabaseClient.auth.getUser();
+   const email = user.email;  
   const { data, error } = await supabaseClient
     .from("notifications")
     .select("*")

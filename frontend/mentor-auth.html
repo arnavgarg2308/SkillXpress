@@ -90,11 +90,12 @@
       <h3 class="text-center mb-3 fw-bold">Mentor Signup</h3>
       <p class="text-center text-muted small mb-4">Join our community of expert mentors.</p>
 
-      <input id="mName" class="form-control mb-2" placeholder="Full Name">
-      <input id="mEmail" class="form-control mb-2" placeholder="Email">
-      <input id="mPass" type="password" class="form-control mb-2" placeholder="Password">
-      <input id="mExpertise" class="form-control mb-2" placeholder="Expertise (e.g. Java, UI/UX)">
-      <textarea id="mDesc" class="form-control mb-3" rows="3" placeholder="Short Bio/Description"></textarea>
+      <input id="mName" class="form-control mb-2" placeholder="Full Name *">
+      <input id="mEmail" class="form-control mb-2" placeholder="Email *">
+      <input id="mPass" type="password" class="form-control mb-2" placeholder="Password *">
+      <input id="mCode" class="form-control mb-2" placeholder="Mentor Access Code *">
+      <input id="mExpertise" class="form-control mb-2" placeholder="Short Bio/Description">
+      <textarea id="mDesc" class="form-control mb-3" rows="3" placeholder="Experties *"></textarea>
 
       <button class="btn btn-success w-100" onclick="mentorSignup()">
         Sign Up
@@ -123,17 +124,22 @@
 
     /* MENTOR SIGNUP (EDGE FUNCTION) */
     async function mentorSignup() {
-      const name = document.getElementById("mName").value;
-      const email = document.getElementById("mEmail").value;
-      const password = document.getElementById("mPass").value;
-      const expertise = document.getElementById("mExpertise").value;
-      const description = document.getElementById("mDesc").value;
+      const name = document.getElementById("mName").value.trim();
+      const email = document.getElementById("mEmail").value.trim();
+      const code = document.getElementById("mCode").value.trim();
+      const password = document.getElementById("mPass").value.trim();
+      const expertise = document.getElementById("mExpertise").value.trim();
+      const description = document.getElementById("mDesc").value.trim();
+const SECRET_CODE = "SKILLXPRESSMENTOR26";
 
-      if(!name || !email || !password) {
+      if(!name || !email || !password || !description) {
         alert("Please fill all required fields");
         return;
       }
-
+if (code !== SECRET_CODE) {
+  alert("Invalid mentor access code");
+  return;
+}
       const response = await fetch(
         "https://ltxrynmhihxmmzrnnduw.supabase.co/functions/v1/create-mentor", 
         {
