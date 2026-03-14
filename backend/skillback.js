@@ -137,10 +137,11 @@ else {
   const totalBytes = Object.values(languages).reduce((a, b) => a + b, 0);
 
   for (const [lang, bytes] of Object.entries(languages)) {
+    const normalizedLang = lang.toUpperCase();
     const percent = bytes / totalBytes;
     const scoreToAdd = repoScore * percent;
 
-    skills[lang] = (skills[lang] || 0) + scoreToAdd;
+    skills[normalizedLang] = (skills[normalizedLang] || 0) + scoreToAdd;
   }
 }}}
 
