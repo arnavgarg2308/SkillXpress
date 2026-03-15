@@ -22,8 +22,13 @@ body{background:linear-gradient(135deg,#f0f4ff,#ffffff);min-height:100vh;display
 <input id="college" class="form-control my-2" placeholder="College *" required>
 <input id="course" class="form-control my-2" placeholder="Course *" required>
 <input id="branch" class="form-control my-2" placeholder="Branch *" required>
-<input id="year" type="text" class="form-control my-2" placeholder="Year *" required>
-<input id="age" class="form-control my-2" placeholder="Age *" required>
+<select id="year" class="form-control my-2" required>
+  <option value="">Select Year *</option>
+  <option value="1st">1st Year</option>
+  <option value="2nd">2nd Year</option>
+  <option value="3rd">3rd Year</option>
+  <option value="4th">Final Year</option>
+</select><input id="age" class="form-control my-2" placeholder="Age *" required>
 <input id="github" class="form-control my-2" placeholder="GitHub URL *" required>
 <input id="leetcode" class="form-control my-2" placeholder="LeetCode URL">
 <input id="codechef"class="form-control my-2" placeholder="CodeChef URL">
