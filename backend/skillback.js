@@ -71,7 +71,7 @@ const { data: existing } = await supabase
   .eq("user_id", userId)
   .single();
 
-if (existing?.updated_at) {
+if (existing && existing.skills && Object.keys(existing.skills).length > 0) {
 
   const lastUpdate = new Date(existing.updated_at);
   const now = new Date();
