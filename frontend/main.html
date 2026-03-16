@@ -702,14 +702,14 @@ checkSubscription();
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='jobmatch.html'">
+        <div class="feature-card" onclick="openeature('premium','jobmatch.html')">
           <div class="feature-icon">📈</div>
           <div class="feature-title">Role Readiness</div>
         </div>
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="goToMicroTest()">
+       <div class="feature-card" onclick="openeature('premium','micro-test.html')">
           <div class="feature-icon">🧠</div>
           <div class="feature-title d-flex justify-content-between align-items-center w-100">
             Micro-Cognitive Test
@@ -726,7 +726,7 @@ checkSubscription();
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='roadmap.html'">
+        <div class="feature-card" onclick="openeature('premium','roadmap.html')">
           <div class="feature-icon">🤖</div>
           <div class="feature-title">AI Roadmap</div>
         </div>
@@ -740,21 +740,21 @@ checkSubscription();
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='projects.html'">
+        <div class="feature-card" onclick="openeature('premium','projects.html')">
           <div class="feature-icon">🧪</div>
           <div class="feature-title">Projects</div>
         </div>
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-new.html'">
+        <div class="feature-card" onclick="openeature('premium','mentor-new.html')">
           <div class="feature-icon">🎓</div>
           <div class="feature-title">Mentors</div>
         </div>
       </div>
 
       <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-sessions.html'">
+        <div class="feature-card" onclick="openeature('premium','mentor-sessions.html')">
           <div class="feature-icon">📅</div>
           <div class="feature-title">Mentor Sessions</div>
         </div>
@@ -780,21 +780,26 @@ async function checkAuth() {
 async function checkSubscription(){
   const { data:{user} } = await supabaseClient.auth.getUser();
   if(!user) return;
-  const { data } = await supabaseClient.from("profiles").select("is_premium,subscription_end").eq("id", user.id).single();
-  
+
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("is_premium,subscription_end")
+    .eq("id", user.id)
+    .single();
+
   const subScreen = document.getElementById("subscriptionScreen");
   const dashContent = document.getElementById("dashboardContent");
   const backBtn = document.getElementById("backToDashBtn");
 
-  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
-    subScreen.style.display = "block";
-    dashContent.style.display = "none";
-    canGoBack = false;
-    backBtn.style.display = "none"; // Naye user ko back button nahi dikhega
-  } else {
-    subScreen.style.display = "none";
-    dashContent.style.display = "block";
-  }
+  // Dashboard always open
+  dashContent.style.display = "block";
+  subScreen.style.display = "none";
+
+  // Upgrade button ke liye info save
+  window.userIsPremium =
+    data.is_premium && new Date(data.subscription_end) > new Date();
+
+  backBtn.style.display = "none";
 }
 
 function openUpgrade() {
@@ -818,15 +823,29 @@ function showTestStatus() {
 async function checkFeatureAccess(feature){
   const { data:{user} } = await supabaseClient.auth.getUser();
   const { data } = await supabaseClient.from("profiles").select("plan_type,subscription_end").eq("id", user.id).single();
-  if(!data.plan_type || new Date(data.subscription_end) < new Date()){ location.reload(); return false; }
-  if(feature === "career-risk" && data.plan_type === "starter"){ 
+  if(!data.plan_type || new Date(data.subscription_end) < new Date()){   openUpgrade(); return false; }
+  if(feature === "career-risk" && data.plan_type === "starter"  ){ 
     alert("Upgrade to Growth plan to access Opportunities Alert!"); 
     openUpgrade(); 
     return false; 
   }
   return true;
 }
+async function openeature(type, url){
+  const { data:{user} } = await supabaseClient.auth.getUser();
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("is_premium,subscription_end")
+    .eq("id", user.id)
+    .single();
 
+  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
+    openUpgrade();   // subscription page open
+    return;
+  }
+
+  window.location.href = url;
+}
 async function openFeature(type, url){ if(await checkFeatureAccess(type)) window.location.href = url; }
 
 checkAuth(); 
