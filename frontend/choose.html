@@ -88,7 +88,7 @@
       <input id="loginEmail" type="email" class="form-control mb-3" placeholder="Email" />
       <input id="loginPass" type="password" class="form-control mb-3" placeholder="Password" />
 
-      <button class="btn btn-main w-100" onclick="signin()">Sign In</button>
+      <button id="loginBtn" class="btn btn-main w-100" onclick="signin()">Sign In</button>
         <button type="button" class="btn btn-link p-0" onclick="forgotPassword()">
   Forgot password?
 </button>
@@ -107,7 +107,7 @@
       <input id="signupEmail" type="email" class="form-control mb-2" placeholder="Email" />
       <input id="signupPass" type="password" class="form-control mb-3" placeholder="Password" />
 
-      <button class="btn btn-main w-100" onclick="signup()">Sign Up</button>
+      <button id="signupBtn" class="btn btn-main w-100" onclick="signup()">Sign Up</button>
 
       <div class="switch">
         Already have an account? <a onclick="showSignin()">Sign In</a>
@@ -144,7 +144,8 @@ async function signup() {
     alert("Valid phone number required");
     return;
   }
-
+const btn = document.querySelector("#signupBtn");
+  btn.disabled = true;
   // 1️⃣ AUTH SIGNUP (EMAIL UNIQUE CHECK YAHIN HOTA HAI)
   const { data, error } = await supabaseClient.auth.signUp({
   email,
@@ -154,7 +155,7 @@ async function signup() {
     emailRedirectTo: "https://skillxpress.me/index.html"
   }
 });
-
+ btn.disabled = false;
   if (error) {
     alert(error.message);
     return;
@@ -167,12 +168,13 @@ async function signup() {
 async function signin() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPass").value;
-
+const btn = document.querySelector("#loginBtn");
+  btn.disabled = true;
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
-
+ btn.disabled = false;
   if (error) {
     alert("Invalid email or password");
     return;
