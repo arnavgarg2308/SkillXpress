@@ -162,7 +162,7 @@ if (code !== SECRET_CODE) {
 
     /* MENTOR LOGIN */
     async function mentorSignin() {
-      const email = document.getElementById("mLoginEmail").value;
+      const email = document.getElementById("mLoginEmail").value.trim();
       const password = document.getElementById("mLoginPass").value;
 
       const { data, error } = await supabaseClient.auth.signInWithPassword({
