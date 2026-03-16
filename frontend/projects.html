@@ -343,8 +343,20 @@ async function requestTeam(projectId, ownerId){
 
 /* 🗑 DELETE */
 async function deleteProject(projectId){
+
   if(!confirm("Delete project?")) return;
-  await supabaseClient.from("projects").delete().eq("id",projectId);
+
+  const { error } = await supabaseClient
+    .from("projects")
+    .delete()
+    .eq("id", projectId);
+
+  if(error){
+    alert(error.message);
+    console.log(error);
+    return;
+  }
+
   loadProjects();
 }
 
