@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Confirming...</title>
+</head>
+<body>
+  <h2>Confirming your email...</h2>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabase = window.supabase.createClient(
+  "https://ltxrynmhihxmmzrnnduw.supabase.co",
+  "YOUR_ANON_KEY"
+);
+
+(async () => {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (data.session) {
+    // success → redirect
+    window.location.href = "profile.html";
+  } else {
+    document.body.innerHTML = "Confirmation failed. Try again.";
+  }
+})();
+</script>
+
+</body>
+</html>
