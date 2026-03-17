@@ -170,6 +170,7 @@ async function signin() {
   const password = document.getElementById("loginPass").value;
 const btn = document.querySelector("#loginBtn");
   btn.disabled = true;
+  await supabaseClient.auth.signOut();
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
