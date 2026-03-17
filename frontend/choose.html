@@ -152,7 +152,7 @@ const btn = document.querySelector("#signupBtn");
   password,
   options: {
     data: {  phone },
-    emailRedirectTo: "https://skillxpress.me/confirm.html"
+    emailRedirectTo: "https://skillxpress.me/index.html"
   }
 });
  btn.disabled = false;
@@ -161,7 +161,7 @@ const btn = document.querySelector("#signupBtn");
     return;
   }
   alert("Signup successful. Verify email and login.If email not found, please check Spam and mark as Not Spam");
-  showSignin()
+  showSignup()
 }
 
 // SUPABASE SIGNIN
@@ -176,7 +176,7 @@ const btn = document.querySelector("#loginBtn");
   });
  btn.disabled = false;
   if (error) {
-    alert(error.message);
+    alert("Invalid email or password please reset your password");
     return;
   }
 
