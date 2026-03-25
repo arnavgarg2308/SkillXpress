@@ -32,6 +32,14 @@ document.getElementById("leetcode").innerText = profile.leetcode || "-";
 document.getElementById("codechef").innerText = profile.codechef || "-";
 document.getElementById("hackerrank").innerText = profile.hackerrank || "-";
 
+  // Set avatar initial
+  document.getElementById("avatar-initial").innerText = (profile.username || "U").charAt(0).toUpperCase();
+
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
 }
 
 loadUserProfile();

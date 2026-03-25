@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us - SkillXpress</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--bg-primary); margin: 0; font-family: var(--font-body); }
+    .contact-container { max-width: 900px; margin: 2rem auto; background: white; border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-card); }
+    h1 { font-family: var(--font-heading); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .contact-item { border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 1rem; }
+    .contact-item h3 { margin-top: 0; color: var(--accent-primary); }
+    a { color: var(--accent-primary); text-decoration: none; font-weight: 700; }
+    @media(max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="contact-container">
+    <h1>Contact SkillXpress</h1>
+    <p>Need support? Have feedback? We are here for you!</p>
+
+    <div class="contact-grid">
+      <div class="contact-item">
+        <h3>Support Email</h3>
+        <p>If you have account issues, bugs, or feature requests, email our support team.</p>
+        <p><a href="mailto:skillxpress6@gmail.com">skillxpress6@gmail.com</a></p>
+      </div>
+
+      <div class="contact-item">
+        <h3>Instagram</h3>
+        <p>Fastest responses usually come through Instagram DM.</p>
+        <p><a href="https://instagram.com/skillxpress.me" target="_blank">@skillxpress.me</a></p>
+      </div>
+
+      <div class="contact-item">
+        <h3>General Inquiry</h3>
+        <p>Ask anything about our roadmap, mentoring, or AI features.</p>
+        <p><a href="mailto:skillxpress6@gmail.com">skillxpress6@gmail.com</a></p>
+      </div>
+
+      <div class="contact-item">
+        <h3>Business</h3>
+        <p>Partner with us for campus programs, hiring campaigns, or enterprise access.</p>
+        <p><a href="mailto:skillxpress6@gmail.com">skillxpress6@gmail.com</a></p>
+      </div>
+    </div>
+
+    <footer style="margin-top: 2rem; text-align:center; color: var(--text-muted);">© 2026 SkillXpress. All Rights Reserved.</footer>
+  </div>
+</body>
+</html>

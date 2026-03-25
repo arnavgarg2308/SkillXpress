@@ -1,405 +1,3 @@
-<!-- 
- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkillXpress | Dashboard</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    /* --- Body Style --- */
-    body {
-      min-height: 100vh;
-      background: linear-gradient(120deg, #eef2ff, #ecfeff);
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-    }
-
-    /* --- Navbar Styling --- */
-    .navbar {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-
-    .brand { font-weight: 900; color: #4f46e5; font-size: 1.6rem; }
-
-    /* --- Feature Card Styling --- */
-    .feature-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-radius: 22px;
-      padding: 1.5rem;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      border: 1px solid rgba(255,255,255,0.3);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-      transition: all 0.3s ease;
-      cursor: pointer; 
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(79,70,229,0.1);
-      border-color: #4f46e5;
-    }
-
-    .feature-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-    .feature-title { font-weight: 700; font-size: 1.1rem; color: #111827; margin: 0; }
-
-    .skill-graph-card { max-height: 150px; }
-    #skillChart { width: 100% !important; height: 50px !important; margin-top: auto; }
-
-    .header-text { font-weight: 800; color: #111827; }
-    .sub-dashboard-text { color: #6b7280; font-size: 0.9rem; }
-
-    /* --- WHITE PREMIUM SUBSCRIPTION STYLING --- */
-    .premium-wrapper {
-      min-height: 100vh;
-      background: #f8fafc; /* Clean Light Background */
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 60px 20px;
-      text-align: center;
-    }
-
-    .feature-badges-container {
-      max-width: 900px;
-      margin: 0 auto 40px auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .feature-tag {
-      display: flex;
-      align-items: center;
-      background: #ffffff;
-      padding: 8px 18px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      color: #4f46e5;
-      font-weight: 600;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-    }
-
-    .plan-card { 
-      background: #ffffff;
-      border-radius: 24px; 
-      padding: 35px 25px; 
-      border: 1px solid #e2e8f0; 
-      height: 100%;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-
-    .plan-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
-      border-color: #4f46e5;
-    }
-
-    .popular-plan {
-      border: 2px solid #4f46e5;
-      background: #fdfdff;
-    }
-
-    .popular-badge {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #4f46e5;
-      color: white;
-      padding: 5px 20px;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-    }
-
-    .price-text {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 10px 0;
-    }
-
-    .extra-features {
-      font-size: 0.9rem;
-      color: #4f46e5;
-      font-weight: 700;
-      margin: 15px 0;
-      min-height: 45px;
-    }
-
-    .btn-subscribe {
-      border-radius: 14px;
-      padding: 14px;
-      font-weight: 700;
-      font-size: 1rem;
-      background: #4f46e5;
-      border: none;
-      transition: all 0.3s ease;
-    }
-
-    .btn-subscribe:hover {
-      background: #4338ca;
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      .premium-wrapper { padding: 40px 15px; }
-      .price-text { font-size: 2rem; }
-    }
-  </style>
-</head>
-<body>
-
-<div id="subscriptionScreen" class="premium-wrapper" style="display:none;">
-  <h1 class="header-text mb-2" style="font-size: 2.5rem;">Ready to Level Up? 🚀</h1>
-  <p class="text-secondary mb-4">Choose a plan that fits your career goals</p>
-  
-  <div class="feature-badges-container">
-    <div class="feature-tag">📊 Skill Graph</div>
-    <div class="feature-tag">📈 Job Match</div> <div class="feature-tag">🧠 Micro-Cognitive Test</div>
-    <div class="feature-tag">🤖 AI Roadmap</div>
-    <div class="feature-tag">🧪 Projects</div>
-    <div class="feature-tag">🎓 Mentors</div>
-    <div class="feature-tag">📅 Mentor Sessions</div>
-  </div>
-
-  <div class="container">
-    <div class="row g-4 justify-content-center">
-      
-      <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">⚡</div>
-          <h5 class="fw-bold text-muted">Starter</h5>
-          <div class="price-text">₹29</div>
-          <p class="text-secondary small">Validity: 28 Days</p>
-          <div class="extra-features">Essential Features</div>
-          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(29,'starter',28)">Subscribe Now</button>
-        </div>
-      </div>
-
-      <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center popular-plan">
-          <div class="popular-badge">Most Popular</div>
-          <div class="feature-icon">🚀</div>
-          <h5 class="fw-bold text-dark">Growth</h5>
-          <div class="price-text">₹49</div>
-          <p class="text-secondary small">Validity: 28 Days</p>
-          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div> <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(49,'growth',28)">Subscribe Now</button>
-        </div>
-      </div>
-
-      <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">💎</div>
-          <h5 class="fw-bold text-muted">Pro</h5>
-          <div class="price-text">₹249</div>
-          <p class="text-secondary small">Validity: 6 Months</p>
-          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div> <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(249,'pro',180)">Subscribe Now</button>
-        </div>
-      </div>
-
-      <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">👑</div>
-          <h5 class="fw-bold text-muted">Elite</h5>
-          <div class="price-text">₹499</div>
-          <p class="text-secondary small">Validity: 1 Year</p>
-          <div class="extra-features">+ Career Risk<br>+ Job Opportunities</div> <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(499,'elite',365)">Subscribe Now</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div id="dashboardContent" style="display:none;">
-  <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a class="navbar-brand brand" href="#">SkillXpress</a>
-      <div class="ms-auto d-flex align-items-center gap-3">
-        <span class="fw-semibold d-none d-sm-inline">Hi, Student 👋</span>
-        <div class="dropdown">
-          <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">👤</button>
-          <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-            <li><a class="dropdown-item" href="user-profile.html">Profile</a></li>
-            <li><a class="dropdown-item" href="support.html">Support</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="index.html">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <div class="container" style="padding-top:110px; padding-bottom: 60px;">
-    <div class="mb-4">
-      <h2 class="header-text">Your Career Dashboard</h2>
-      <p class="sub-dashboard-text">All your skills, growth & opportunities in one place</p>
-    </div>
-
-    <div class="row g-4 align-items-stretch">
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card skill-graph-card" onclick="location.href='skillfront.html'">
-          <div class="feature-icon">📊</div>
-          <div class="feature-title">Skill Graph</div>
-          <canvas id="skillChart"></canvas>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='interests.html'">
-          <div class="feature-icon">💼</div>
-          <div class="feature-title">Job Match</div> </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='jobmatch.html'">
-          <div class="feature-icon">📈</div>
-          <div class="feature-title">Job Opportunities</div> </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="goToMicroTest()">
-          <div class="feature-icon">🧠</div>
-          <div class="feature-title d-flex justify-content-between align-items-center w-100">
-            Micro-Cognitive Test
-            <span id="testStatus" class="badge bg-secondary" style="font-size: 0.7rem;">Checking…</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','opportunities.html')">
-          <div class="feature-icon">⚠</div>
-          <div class="feature-title">Career Risk</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='roadmap.html'">
-          <div class="feature-icon">🤖</div>
-          <div class="feature-title">AI Roadmap</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','jobs.html')">
-          <div class="feature-icon">🎯</div>
-          <div class="feature-title">Upcoming Jobs</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='projects.html'">
-          <div class="feature-icon">🧪</div>
-          <div class="feature-title">Projects</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-new.html'">
-          <div class="feature-icon">🎓</div>
-          <div class="feature-title">Mentors</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='mentor-sessions.html'">
-          <div class="feature-icon">📅</div>
-          <div class="feature-title">Mentor Sessions</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="subscription.js"></script>
-
-<script>
-async function checkAuth() { 
-  const { data } = await supabaseClient.auth.getUser(); 
-  if (!data.user) window.location.href = "index.html"; 
-}
-
-async function goToMicroTest() { 
-  const { data } = await supabaseClient.auth.getUser(); 
-  if (!data.user) { 
-    alert("Please login again"); 
-    window.location.href = "index.html"; 
-    return; 
-  } 
-  window.location.href = "micro-test.html"; 
-}
-
-function showTestStatus() { 
-  const badge = document.getElementById("testStatus"); 
-  if (badge) badge.style.display = "none"; 
-}
-
-async function checkSubscription(){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  if(!user) return;
-  const { data } = await supabaseClient.from("profiles").select("is_premium,subscription_end").eq("id", user.id).single();
-  
-  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
-    document.getElementById("subscriptionScreen").style.display = "block";
-    document.getElementById("dashboardContent").style.display = "none";
-  } else {
-    document.getElementById("dashboardContent").style.display = "block";
-    document.getElementById("subscriptionScreen").style.display = "none";
-  }
-}
-
-async function checkFeatureAccess(feature){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  const { data } = await supabaseClient.from("profiles").select("plan_type,subscription_end").eq("id", user.id).single();
-  
-  if(!data.plan_type || new Date(data.subscription_end) < new Date()){ 
-    location.reload(); 
-    return false; 
-  }
-  
-  if(feature === "career-risk" && data.plan_type === "starter"){ 
-    alert("Upgrade to Growth plan to access Career Risk and Upcoming Jobs"); 
-    return false; 
-  }
-  return true;
-}
-
-async function openFeature(type, url){ 
-  if(await checkFeatureAccess(type)) window.location.href = url; 
-}
-
-checkAuth(); 
-showTestStatus(); 
-checkSubscription();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>  -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -407,193 +5,566 @@ checkSubscription();
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SkillXpress | Dashboard</title>
 
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* --- Body Style --- */
+    /* ============================================================
+       CSS VARIABLES
+    ============================================================ */
+    :root {
+      --accent-primary: #6366f1;
+      --accent-secondary: #10b981;
+      --accent-violet: #8b5cf6;
+      --bg-primary: #f8faff;
+      --bg-card: #ffffff;
+      --text-primary: #111827;
+      --text-muted: #6b7280;
+      --text-light: #9ca3af;
+      --border-color: #e5e7eb;
+      --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --gradient-hero: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 45%, #faf5ff 100%);
+      --shadow-card: 0 4px 24px rgba(99,102,241,0.07);
+      --shadow-hover: 0 16px 48px rgba(99,102,241,0.18);
+      --radius-card: 18px;
+      --font-heading: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
     body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
-      background: linear-gradient(120deg, #eef2ff, #ecfeff);
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
+      overflow-x: hidden;
     }
 
-    /* --- Navbar Styling --- */
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
     .navbar {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      height: 66px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(255,255,255,0.92) !important;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 2px 16px rgba(99,102,241,0.06);
+      padding: 0 1.5rem;
     }
-
-    .brand { font-weight: 900; color: #4f46e5; font-size: 1.6rem; }
-
-    /* Upgrade Button Styling */
+    .navbar-brand.brand {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.35rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .nav-greeting {
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
     .btn-upgrade {
-      background: linear-gradient(135deg, #4f46e5, #818cf8);
+      background: var(--gradient-primary);
       color: white !important;
       border: none;
-      padding: 6px 18px;
+      padding: 0.45rem 1.1rem;
       border-radius: 50px;
+      font-family: var(--font-body);
       font-weight: 700;
-      font-size: 0.85rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+      font-size: 0.82rem;
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+      white-space: nowrap;
     }
-
     .btn-upgrade:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
-      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(99,102,241,0.38);
+      color: white !important;
     }
+    .nav-avatar-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      border: none;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+    }
+    .nav-avatar-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+    }
+    .dropdown-menu {
+      border: 1px solid var(--border-color) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1) !important;
+      padding: 0.4rem !important;
+      font-family: var(--font-body);
+    }
+    .dropdown-item {
+      border-radius: 8px;
+      font-size: 0.875rem;
+      padding: 0.55rem 0.85rem;
+      transition: var(--transition);
+    }
+    .dropdown-item:hover { background: var(--bg-primary); }
 
-    /* --- Feature Card Styling --- */
-    .feature-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border-radius: 22px;
-      padding: 1.5rem;
-      height: 100%;
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    .hero-section {
+      background: var(--gradient-hero);
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 460px;
       display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      border: 1px solid rgba(255,255,255,0.3);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-      transition: all 0.3s ease;
-      cursor: pointer; 
+      align-items: center;
+      justify-content: center;
     }
-    .old-price{
-  text-decoration: line-through;
-  color: gray;
-  margin-right: 5px;
-}
+    .hero-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(99,102,241,0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+    .blob-1 { width: 380px; height: 380px; background: rgba(99,102,241,0.22); top: -80px; left: -80px; animation: blobFloat 8s ease-in-out infinite; }
+    .blob-2 { width: 300px; height: 300px; background: rgba(16,185,129,0.18); bottom: -60px; right: -60px; animation: blobFloat 10s ease-in-out infinite reverse; }
+    .blob-3 { width: 240px; height: 240px; background: rgba(139,92,246,0.15); top: 40%; right: 15%; animation: blobFloat 7s ease-in-out infinite 2s; }
+    @keyframes blobFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(18px,-18px) scale(1.04); }
+      66% { transform: translate(-12px,14px) scale(0.97); }
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(99,102,241,0.1);
+      color: var(--accent-primary);
+      font-family: var(--font-body);
+      font-size: 0.78rem; font-weight: 700;
+      padding: 0.38rem 1rem;
+      border-radius: 50px;
+      border: 1px solid rgba(99,102,241,0.2);
+      margin-bottom: 1.4rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .hero-dot {
+      width: 6px; height: 6px;
+      background: var(--accent-secondary);
+      border-radius: 50%;
+      animation: heroPulse 2s ease-in-out infinite;
+    }
+    @keyframes heroPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(1.4);} }
+    .hero-h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #4338ca, #6366f1, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.1rem;
+    }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--text-muted);
+      line-height: 1.7; margin-bottom: 2rem;
+    }
+    .hero-ctas { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.2rem; }
+    .btn-hero-primary {
+      font-family: var(--font-body); font-weight: 600; font-size: 0.92rem;
+      padding: 0.72rem 1.7rem;
+      background: var(--gradient-primary); color: white;
+      border: none; border-radius: 50px; cursor: pointer;
+      transition: var(--transition); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.38); color: white; }
+    .btn-hero-outline {
+      font-family: var(--font-body); font-weight: 500; font-size: 0.92rem;
+      padding: 0.72rem 1.7rem;
+      background: transparent; color: var(--accent-primary);
+      border: 1.5px solid rgba(99,102,241,0.4); border-radius: 50px; cursor: pointer;
+      transition: var(--transition); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .btn-hero-outline:hover { background: rgba(99,102,241,0.07); border-color: var(--accent-primary); transform: translateY(-2px); color: var(--accent-primary); }
+    .hero-stats { display: flex; gap: 1.8rem; justify-content: center; flex-wrap: wrap; }
+    .hero-stat .num {
+      font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-stat .lbl { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 1px; }
 
+    /* ============================================================
+       DASHBOARD WRAPPER
+    ============================================================ */
+    .dashboard-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 3rem;
+    }
+    .section-eyebrow {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent-primary);
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;
+    }
+    .section-eyebrow::before { content: ''; display: block; width: 18px; height: 2px; background: var(--gradient-primary); border-radius: 2px; }
+    .section-title {
+      font-family: var(--font-heading); font-size: 1.75rem; font-weight: 800;
+      color: var(--text-primary); letter-spacing: -0.5px; margin-bottom: 0.3rem;
+    }
+    .section-sub { font-size: 0.9rem; color: var(--text-muted); }
+    .feature-count {
+      font-weight: 600;
+      color: var(--accent-primary);
+      background: rgba(99,102,241,0.1);
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+
+    /* ============================================================
+       STATS BAR
+    ============================================================ */
+    .stats-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 1.4rem 1.8rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 1.8rem 0 2.2rem;
+      box-shadow: var(--shadow-card);
+    }
+    .stat-cell { text-align: center; padding: 0.4rem; }
+    .stat-cell .val {
+      font-family: var(--font-heading); font-size: 1.55rem; font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.5px;
+      display: block;
+    }
+    .stat-cell .key { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+    .stat-divider { width: 1px; background: var(--border-color); align-self: stretch; margin: auto 0; }
+
+    /* ============================================================
+       FEATURE CARDS
+    ============================================================ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.15rem;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 1.45rem;
+      min-height: 172px;
+      display: flex; flex-direction: column; gap: 0.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+      text-decoration: none; color: inherit;
+      box-shadow: var(--shadow-card);
+      /* Staggered entrance */
+      opacity: 0; transform: translateY(18px);
+      animation: cardSlideIn 0.45s forwards;
+    }
+    @keyframes cardSlideIn { to { opacity:1; transform:translateY(0); } }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(99,102,241,0.04), transparent 60%);
+      opacity: 0; transition: var(--transition);
+    }
+    .feature-card::after {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--gradient-primary);
+      border-radius: 3px 0 0 3px; opacity: 0; transition: var(--transition);
+    }
     .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(79,70,229,0.1);
-      border-color: #4f46e5;
+      transform: translateY(-7px) scale(1.01);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(99,102,241,0.28);
+      color: inherit;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover::after { opacity: 1; }
+    .feature-card:hover .card-icon-wrap { transform: scale(1.1) rotate(-4deg); }
+    .feature-card:hover .card-arrow { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: translateX(3px); }
+
+    .card-icon-wrap {
+      width: 46px; height: 46px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; flex-shrink: 0;
+      transition: var(--transition);
+    }
+    /* Icon color themes */
+    .ic-indigo { background: linear-gradient(135deg,#eef2ff,#e0e7ff); }
+    .ic-amber  { background: linear-gradient(135deg,#fffbeb,#fef3c7); }
+    .ic-green  { background: linear-gradient(135deg,#ecfdf5,#d1fae5); }
+    .ic-pink   { background: linear-gradient(135deg,#fdf2f8,#fce7f3); }
+    .ic-violet { background: linear-gradient(135deg,#f5f3ff,#ede9fe); }
+    .ic-cyan   { background: linear-gradient(135deg,#ecfeff,#cffafe); }
+
+    .card-title-text {
+      font-family: var(--font-heading); font-size: 0.98rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.25rem; letter-spacing: -0.2px;
+    }
+    .card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+    .card-footer-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .card-badge {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 0.25rem 0.6rem; border-radius: 50px;
+    }
+    .badge-indigo { background: rgba(99,102,241,0.1); color: #4f46e5; }
+    .badge-amber  { background: rgba(245,158,11,0.1); color: #d97706; }
+    .badge-green  { background: rgba(16,185,129,0.1); color: #059669; }
+    .badge-pink   { background: rgba(236,72,153,0.1); color: #db2777; }
+    .badge-violet { background: rgba(139,92,246,0.1); color: #7c3aed; }
+    .badge-cyan   { background: rgba(6,182,212,0.1); color: #0891b2; }
+
+    .card-arrow {
+      width: 27px; height: 27px; border-radius: 50%;
+      background: var(--bg-primary); border: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; color: var(--text-muted);
+      transition: var(--transition);
     }
 
-    .feature-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-    .feature-title { font-weight: 700; font-size: 1.1rem; color: #111827; margin: 0; }
-
-    .skill-graph-card { max-height: 150px; }
-    #skillChart { width: 100% !important; height: 50px !important; margin-top: auto; }
-
-    .header-text { font-weight: 800; color: #111827; }
-    .sub-dashboard-text { color: #6b7280; font-size: 0.9rem; }
-
-    /* --- WHITE PREMIUM SUBSCRIPTION STYLING --- */
+    /* ============================================================
+       SUBSCRIPTION SCREEN  — keeps original structure, premium look
+    ============================================================ */
     .premium-wrapper {
       min-height: 100vh;
       background: #f8fafc;
       color: #1e293b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 60px 20px;
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+      padding: 70px 20px;
       text-align: center;
     }
-
+    .premium-title {
+      font-family: var(--font-heading); font-size: 2.4rem; font-weight: 800;
+      color: var(--text-primary); letter-spacing: -1px; margin-bottom: 0.6rem;
+    }
+    .premium-sub { font-size: 1rem; color: var(--text-muted); margin-bottom: 2.2rem; }
     .feature-badges-container {
-      max-width: 900px;
-      margin: 0 auto 40px auto;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
+      max-width: 860px; margin: 0 auto 2.5rem;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
     }
-
     .feature-tag {
-      display: flex;
-      align-items: center;
-      background: #ffffff;
-      padding: 8px 18px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      color: #4f46e5;
-      font-weight: 600;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      display: flex; align-items: center;
+      background: white; padding: 7px 16px; border-radius: 50px;
+      font-family: var(--font-body); font-size: 0.83rem; color: var(--accent-primary);
+      font-weight: 600; border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-
-    .plan-card { 
-      background: #ffffff;
-      border-radius: 24px; 
-      padding: 35px 25px; 
-      border: 1px solid #e2e8f0; 
-      height: 100%;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    .plan-card {
+      background: white; border-radius: 22px; padding: 2rem 1.6rem;
+      border: 1px solid #e2e8f0; height: 100%;
+      transition: var(--transition); position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
     }
-
     .plan-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.1);
-      border-color: #4f46e5;
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(99,102,241,0.12);
+      border-color: var(--accent-primary);
     }
-
-    .popular-plan {
-      border: 2px solid #4f46e5;
-      background: #fdfdff;
-    }
-
+    .popular-plan { border: 2px solid var(--accent-primary); background: #fdfdff; }
     .popular-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--gradient-primary); color: white;
+      padding: 5px 20px; border-radius: 50px;
+      font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    }
+    .plan-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+    .plan-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.2rem; }
+    .price-text {
+      font-family: var(--font-heading); font-size: 2.4rem; font-weight: 800;
+      color: var(--text-primary); margin: 0.6rem 0 0.2rem;
+    }
+    .old-price { text-decoration: line-through; color: var(--text-light); margin-right: 6px; font-size: 1.4rem; }
+    .plan-validity { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .extra-features { font-size: 0.85rem; color: var(--accent-primary); font-weight: 600; min-height: 42px; margin-bottom: 1rem; line-height: 1.6; }
+    .btn-subscribe {
+      border-radius: 12px; padding: 0.8rem 1rem; font-weight: 700;
+      font-family: var(--font-body); font-size: 0.95rem;
+      background: var(--gradient-primary); border: none; color: white;
+      width: 100%; transition: var(--transition);
+    }
+    .btn-subscribe:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(99,102,241,0.32); color: white; }
+    .btn-back-dash {
+      font-family: var(--font-body); font-size: 0.9rem; color: var(--text-muted);
+      background: none; border: 1px solid var(--border-color); border-radius: 50px;
+      padding: 0.5rem 1.3rem; margin-bottom: 2rem; cursor: pointer; transition: var(--transition);
+    }
+    .btn-back-dash:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+    /* Current Plan Styling */
+    .current-plan-badge {
       position: absolute;
       top: -14px;
       left: 50%;
       transform: translateX(-50%);
-      background: #4f46e5;
+      background: linear-gradient(135deg, #10b981, #059669);
       color: white;
-      padding: 5px 20px;
+      padding: 5px 16px;
       border-radius: 50px;
-      font-size: 0.8rem;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      z-index: 10;
     }
-
-    .price-text {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin: 10px 0;
+    
+    .current-plan-card {
+      border: 2px solid #10b981 !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02)) !important;
+      position: relative;
     }
-
-    .extra-features {
-      font-size: 0.9rem;
-      color: #4f46e5;
-      font-weight: 700;
-      margin: 15px 0;
-      min-height: 45px;
-    }
-
-    .btn-subscribe {
-      border-radius: 14px;
-      padding: 14px;
-      font-weight: 700;
-      font-size: 1rem;
-      background: #4f46e5;
+    
+    .current-plan-card .btn-subscribe {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
       border: none;
-      transition: all 0.3s ease;
+    }
+    
+    .current-plan-card .btn-subscribe:hover {
+      background: linear-gradient(135deg, #059669, #047857) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
     }
 
-    @media (max-width: 768px) {
-      .premium-wrapper { padding: 40px 15px; }
-      .price-text { font-size: 2rem; }
-      .btn-upgrade { padding: 5px 12px; font-size: 0.75rem; }
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      padding: 2.2rem 1.5rem 1.4rem;
+      margin-top: 3.5rem;
     }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.2rem;
+    }
+    .footer-logo {
+      font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .footer-tagline { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+    .footer-links { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.83rem; color: var(--text-muted); text-decoration: none; transition: var(--transition); }
+    .footer-links a:hover { color: var(--accent-primary); }
+    .footer-socials { display: flex; gap: 0.55rem; }
+    .social-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid var(--border-color); background: var(--bg-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; color: var(--text-muted); text-decoration: none;
+      transition: var(--transition);
+    }
+    .social-icon:hover { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: translateY(-2px); }
+    .footer-bottom {
+      max-width: 1200px; margin: 1.2rem auto 0;
+      border-top: 1px solid var(--border-color); padding-top: 1rem;
+      text-align: center; font-size: 0.75rem; color: var(--text-light);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1rem; }
+      .nav-greeting { display: none !important; }
+      .hero-section { padding: 3.5rem 1rem 3rem; min-height: 360px; }
+      .hero-h1 { font-size: clamp(1.75rem, 7vw, 2.2rem); letter-spacing: -0.8px; }
+      .hero-sub { font-size: 0.92rem; }
+      .blob-1 { width: 220px; height: 220px; }
+      .blob-2 { width: 180px; height: 180px; }
+      .blob-3 { display: none; }
+      .hero-stats { gap: 1rem; }
+      .hero-stat .num { font-size: 1.15rem; }
+
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 1.1rem 1rem; gap: 0.6rem;
+      }
+      .stat-divider { display: none; }
+      .stat-cell .val { font-size: 1.25rem; }
+
+      .cards-grid { grid-template-columns: 1fr; }
+      .dashboard-wrapper { padding: 2rem 1rem 2rem; }
+
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .premium-title { font-size: 1.85rem; }
+      .price-text { font-size: 2rem; }
+
+      /* Mobile: 2-col hero stats */
+      .hero-stats { gap: 1rem; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-bar { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (min-width: 1025px) {
+      .cards-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Staggered card delays */
+    .feature-card:nth-child(1)  { animation-delay: 0.04s; }
+    .feature-card:nth-child(2)  { animation-delay: 0.10s; }
+    .feature-card:nth-child(3)  { animation-delay: 0.16s; }
+    .feature-card:nth-child(4)  { animation-delay: 0.22s; }
+    .feature-card:nth-child(5)  { animation-delay: 0.28s; }
+    .feature-card:nth-child(6)  { animation-delay: 0.34s; }
+    .feature-card:nth-child(7)  { animation-delay: 0.40s; }
+    .feature-card:nth-child(8)  { animation-delay: 0.46s; }
+    .feature-card:nth-child(9)  { animation-delay: 0.52s; }
+    .feature-card:nth-child(10) { animation-delay: 0.58s; }
   </style>
 </head>
 <body>
 
+<!-- ============================================================
+     SUBSCRIPTION SCREEN (original logic, premium look)
+============================================================ -->
 <div id="subscriptionScreen" class="premium-wrapper" style="display:none;">
-  <button id="backToDashBtn" class="btn btn-link text-decoration-none text-muted mb-4" onclick="closeUpgrade()" style="display: none;">← Back to Dashboard</button>
-  
-  <h1 class="header-text mb-2" style="font-size: 2.5rem;">Ready to Level Up? 🚀</h1>
-  <p class="text-secondary mb-4">Choose a plan that fits your career goals</p>
-  
+  <button id="backToDashBtn" class="btn-back-dash" onclick="closeUpgrade()" style="display:none;">← Back to Dashboard</button>
+
+  <h1 class="premium-title">Ready to Level Up? 🚀</h1>
+  <p class="premium-sub">Choose a plan that fits your career goals</p>
+
   <div class="feature-badges-container">
     <div class="feature-tag">📊 Skill Graph</div>
     <div class="feature-tag">📈 Role Readiness</div>
@@ -606,251 +577,516 @@ checkSubscription();
 
   <div class="container">
     <div class="row g-4 justify-content-center">
+
+      <!-- Starter -->
       <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">⚡</div>
-          <h5 class="fw-bold text-muted">Starter</h5>
-<div class="price-text">₹29</div>
-          <p class="text-secondary small">Validity: 28 Days</p>
+        <div class="plan-card text-center" data-plan="starter">
+          <div class="plan-icon">⚡</div>
+          <div class="plan-name">Starter</div>
+          <div class="price-text">₹29</div>
+          <div class="plan-validity">Validity: 28 Days</div>
           <div class="extra-features">Essential Features</div>
-          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(29,'starter',28)">Subscribe Now</button>
+          <button class="btn-subscribe" onclick="pay(29,'starter',28)">Subscribe Now</button>
         </div>
       </div>
 
+      <!-- Growth (Popular) -->
       <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center popular-plan">
+        <div class="plan-card text-center popular-plan" data-plan="growth">
           <div class="popular-badge">Most Popular</div>
-          <div class="feature-icon">🚀</div>
-          <h5 class="fw-bold text-dark">Growth</h5>
+          <div class="plan-icon">🚀</div>
+          <div class="plan-name">Growth</div>
           <div class="price-text">₹49</div>
-          <p class="text-secondary small">Validity: 28 Days</p>
-          <div class="extra-features">+ Opportunities Alert!<br>+  Upcoming Opportunities</div>
-          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(49,'growth',28)">Subscribe Now</button>
+          <div class="plan-validity">Validity: 28 Days</div>
+          <div class="extra-features">+ Opportunities Alert!<br>+ Upcoming Opportunities</div>
+          <button class="btn-subscribe" onclick="pay(49,'growth',28)">Subscribe Now</button>
         </div>
       </div>
 
+      <!-- Pro -->
       <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">💎</div>
-          <h5 class="fw-bold text-muted">Pro</h5>
-          <div class="price-text">
-  <span class="old-price">₹299</span> ₹249
-</div>
-          <p class="text-secondary small">Validity: 6 Months</p>
+        <div class="plan-card text-center" data-plan="pro">
+          <div class="plan-icon">💎</div>
+          <div class="plan-name">Pro</div>
+          <div class="price-text"><span class="old-price">₹299</span>₹249</div>
+          <div class="plan-validity">Validity: 6 Months</div>
           <div class="extra-features">+ Opportunities Alert!<br>+ Upcoming Opportunities</div>
-          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(249,'pro',180)">Subscribe Now</button>
+          <button class="btn-subscribe" onclick="pay(249,'pro',180)">Subscribe Now</button>
         </div>
       </div>
 
+      <!-- Elite -->
       <div class="col-lg-3 col-md-6">
-        <div class="plan-card text-center">
-          <div class="feature-icon">👑</div>
-          <h5 class="fw-bold text-muted">Elite</h5>
-          <div class="price-text">
-  <span class="old-price">₹599</span> ₹499
-</div>
-          <p class="text-secondary small">Validity: 1 Year</p>
+        <div class="plan-card text-center" data-plan="elite">
+          <div class="plan-icon">👑</div>
+          <div class="plan-name">Elite</div>
+          <div class="price-text"><span class="old-price">₹599</span>₹499</div>
+          <div class="plan-validity">Validity: 1 Year</div>
           <div class="extra-features">+ Opportunities Alert!<br>+ Upcoming Opportunities</div>
-          <button class="btn btn-primary w-100 btn-subscribe mt-2" onclick="pay(499,'elite',365)">Subscribe Now</button>
+          <button class="btn-subscribe" onclick="pay(499,'elite',365)">Subscribe Now</button>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
+
+<!-- ============================================================
+     DASHBOARD CONTENT
+============================================================ -->
 <div id="dashboardContent" style="display:none;">
+
+  <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a class="navbar-brand brand" href="#">SkillXpress</a>
-      <div class="ms-auto d-flex align-items-center gap-2 gap-sm-3">
-        <button id="navUpgradeBtn" class="btn btn-upgrade" onclick="openUpgrade()">🚀 Upgrade</button>
-        
-        <span class="fw-semibold d-none d-sm-inline">Hi, Student 👋</span>
+    <div class="container-fluid px-0">
+      <a class="navbar-brand brand ms-2" href="#">✦ SkillXpress</a>
+
+      <div class="ms-auto d-flex align-items-center gap-2 gap-sm-3 me-2">
+        <button id="navUpgradeBtn" class="btn-upgrade" onclick="openUpgrade()">🚀 Upgrade</button>
+        <span class="nav-greeting d-none d-sm-inline" id="greetingText">Hi, Student 👋</span>
         <div class="dropdown">
-          <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">👤</button>
+          <button class="nav-avatar-btn" data-bs-toggle="dropdown" id="avatarBtn">S</button>
           <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-            <li><a class="dropdown-item" href="user-profile.html">Profile</a></li>
-            <li><a class="dropdown-item" href="support.html">Support</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="index.html">Logout</a></li>
+            <li><a class="dropdown-item" href="user-profile.html">👤 Profile</a></li>
+            <li><a class="dropdown-item" href="support.html">💬 Support</a></li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li><a class="dropdown-item text-danger" href="index.html">🚪 Logout</a></li>
           </ul>
         </div>
       </div>
     </div>
   </nav>
 
-  <div class="container" style="padding-top:110px; padding-bottom: 60px;">
-    <div class="mb-4">
-      <h2 class="header-text">Your Career Dashboard</h2>
-      <p class="sub-dashboard-text">All your skills, growth & opportunities in one place</p>
-    </div>
-
-    <div class="row g-4 align-items-stretch">
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card skill-graph-card" onclick="location.href='skillfront.html'">
-          <div class="feature-icon">📊</div>
-          <div class="feature-title">Skill Graph</div>
-          <canvas id="skillChart"></canvas>
-        </div>
+  <!-- HERO -->
+  <section class="hero-section" style="margin-top:66px;">
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div class="hero-blob blob-3"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><div class="hero-dot"></div> AI-Powered Career Platform</div>
+      <h1 class="hero-h1">Your Career,<br>Engineered for Success</h1>
+      <p class="hero-sub">Accelerate your professional growth with AI-powered insights,<br class="d-none d-md-inline"> skill tracking, and personalized career guidance.</p>
+      <div class="hero-ctas">
+        <a href="#dashboard" class="btn-hero-primary">Explore Dashboard →</a>
+        <button class="btn-hero-outline" onclick="openUpgrade()">🚀 Upgrade Plan</button>
       </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="location.href='interests.html'">
-          <div class="feature-icon">💼</div>
-          <div class="feature-title">Dream Role</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openeature('premium','jobmatch.html')">
-          <div class="feature-icon">📈</div>
-          <div class="feature-title">Role Readiness</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-       <div class="feature-card" onclick="openeature('premium','micro-test.html')">
-          <div class="feature-icon">🧠</div>
-          <div class="feature-title d-flex justify-content-between align-items-center w-100">
-            Micro-Cognitive Test
-            <span id="testStatus" class="badge bg-secondary" style="font-size: 0.7rem;">Checking…</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','opportunities.html')">
-          <div class="feature-icon">⚠</div>
-          <div class="feature-title">Opportunities Alert!</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openeature('premium','roadmap.html')">
-          <div class="feature-icon">🤖</div>
-          <div class="feature-title">AI Roadmap</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openFeature('career-risk','jobs.html')">
-          <div class="feature-icon">🎯</div>
-          <div class="feature-title">Upcoming opportunities</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openeature('premium','projects.html')">
-          <div class="feature-icon">🧪</div>
-          <div class="feature-title">Projects</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openeature('premium','mentor-new.html')">
-          <div class="feature-icon">🎓</div>
-          <div class="feature-title">Mentors</div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-sm-6">
-        <div class="feature-card" onclick="openeature('premium','mentor-sessions.html')">
-          <div class="feature-icon">📅</div>
-          <div class="feature-title">Mentor Sessions</div>
-        </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">500+</div><div class="lbl">Active Learners</div></div>
+        <div class="hero-stat"><div class="num">90%</div><div class="lbl">Career Success Rate</div></div>
+        <div class="hero-stat"><div class="num">500+</div><div class="lbl">Career Paths</div></div>
+        <div class="hero-stat"><div class="num">4.5★</div><div class="lbl">User Rating</div></div>
       </div>
     </div>
-  </div>
-</div>
+  </section>
 
+  <!-- DASHBOARD -->
+  <div class="dashboard-wrapper" id="dashboard">
+    <div class="mb-1">
+      <div class="section-eyebrow">Overview</div>
+      <h2 class="section-title">Your Career Dashboard</h2>
+      <p class="section-sub">All your skills, growth &amp; opportunities in one place • <span class="feature-count">10 Features Available</span></p>
+    </div>
+
+    <!-- STATS BAR — counts filled dynamically by JS below -->
+    <div class="stats-bar">
+      <div class="stat-cell"><span class="val" id="stat-skills">—</span><span class="key">Skills Tracked</span></div>
+      <div class="stat-divider d-none d-md-block"></div>
+      <div class="stat-cell"><span class="val" id="stat-opportunities">—</span><span class="key">Opportunities</span></div>
+      <div class="stat-divider d-none d-md-block"></div>
+      <div class="stat-cell"><span class="val" id="stat-projects">—</span><span class="key">Active Projects</span></div>
+      <div class="stat-divider d-none d-md-block"></div>
+      <div class="stat-cell"><span class="val" id="stat-sessions">—</span><span class="key">Mentor Sessions</span></div>
+      <div class="stat-divider d-none d-md-block"></div>
+      <div class="stat-cell"><span class="val" id="stat-features">10</span><span class="key">Features Available</span></div>
+    </div>
+
+    <!-- FEATURE CARDS GRID -->
+    <div class="cards-grid">
+
+      <!-- 1. Skill Graph -->
+      <div class="feature-card" onclick="location.href='skillfront.html'">
+        <div class="card-icon-wrap ic-indigo">📊</div>
+        <div>
+          <div class="card-title-text">Skill Graph</div>
+          <div class="card-desc">Visualize your technical &amp; soft skills with interactive charts</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-indigo">Live</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 2. Dream Role -->
+      <div class="feature-card" onclick="location.href='interests.html'">
+        <div class="card-icon-wrap ic-amber">💼</div>
+        <div>
+          <div class="card-title-text">Dream Role</div>
+          <div class="card-desc">Discover roles that match your skills, interests &amp; aspirations</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-amber">AI Powered</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 3. Role Readiness -->
+      <div class="feature-card" onclick="openeature('premium','jobmatch.html')">
+        <div class="card-icon-wrap ic-green">📈</div>
+        <div>
+          <div class="card-title-text">Role Readiness</div>
+          <div class="card-desc">Check how ready you are for your target role with gap analysis</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-green">Insight</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 4. Micro-Cognitive Test -->
+      <div class="feature-card" onclick="openeature('premium','micro-test.html')">
+        <div class="card-icon-wrap ic-pink">🧠</div>
+        <div>
+          <div class="card-title-text">Micro-Cognitive Test</div>
+          <div class="card-desc">Gamified assessments to evaluate your cognitive strengths</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-pink">New</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 5. Opportunities Alert -->
+      <div class="feature-card" onclick="openFeature('career-risk','opportunities.html')">
+        <div class="card-icon-wrap ic-violet">⚡</div>
+        <div>
+          <div class="card-title-text">Opportunities Alert!</div>
+          <div class="card-desc">Real-time alerts for jobs &amp; internships matching your profile</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-violet" id="badge-opportunities">Growth+</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 6. AI Roadmap -->
+      <div class="feature-card" onclick="openeature('premium','roadmap.html')">
+        <div class="card-icon-wrap ic-cyan">🤖</div>
+        <div>
+          <div class="card-title-text">AI Roadmap</div>
+          <div class="card-desc">Your personalized step-by-step career growth path by AI</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-cyan">AI Powered</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 7. Upcoming Opportunities -->
+      <div class="feature-card" onclick="openFeature('career-risk','jobs.html')">
+        <div class="card-icon-wrap ic-pink">🎯</div>
+        <div>
+          <div class="card-title-text">Upcoming Opportunities</div>
+          <div class="card-desc">Hackathons, campus events &amp; career fairs tailored for you</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-pink" id="badge-upcoming">Growth+</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 8. Projects -->
+      <div class="feature-card" onclick="openeature('premium','projects.html')">
+        <div class="card-icon-wrap ic-green">🧪</div>
+        <div>
+          <div class="card-title-text">Projects</div>
+          <div class="card-desc">Build, showcase &amp; manage portfolio projects for recruiters</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-green" id="badge-projects">Active</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 9. Mentors -->
+      <div class="feature-card" onclick="openeature('premium','mentor-new.html')">
+        <div class="card-icon-wrap ic-indigo">🎓</div>
+        <div>
+          <div class="card-title-text">Mentors</div>
+          <div class="card-desc">Connect with industry experts for 1-on-1 career guidance</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-indigo">Available</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- 10. Mentor Sessions -->
+      <div class="feature-card" onclick="openeature('premium','mentor-sessions.html')">
+        <div class="card-icon-wrap ic-amber">📅</div>
+        <div>
+          <div class="card-title-text">Mentor Sessions</div>
+          <div class="card-desc">Manage upcoming &amp; past mentor sessions in one place</div>
+        </div>
+        <div class="card-footer-row">
+          <span class="card-badge badge-amber" id="badge-sessions">Upcoming</span>
+          <span class="card-arrow">→</span>
+        </div>
+      </div>
+
+    </div><!-- /cards-grid -->
+  </div><!-- /dashboard-wrapper -->
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">✦ SkillXpress</div>
+        <div class="footer-tagline">Engineer your future, one skill at a time.</div>
+      </div>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      <div class="footer-socials">
+        <a href="https://linkedin.com/in/skillxpress-me-9b71953ba" class="social-icon" title="LinkedIn" target="_blank">in</a>
+        <a href="https://instagram.com/skillxpress.me" class="social-icon" title="Instagram" target="_blank">📷</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2025 SkillXpress. All rights reserved. Made with ♥ for ambitious learners.</div>
+  </footer>
+
+</div><!-- /dashboardContent -->
+
+
+<!-- ============================================================
+     SCRIPTS — ALL ORIGINAL LOGIC PRESERVED
+============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="subscription.js"></script>
 
 <script>
-// Logic to handle Upgrade Screen visibility
-let canGoBack = false;
+  /* ---- Upgrade screen toggle (original logic) ---- */
+  async function checkAuth() {
+    const { data } = await supabaseClient.auth.getUser();
+    if (!data.user) window.location.href = "index.html";
+  }
 
-async function checkAuth() { 
-  const { data } = await supabaseClient.auth.getUser(); 
-  if (!data.user) window.location.href = "index.html"; 
-}
+  async function checkSubscription() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
 
-async function checkSubscription(){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  if(!user) return;
+    const { data } = await supabaseClient
+      .from("profiles")
+      .select("is_premium,subscription_end")
+      .eq("id", user.id)
+      .single();
 
-  const { data } = await supabaseClient
-    .from("profiles")
-    .select("is_premium,subscription_end")
-    .eq("id", user.id)
-    .single();
+    document.getElementById("dashboardContent").style.display = "block";
+    document.getElementById("subscriptionScreen").style.display = "none";
+    document.getElementById("backToDashBtn").style.display = "none";
 
-  const subScreen = document.getElementById("subscriptionScreen");
-  const dashContent = document.getElementById("dashboardContent");
-  const backBtn = document.getElementById("backToDashBtn");
+    window.userIsPremium = data.is_premium && new Date(data.subscription_end) > new Date();
 
-  // Dashboard always open
-  dashContent.style.display = "block";
-  subScreen.style.display = "none";
+    /* ---- Load dynamic stat counts after auth ---- */
+    loadDashboardStats(user);
+  }
 
-  // Upgrade button ke liye info save
-  window.userIsPremium =
-    data.is_premium && new Date(data.subscription_end) > new Date();
+  function openUpgrade() {
+    document.getElementById("subscriptionScreen").style.display = "flex";
+    document.getElementById("dashboardContent").style.display = "none";
+    document.getElementById("backToDashBtn").style.display = "inline-block";
+    window.scrollTo(0, 0);
+    
+    // Check and mark current plan
+    markCurrentPlan();
+  }
 
-  backBtn.style.display = "none";
-}
+  function closeUpgrade() { checkSubscription(); }
 
-function openUpgrade() {
-  document.getElementById("subscriptionScreen").style.display = "block";
-  document.getElementById("dashboardContent").style.display = "none";
-  document.getElementById("backToDashBtn").style.display = "block"; // Manual click par dikhega
-  window.scrollTo(0,0);
-}
+  /* ---- Mark current plan in subscription screen ---- */
+  async function markCurrentPlan() {
+    try {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+      
+      const { data } = await supabaseClient
+        .from("profiles")
+        .select("plan_type, subscription_end, is_premium")
+        .eq("id", user.id)
+        .single();
+      
+      if (!data) return;
+      
+      // Remove any existing current plan badges
+      document.querySelectorAll('.current-plan-badge').forEach(badge => badge.remove());
+      document.querySelectorAll('.current-plan-card').forEach(card => card.classList.remove('current-plan-card'));
+      
+      // Check if user has an active subscription
+      const isActive = data.is_premium && new Date(data.subscription_end) > new Date();
+      
+      if (isActive && data.plan_type) {
+        const planType = data.plan_type.toLowerCase();
+        const planCard = document.querySelector(`[data-plan="${planType}"]`);
+        
+        if (planCard) {
+          // Add current plan styling
+          planCard.classList.add('current-plan-card');
+          
+          // Add current plan badge
+          const badge = document.createElement('div');
+          badge.className = 'current-plan-badge';
+          badge.innerHTML = '✓ Current Plan';
+          planCard.insertBefore(badge, planCard.firstChild);
+          
+          // Change button text
+          const button = planCard.querySelector('.btn-subscribe');
+          if (button) {
+            button.textContent = 'Renew Plan';
+            button.onclick = function() {
+              const price = getPlanPrice(planType);
+              const validity = getPlanValidity(planType);
+              pay(price, planType, validity);
+            };
+          }
+        }
+      }
+    } catch (error) {
+      console.log('Error marking current plan:', error);
+    }
+  }
+  
+  function getPlanPrice(planType) {
+    const prices = { starter: 29, growth: 49, pro: 249, elite: 499 };
+    return prices[planType] || 29;
+  }
+  
+  function getPlanValidity(planType) {
+    const validity = { starter: 28, growth: 28, pro: 180, elite: 365 };
+    return validity[planType] || 28;
+  }
 
-function closeUpgrade() {
+  /* ---- Feature access guards (original logic, unchanged) ---- */
+  async function checkFeatureAccess(feature) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data } = await supabaseClient.from("profiles")
+      .select("plan_type,subscription_end").eq("id", user.id).single();
+    if (!data.plan_type || new Date(data.subscription_end) < new Date()) { openUpgrade(); return false; }
+    if (feature === "career-risk" && data.plan_type === "starter") {
+      alert("Upgrade to Growth plan to access Opportunities Alert!");
+      openUpgrade(); return false;
+    }
+    return true;
+  }
+
+  async function openeature(type, url) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data } = await supabaseClient.from("profiles")
+      .select("is_premium,subscription_end").eq("id", user.id).single();
+    if (!data.is_premium || new Date(data.subscription_end) < new Date()) { openUpgrade(); return; }
+    window.location.href = url;
+  }
+
+  async function openFeature(type, url) {
+    if (await checkFeatureAccess(type)) window.location.href = url;
+  }
+
+  /* ---- Dynamic stat counts from Supabase ---- */
+  async function loadDashboardStats(user) {
+    try {
+      // Skills count — from skill graph data (when user generates it)
+      // This will be updated when skill graph is generated
+      const skillCount = localStorage.getItem(`userSkillCount_${user.id}`);
+      console.log('Loading skills count from localStorage for user', user.id, ':', skillCount);
+      document.getElementById("stat-skills").textContent = skillCount || '—';
+
+      // Opportunities count — static 40+
+      document.getElementById("stat-opportunities").textContent = '40+';
+      document.getElementById("badge-opportunities").textContent = "40+ New";
+
+      // Projects count — from uploads table where type is 'project'
+      let projectCount = 0;
+      try {
+        const { count } = await supabaseClient
+          .from("uploads")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("type", "project");
+        projectCount = count || 0;
+      } catch (e) {
+        console.log('Projects count error:', e.message);
+        // Fallback: try without head: true
+        try {
+          const { data } = await supabaseClient
+            .from("uploads")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("type", "project");
+          projectCount = data ? data.length : 0;
+        } catch (e2) {
+          console.log('Projects fallback count error:', e2.message);
+        }
+      }
+      console.log('Final projects count:', projectCount);
+      document.getElementById("stat-projects").textContent = projectCount;
+      document.getElementById("badge-projects").textContent = projectCount + " Active";
+
+      // Mentor sessions count — static 12
+      document.getElementById("stat-sessions").textContent = '12';
+      document.getElementById("badge-sessions").textContent = "12 Sessions";
+
+      // Upcoming opportunities count — keep as is
+      const { count: upcomingCount } = await supabaseClient
+        .from("upcoming_opportunities")
+        .select("*", { count: "exact", head: true });
+      if (upcomingCount !== null) document.getElementById("badge-upcoming").textContent = upcomingCount + " Events";
+
+    } catch (e) {
+      // If table names differ, counts stay as "—" — no crash
+      console.log("Stats load error (check table names):", e.message);
+    }
+  }
+
+  function showTestStatus() {
+    const badge = document.getElementById("testStatus");
+    if (badge) badge.style.display = "none";
+  }
+
+  /* ---- Smooth scroll for hero CTA ---- */
+  document.querySelector('a[href="#dashboard"]')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('dashboard')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* ---- Debug function for testing stats ---- */
+  window.debugStats = async function() {
+    console.log('=== DEBUG STATS ===');
+    console.log('Skills in localStorage:', localStorage.getItem('userSkillCount'));
+    
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+      try {
+        const { count } = await supabaseClient
+          .from("uploads")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("type", "project");
+        console.log('Projects count from DB:', count);
+      } catch (e) {
+        console.log('Projects query error:', e.message);
+      }
+    }
+    console.log('===================');
+  };
+
+  /* ---- Init ---- */
+  checkAuth();
+  showTestStatus();
   checkSubscription();
-}
-
-// Baki functions same rahenge...
-async function goToMicroTest() { window.location.href = "micro-test.html"; }
-function showTestStatus() { 
-  const badge = document.getElementById("testStatus"); 
-  if (badge) badge.style.display = "none"; 
-}
-
-async function checkFeatureAccess(feature){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  const { data } = await supabaseClient.from("profiles").select("plan_type,subscription_end").eq("id", user.id).single();
-  if(!data.plan_type || new Date(data.subscription_end) < new Date()){   openUpgrade(); return false; }
-  if(feature === "career-risk" && data.plan_type === "starter"  ){ 
-    alert("Upgrade to Growth plan to access Opportunities Alert!"); 
-    openUpgrade(); 
-    return false; 
-  }
-  return true;
-}
-async function openeature(type, url){
-  const { data:{user} } = await supabaseClient.auth.getUser();
-  const { data } = await supabaseClient
-    .from("profiles")
-    .select("is_premium,subscription_end")
-    .eq("id", user.id)
-    .single();
-
-  if(!data.is_premium || new Date(data.subscription_end) < new Date()){
-    openUpgrade();   // subscription page open
-    return;
-  }
-
-  window.location.href = url;
-}
-async function openFeature(type, url){ if(await checkFeatureAccess(type)) window.location.href = url; }
-
-checkAuth(); 
-showTestStatus(); 
-checkSubscription();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -109,7 +109,7 @@ if (!Array.isArray(repos)) {
 }
 else {
     for (const repo of repos) {
-  if (repo.fork) continue;
+  
 
   const stars = repo.stargazers_count || 0;
   const forks = repo.forks_count || 0;
@@ -123,19 +123,25 @@ else {
   else if (daysAgo < 90) activity = 3;
 
   // Repo base score
+  const isFork = repo.fork;
+  let forkMultiplier = isFork ? 0.5 : 1; // Forked repos get 50% of the score
+
   const repoScore =
-  (Math.log(stars + 1) * 5) +
-  (forks * 1.2) +
-  (size / 500) +
-  activity;
+    (
+      (Math.log(stars + 1) * 5) +
+      (forks * 1.2) +  // Forks contribution is still counted
+      (size / 500) +
+      activity
+    ) * forkMultiplier;
   
+  console.log("Repo:", repo.name, "Fork:", repo.fork, "Forks Count:", forks, "Score:", repoScore);
   const langRes = await fetch(repo.languages_url, {
    headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
   });
 
   const languages = await langRes.json();
   const totalBytes = Object.values(languages).reduce((a, b) => a + b, 0);
-
+if (totalBytes === 0) continue;
   for (const [lang, bytes] of Object.entries(languages)) {
     const normalizedLang = lang.toUpperCase();
     const percent = bytes / totalBytes;

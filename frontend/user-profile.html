@@ -1,38 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Your Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Profile - SkillXpress</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body class="container mt-4">
+<body>
+  <!-- Simple Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <a class="navbar-brand" href="main.html">SkillXpress</a>
+      <ul class="navbar-nav d-flex flex-row">
+        <li class="nav-item">
+          <a class="nav-link" href="main.html">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="logout()">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
-<h3>Your Profile</h3>
+  <div class="profile-container">
+    <div class="profile-header animate-fade-in-up">
+      <div class="profile-avatar">
+        <span id="avatar-initial"></span>
+      </div>
+      <h1>Your Profile</h1>
+      <p>Welcome back! Here's your profile information.</p>
+    </div>
 
-<p><b>Username:</b> <span id="username"></span></p>
-<p><b>College:</b> <span id="college"></span></p>
-<p><b>College Year:</b> <span id="year"></span></p>
-<p><b>Course:</b> <span id="course"></span></p>
-<p><b>Branch:</b> <span id="branch"></span></p>
-<p><b>Age:</b> <span id="age"></span></p>
+    <div class="profile-info animate-fade-in-up">
+      <div class="info-item">
+        <div class="info-label">Username</div>
+        <div class="info-value" id="username"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">College</div>
+        <div class="info-value" id="college"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">College Year</div>
+        <div class="info-value" id="year"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Course</div>
+        <div class="info-value" id="course"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Branch</div>
+        <div class="info-value" id="branch"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Age</div>
+        <div class="info-value" id="age"></div>
+      </div>
+    </div>
 
-<hr>
+    <div class="text-center mb-4">
+      <a href="profile.html" class="btn btn-primary">Edit Profile</a>
+    </div>
 
+    <div class="coding-platforms animate-fade-in-up">
+      <h3>Your Coding Platforms</h3>
+      <div class="platform-item">
+        <span class="platform-name">LeetCode:</span>
+        <span class="platform-link" id="leetcode"></span>
+      </div>
+      <div class="platform-item">
+        <span class="platform-name">CodeChef:</span>
+        <span class="platform-link" id="codechef"></span>
+      </div>
+      <div class="platform-item">
+        <span class="platform-name">GitHub:</span>
+        <span class="platform-link" id="github"></span>
+      </div>
+      <div class="platform-item">
+        <span class="platform-name">HackerRank:</span>
+        <span class="platform-link" id="hackerrank"></span>
+      </div>
+      <div class="text-center mt-4">
+        <a href="profile.html" class="btn btn-outline-primary">Edit Coding Platforms</a>
+      </div>
+    </div>
+  </div>
 
-<a href="profile.html" class="btn btn-primary">Edit Profile</a>
-<hr>
-<h3>Your Coding Platforms</h3>
-<p><b>Leetcode:</b> <span id="leetcode"></span></p>
-<p><b>Codechef:</b> <span id="codechef"></span></p>
-<p><b>Github:</b> <span id="github"></span></p>
-<p><b>Hackerrank:</b> <span id="hackerrank"></span></p>
-<a href="profile.html" class="btn btn-outline-primary mb-3">
-  Edit Coding Platforms
-</a>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
-<script src="user-profile.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="user-profile.js"></script>
 </body>
 </html>

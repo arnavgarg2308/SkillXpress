@@ -138,6 +138,19 @@ if (!result.skills || Object.keys(result.skills).length === 0) {
 
 
 console.log("GRAPH DATA:", result.skills);
+  
+  // Save skill count to localStorage for dashboard stats (user-specific)
+  const skillCount = Object.keys(result.skills).length;
+  console.log('Saving skill count to localStorage:', skillCount);
+  
+  // Get current user and save with user-specific key
+  supabaseClient.auth.getUser().then(({ data: { user } }) => {
+    if (user) {
+      localStorage.setItem(`userSkillCount_${user.id}`, skillCount.toString());
+      console.log('Saved skill count for user:', user.id);
+    }
+  });
+  
   drawGraph(result.skills);
     btn.innerText = "Generate Skill Graph";
   btn.disabled = false;
