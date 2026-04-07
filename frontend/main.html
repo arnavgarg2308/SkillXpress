@@ -1417,7 +1417,7 @@
     // Get or generate referral code
     let { data: profile } = await supabaseClient
       .from("profiles")
-      .select("referral_code, referral_balance")
+      .select("referral_code, referral_balance, referral_count")
       .eq("id", user.id)
       .single();
 
@@ -1446,14 +1446,14 @@
     document.getElementById("referralBalance").textContent = `₹${profile.referral_balance || 0}`;
 
     // Get referred users count
-    const { data: referrals } = await supabaseClient
-      .from("referrals")
-      .select("subscription_taken")
-      .eq("referrer_id", user.id);
+    const subscribedCount = profile.referral_count || 0;
+const currentBalance = profile.referral_balance || 0;
 
-    const subscribedCount = referrals ? referrals.filter(r => r.subscription_taken).length : 0;
-    document.getElementById("referredCount").textContent = `${subscribedCount} out of 5`;
+document.getElementById("referredCount").textContent =
+  `${subscribedCount} out of 5`;
 
+document.getElementById("referralBalance").textContent =
+  `₹${currentBalance}`;
     document.getElementById("referEarnModal").style.display = "flex";
   }
 
