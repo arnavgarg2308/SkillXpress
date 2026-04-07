@@ -551,7 +551,92 @@
     .feature-card:nth-child(7)  { animation-delay: 0.40s; }
     .feature-card:nth-child(8)  { animation-delay: 0.46s; }
     .feature-card:nth-child(9)  { animation-delay: 0.52s; }
-    .feature-card:nth-child(10) { animation-delay: 0.58s; }
+      .feature-card:nth-child(10) { animation-delay: 0.58s; }
+      .info-highlight-banner {
+  max-width: 1200px;
+  margin: -35px auto 35px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 20;
+}
+
+.info-highlight-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.08);
+
+  border-radius: 20px;
+  padding: 20px 28px;
+
+  transition: 0.3s ease;
+}
+
+.info-highlight-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.14);
+}
+
+.info-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.info-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+
+  background: linear-gradient(135deg, #eef2ff, #ede9fe);
+}
+
+.info-content h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.info-content p {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: #6b7280;
+}
+
+.info-content a {
+  color: #6366f1;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.info-btn {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: 0.3s ease;
+}
+
+.info-btn:hover {
+  color: white;
+  transform: scale(1.03);
+}
   </style>
 </head>
 <body>
@@ -679,7 +764,25 @@
       </div>
     </div>
   </section>
+<!-- Instagram Info Banner -->
+<div class="info-highlight-banner">
+  <div class="info-left">
+    <div class="info-icon">📷</div>
+    <div class="info-content">
+      <h3>New to SkillXpress?</h3>
+      <p>
+        Know how this website works and explore all its benefits on our Instagram
+        <a href="https://instagram.com/skillxpress.me" target="_blank">
+          @skillxpress.me
+        </a>
+      </p>
+    </div>
+  </div>
 
+  <a href="https://instagram.com/skillxpress.me" target="_blank" class="info-btn">
+    Visit Instagram →
+  </a>
+</div>
   <!-- DASHBOARD -->
   <div class="dashboard-wrapper" id="dashboard">
     <div class="mb-1">
