@@ -457,6 +457,7 @@
     
     <input id="signupEmail" type="email" class="form-control" placeholder="Email address" />
     <input id="signupPhone" type="tel" class="form-control" placeholder="📱 Phone number (optional)" />
+    <input id="signupReferral" type="text" class="form-control" placeholder="Referral code (optional)" />
     <input id="signupPass" type="password" class="form-control" placeholder="Password" />
 
     <button id="signupBtn" class="btn btn-main" onclick="signup()">Create Account</button>
@@ -488,6 +489,7 @@ async function signup() {
   const email = document.getElementById("signupEmail").value;
   const password = document.getElementById("signupPass").value;
   const phone = document.getElementById("signupPhone").value;
+  const referralCode = document.getElementById("signupReferral").value.trim();
   
   // 🔹 basic validation
   if (!email || !password) {
@@ -499,6 +501,11 @@ async function signup() {
   if (phone && !/^\+?[\d\s\-\(\)]{10,}$/.test(phone.replace(/\s/g, ''))) {
     alert("Please enter a valid phone number");
     return;
+  }
+
+  // Store referral code for later use
+  if (referralCode) {
+    localStorage.setItem('pendingReferralCode', referralCode);
   }
 
   const btn = document.querySelector("#signupBtn");
@@ -596,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Sign Up form - Enter key triggers sign up
-  const signupInputs = ['signupEmail', 'signupPhone', 'signupPass'];
+  const signupInputs = ['signupEmail', 'signupPhone', 'signupReferral', 'signupPass'];
   signupInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {

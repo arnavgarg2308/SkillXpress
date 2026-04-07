@@ -93,6 +93,61 @@ const username = document.getElementById("username")?.value.trim();
     return;
   }
 
+  // Generate referral code if not exists
+  const { data: profileData } = await supabaseClient
+    .from("profiles")
+    .select("referral_code")
+    .eq("id", user.id)
+    .single();
+
+  if (!profileData?.referral_code) {
+    let referralCode;
+    do {
+      referralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const { data: existing } = await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("referral_code", referralCode)
+        .single();
+      if (!existing) break;
+    } while (true);
+
+    await supabaseClient
+      .from("profiles")
+      .update({ referral_code: referralCode })
+      .eq("id", user.id);
+  }
+
+  // Handle referral if any
+  const pendingReferralCode = localStorage.getItem('pendingReferralCode');
+  if (pendingReferralCode) {
+    localStorage.removeItem('pendingReferralCode');
+    
+    // Check if referral code exists
+    const { data: referrerData } = await supabaseClient
+      .from("profiles")
+      .select("id")
+      .eq("referral_code", pendingReferralCode)
+      .single();
+    
+    if (referrerData) {
+      // Insert into referrals table
+      await supabaseClient
+        .from("referrals")
+        .insert({
+          referrer_id: referrerData.id,
+          referred_user_id: user.id,
+          subscription_taken: false
+        });
+      
+      // Update referred_by in profiles
+      await supabaseClient
+        .from("profiles")
+        .update({ referred_by: referrerData.id })
+        .eq("id", user.id);
+    }
+  }
+
   // 4. next page
   window.location.href = "interests.html";
 }

@@ -10,6 +10,7 @@
     "axios": "^1.13.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "nanoid": "^5.1.7",
     "node-fetch": "^3.3.2",
     "pdf-parse": "^1.1.1",
     "razorpay": "^2.9.6",
