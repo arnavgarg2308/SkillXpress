@@ -68,69 +68,50 @@ router.post("/verify", async (req, res) => {
       .eq("id", user_id);
 
     // Handle referrals
-    const { data: referralData } = await supabase
-      .from("referrals")
-      .select("referrer_id")
-      .eq("referred_user_id", user_id)
-      .eq("subscription_taken", false)
+        // Handle referrals using profiles table
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("referred_by")
+      .eq("id", user_id)
       .single();
 
-    if (referralData) {
-      // Update the referral record
-      await supabase
-        .from("referrals")
-        .update({
-          subscription_taken: true,
-          subscription_confirmed_at: new Date().toISOString()
-        })
-        .eq("referred_user_id", user_id);
+    let referrerId = null;
+    let referralUpdated = false;
 
-      // Check if referrer has 5 successful referrals
-      const { data: referrerReferrals } = await supabase
-        .from("referrals")
-        .select("id")
-        .eq("referrer_id", referralData.referrer_id)
-        .eq("subscription_taken", true);
+    if (userProfile?.referred_by) {
+      referrerId = userProfile.referred_by;
 
-      if (referrerReferrals && referrerReferrals.length >= 5) {
-        // Check if reward already claimed
-        const { data: claimedReferrals } = await supabase
-          .from("referrals")
-          .select("id")
-          .eq("referrer_id", referralData.referrer_id)
-          .eq("claimed_reward", true);
+      const { data: referrerProfile } = await supabase
+        .from("profiles")
+        .select("referral_count, referral_balance")
+        .eq("id", referrerId)
+        .single();
 
-        const claimedCount = claimedReferrals ? claimedReferrals.length : 0;
-        const eligibleRewards = Math.floor(referrerReferrals.length / 5) - claimedCount;
+      const newCount = (referrerProfile?.referral_count || 0) + 1;
 
-        if (eligibleRewards > 0) {
-          // Add ₹59 to referral_balance
-          const { data: currentBalance } = await supabase
-            .from("profiles")
-            .select("referral_balance")
-            .eq("id", referralData.referrer_id)
-            .single();
+      let updateData = {
+        referral_count: newCount
+      };
 
-          const newBalance = (currentBalance?.referral_balance || 0) + 59;
-          await supabase
-            .from("profiles")
-            .update({ referral_balance: newBalance })
-            .eq("id", referralData.referrer_id);
-
-          // Mark 5 referrals as claimed
-          const referralsToClaim = referrerReferrals.slice(claimedCount * 5, (claimedCount + eligibleRewards) * 5);
-          for (const ref of referralsToClaim) {
-            await supabase
-              .from("referrals")
-              .update({ claimed_reward: true })
-              .eq("id", ref.id);
-          }
-        }
+      // Every 5 premium referrals = ₹59 reward
+      if (newCount % 5 === 0) {
+        updateData.referral_balance =
+          (referrerProfile?.referral_balance || 0) + 50;
       }
+
+      await supabase
+        .from("profiles")
+        .update(updateData)
+        .eq("id", referrerId);
+
+      referralUpdated = true;
     }
 
-    res.json({ success: true, referralUpdated: !!referralData, referrerId: referralData?.referrer_id || null });
-
+    res.json({
+      success: true,
+      referralUpdated,
+      referrerId
+    });
   } catch (err) {
     console.log("Subscription verify error:", err);
     res.status(500).json({ message: "Verification failed" });
