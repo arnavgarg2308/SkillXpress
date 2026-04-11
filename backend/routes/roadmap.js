@@ -129,8 +129,9 @@ IMPORTANT INTERPRETATION RULES:
 9. Think long-term multi-month progression.
 10. Always use bullets, no paragraphs.
 11. Use headings and structure for clarity.
-12. Use colour coding in the PDF (e.g. red for hard topics, green for easier ones).
+12. You can use underlines for impotant points.
 13. not use hashtags for headings, use clear text headings instead.
+14. Make this more structured and progressive, with a clear focus each week.
 
 OUTPUT FORMAT:
 
