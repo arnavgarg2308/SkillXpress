@@ -127,7 +127,8 @@ IMPORTANT INTERPRETATION RULES:
 7. Improve realistically by 1–2 levels only.
 8. Keep it challenging but achievable in 2.5 hours/day.
 9. Think long-term multi-month progression.
-
+10. Always use bullets, no paragraphs.
+11. Use headings and structure for clarity
 OUTPUT FORMAT:
 
 MONTH ${month} GOAL:
