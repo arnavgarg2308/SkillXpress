@@ -128,7 +128,10 @@ IMPORTANT INTERPRETATION RULES:
 8. Keep it challenging but achievable in 2.5 hours/day.
 9. Think long-term multi-month progression.
 10. Always use bullets, no paragraphs.
-11. Use headings and structure for clarity
+11. Use headings and structure for clarity.
+12. Use colour coding in the PDF (e.g. red for hard topics, green for easier ones).
+13. not use hashtags for headings, use clear text headings instead.
+
 OUTPUT FORMAT:
 
 MONTH ${month} GOAL:
@@ -137,19 +140,43 @@ FOCUS SKILLS THIS MONTH:
 
 WEEK 1:
 Focus:
-Daily Plan:
+Day 1:
+Day 2:
+Day 3:
+Day 4:
+Day 5:
+Day 6:
+Day 7:
 
 WEEK 2:
 Focus:
-Daily Plan:
+Day 1:
+Day 2:
+Day 3:
+Day 4:
+Day 5:
+Day 6:
+Day 7:
 
 WEEK 3:
 Focus:
-Daily Plan:
+Day 1:
+Day 2:
+Day 3:
+Day 4:
+Day 5:
+Day 6:
+Day 7:
 
 WEEK 4:
 Focus:
-Daily Plan:
+Day 1:
+Day 2:
+Day 3:
+Day 4:
+Day 5:
+Day 6:
+Day 7:
 
 MINI PROJECT:
 Project Title:
