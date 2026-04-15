@@ -1,30 +1,67 @@
 let deferredPrompt;
 let installButton;
 
-// Capture the beforeinstallprompt event
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent the mini-infobar from appearing on mobile
-  e.preventDefault();
-  // Stash the event for later use
-  deferredPrompt = e;
-  // Update UI to show the install button
-  showInstallButton();
-});
-
-function showInstallButton() {
-  // Look for install button with id 'installBtn' or create one if it doesn't exist
-  installButton = document.getElementById('installBtn');
-  
-  if (installButton) {
-    installButton.style.display = 'block';
-    installButton.addEventListener('click', handleInstallClick);
-  } else {
-    // If no button exists, create a floating button
-    createFloatingInstallButton();
-  }
+// Check if user is on iOS
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-function createFloatingInstallButton() {
+// Check if app is already installed (in standalone mode)
+function isInstalledPWA() {
+  return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+}
+
+// Don't show install button if already installed
+if (isInstalledPWA()) {
+  console.log('App already installed');
+} else {
+  // For iOS - show prompt on page load
+  if (isIOS()) {
+    window.addEventListener('load', () => {
+      showIOSInstallButton();
+    });
+  }
+  
+  // For Android - wait for beforeinstallprompt event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showAndroidInstallButton();
+  });
+}
+
+function showIOSInstallButton() {
+  const button = document.createElement('button');
+  button.id = 'installBtn';
+  button.innerHTML = '📱 Add to Home Screen<br><small>Tap Share, then Add to Home Screen</small>';
+  button.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    z-index: 9999;
+    transition: all 0.3s ease;
+    text-align: center;
+    line-height: 1.3;
+  `;
+  
+  button.addEventListener('click', () => {
+    alert('📱 Tap the Share button (bottom centre) → "Add to Home Screen" → "Add"');
+  });
+  
+  document.body.appendChild(button);
+  installButton = button;
+}
+
+function showAndroidInstallButton() {
   const button = document.createElement('button');
   button.id = 'installBtn';
   button.textContent = '📱 Install App';
@@ -55,24 +92,26 @@ function createFloatingInstallButton() {
     button.style.boxShadow = '0 4px 15px rgba(79, 70, 229, 0.4)';
   });
   
-  button.addEventListener('click', handleInstallClick);
+  button.addEventListener('click', handleAndroidInstall);
   document.body.appendChild(button);
+  installButton = button;
 }
 
-function handleInstallClick() {
+function handleAndroidInstall() {
   if (!deferredPrompt) {
     return;
   }
   
-  // Show the install prompt
   deferredPrompt.prompt();
   
-  // Wait for the user to respond to the prompt
   deferredPrompt.userChoice.then((choiceResult) => {
     if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      console.log('App installed');
+      if (installButton) {
+        installButton.style.display = 'none';
+      }
     } else {
-      console.log('User dismissed the install prompt');
+      console.log('Install cancelled');
     }
     deferredPrompt = null;
   });
