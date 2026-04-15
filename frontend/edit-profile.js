@@ -3,7 +3,9 @@ async function loadProfileForEdit() {
   if (!user) {
     window.location.href = "index.html";
     return;
-  }
+  }  
+
+  
 
   const { data } = await supabaseClient
     .from("profiles")
