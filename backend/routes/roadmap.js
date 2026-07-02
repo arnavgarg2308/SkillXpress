@@ -93,73 +93,19 @@ if (row) {
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
 
     /* SIMPLIFIED PROMPT */
- const prompt = `
-You are a senior ${primaryRole} mentor.
+ const prompt = JSON.stringify({
 
-The student wants to prepare for ${primaryRole}.
-This is Month ${month} of preparation. 
-Study time: 2.5 hours per day.
+    primaryRole,
 
-Skill gaps detected:
+    month,
 
-${gaps.map(g =>
-  `- ${g.skill} (required ${g.required}, current ${g.current})`
-).join("\n")}
+    currentSkills: userSkills,
 
-IMPORTANT INTERPRETATION RULES:
+    requiredSkills: roleReq,
 
-1. If current level is 0–20:
-   Teach fundamentals from scratch with simple explanations and exercises.
+    topGaps: gaps.slice(0,3)
 
-2. If current level is 20–40:
-   Strengthen core concepts and introduce practical applications.
-
-3. If current level is 40–60:
-   Assume fundamentals are known.
-   Focus on deeper understanding, edge cases, patterns, and real-world usage.
-
-4. If current level is 60+:
-   Do NOT teach basics.
-   Focus on optimization, architecture, advanced patterns, performance, and project-level thinking.
-
-5. Never repeat beginner topics for users above level 40.
-6. Month plan must match the user's actual level.
-7. Improve realistically by 1–2 levels only.
-8. Keep it challenging but achievable in 2.5 hours/day.
-9. Think long-term multi-month progression.
-
-OUTPUT FORMAT:
-
-MONTH ${month} GOAL:
-
-FOCUS SKILLS THIS MONTH:
-
-WEEK 1:
-Focus:
-Daily Plan:
-
-WEEK 2:
-Focus:
-Daily Plan:
-
-WEEK 3:
-Focus:
-Daily Plan:
-
-WEEK 4:
-Focus:
-Daily Plan:
-
-MINI PROJECT:
-Project Title:
-What to Build:
-Tech Stack:
-Expected Outcome:
-
-Keep it realistic, structured and progressive.
-Length: 500–600 words.
-`;
-
+});
     /* AI CALL */
     let content;
    
