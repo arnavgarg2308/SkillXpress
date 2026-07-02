@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 
-const generateMentorNote = require("../utils/gemini");
+const generateMentorNote = require("../utils/localAI");
 const jobRouter = require("./jobback");
 const JOB_REQUIREMENTS = jobRouter.JOB_REQUIREMENTS;
 const getFullSkills = require("../utils/getFullSkills");
@@ -127,11 +127,6 @@ IMPORTANT INTERPRETATION RULES:
 7. Improve realistically by 1–2 levels only.
 8. Keep it challenging but achievable in 2.5 hours/day.
 9. Think long-term multi-month progression.
-10. Always use bullets, no paragraphs.
-11. Use headings and structure for clarity.
-12. You can use underlines for impotant points.
-13. not use hashtags for headings, use clear text headings instead.
-14. Make this more structured and progressive, with a clear focus each week.
 
 OUTPUT FORMAT:
 
@@ -141,43 +136,19 @@ FOCUS SKILLS THIS MONTH:
 
 WEEK 1:
 Focus:
-Day 1:
-Day 2:
-Day 3:
-Day 4:
-Day 5:
-Day 6:
-Day 7:
+Daily Plan:
 
 WEEK 2:
 Focus:
-Day 1:
-Day 2:
-Day 3:
-Day 4:
-Day 5:
-Day 6:
-Day 7:
+Daily Plan:
 
 WEEK 3:
 Focus:
-Day 1:
-Day 2:
-Day 3:
-Day 4:
-Day 5:
-Day 6:
-Day 7:
+Daily Plan:
 
 WEEK 4:
 Focus:
-Day 1:
-Day 2:
-Day 3:
-Day 4:
-Day 5:
-Day 6:
-Day 7:
+Daily Plan:
 
 MINI PROJECT:
 Project Title:
