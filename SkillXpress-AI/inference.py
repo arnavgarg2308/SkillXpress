@@ -52,12 +52,12 @@ class RoadmapGenerator:
         with torch.no_grad():
 
             output = self.model.generate(
-                **inputs,
-                max_new_tokens=700,
-                temperature=0.7,
-                top_p=0.9,
-                do_sample=True
-            )
+    **inputs,
+    max_new_tokens=1200,
+    temperature=0.3,
+    top_p=0.9,
+    do_sample=False
+)
 
         response = self.tokenizer.decode(
             output[0],
