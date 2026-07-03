@@ -53,7 +53,7 @@ class RoadmapGenerator:
 
             output = self.model.generate(
     **inputs,
-    max_new_tokens=1200,
+    max_new_tokens=1600,
     temperature=0.3,
     top_p=0.9,
     do_sample=False
