@@ -91,21 +91,27 @@ if (row) {
 
     /* ONLY TOP GAPS */
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
+function getLevel(current, required) {
+  if (current >= required) return "MASTERED";
 
-    /* SIMPLIFIED PROMPT */
- const prompt = JSON.stringify({
+  const ratio = current / required;
 
-    primaryRole,
+  if (ratio < 0.4) return "BEGINNER";
+  if (ratio < 0.8) return "INTERMEDIATE";
 
-    month,
+  return "ADVANCED";
+}
 
-    currentSkills: userSkills,
-
-    requiredSkills: roleReq,
-
-    topGaps: gaps.slice(0,3)
-
-});
+const prompt = JSON.stringify({
+  primaryRole,
+  month,
+  topGaps: gaps.slice(0,3).map(gap => ({
+    skill: gap.skill,
+    current: gap.current,
+    required: gap.required,
+    level: getLevel(gap.current, gap.required)
+  }))
+}, null, 2);
     /* AI CALL */
     let content;
    
