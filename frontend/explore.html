@@ -17,42 +17,194 @@ body{
 .feed-container{
   max-width:900px;
   margin:auto;
+  padding-bottom:90px;
 }
+
+.discover-header{
+  max-width:900px;
+  margin:0 auto;
+  padding:28px 16px 6px;
+}
+.discover-title{
+  font-weight:700;
+  color:#1e293b;
+  font-size:22px;
+  margin-bottom:4px;
+}
+.discover-subtitle{
+  color:#64748b;
+  font-size:14px;
+  margin-bottom:18px;
+}
+.search-wrap{
+  position:relative;
+  margin-bottom:16px;
+}
+.search-icon{
+  position:absolute;
+  left:16px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#94a3b8;
+  font-size:16px;
+  pointer-events:none;
+}
+.search-input{
+  width:100%;
+  padding:13px 16px 13px 44px;
+  border-radius:14px;
+  border:1.5px solid #e2e8f0;
+  background:#fff;
+  font-size:15px;
+  outline:none;
+  box-shadow:0 4px 14px rgba(0,0,0,.04);
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.search-input:focus{
+  border-color:#6366f1;
+  box-shadow:0 0 0 4px rgba(99,102,241,.12);
+}
+.clear-search-btn{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  color:#94a3b8;
+  font-size:18px;
+  cursor:pointer;
+  display:none;
+  line-height:1;
+}
+.clear-search-btn:hover{ color:#475569; }
+
+.chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:6px;
+}
+.chip{
+  background:#eef2ff;
+  color:#4f46e5;
+  border:1.5px solid transparent;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .15s ease;
+  white-space:nowrap;
+  user-select:none;
+}
+.chip:hover{
+  background:#e0e7ff;
+  transform:translateY(-1px);
+}
+.chip.active{
+  background:#4f46e5;
+  color:#fff;
+  border-color:#4f46e5;
+}
+
+.result-counter{
+  color:#64748b;
+  font-size:13.5px;
+  font-weight:600;
+  margin:14px 2px 4px;
+  letter-spacing:.2px;
+}
+.result-subcounter{
+  color:#94a3b8;
+  font-size:12px;
+  margin:0 2px 18px;
+}
+
 .skill-card{
   background:#fff;
   border-radius:18px;
-  box-shadow:0 12px 30px rgba(0,0,0,.08);
-  padding:20px;
-  margin-bottom:30px;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+  padding:22px 22px 18px;
+  margin-bottom:26px;
+  transition:transform .18s ease, box-shadow .18s ease;
+  animation:cardFadeIn .35s ease both;
+}
+.skill-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 34px rgba(0,0,0,.1);
+}
+@keyframes cardFadeIn{
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.card-top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:wrap;
 }
 .username{
   font-weight:700;
   color:#4f46e5;
   cursor:pointer;
+  font-size:16px;
+  transition:color .15s ease;
+}
+.username:hover{
+  color:#3730a3;
+  text-decoration:underline;
 }
 .bio{
   font-size:14px;
   color:#475569;
+  margin-top:4px;
+  margin-bottom:12px;
 }
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:60px;
-  background:#fff;
-  border-top:1px solid #ddd;
+
+.skill-tags{
   display:flex;
-  justify-content:space-around;
-  align-items:center;
-  z-index:1000;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:14px;
 }
-.bottom-nav div{
+.skill-tag{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#334155;
+  font-size:11.5px;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:8px;
+}
+.skill-tag.highlight{
+  background:#eef2ff;
+  border-color:#c7d2fe;
+  color:#4338ca;
+}
+
+.empty-state{
   text-align:center;
-  font-size:20px;
-  cursor:pointer;
-  color:#555;
+  padding:70px 20px;
+  color:#64748b;
 }
+.empty-state .emoji{
+  font-size:52px;
+  margin-bottom:14px;
+}
+.empty-state h5{
+  color:#1e293b;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.empty-state p{
+  font-size:14px;
+  max-width:340px;
+  margin:0 auto;
+}
+
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -76,6 +228,11 @@ body{
   display:block;
   font-size:12px;
 }
+
+@media (max-width:576px){
+  .discover-header{ padding:20px 14px 4px; }
+  .skill-card{ padding:18px 16px 14px; }
+}
 </style>
 </head>
 
@@ -87,21 +244,718 @@ body{
   </span>
 </nav>
 
-<div class="container py-5 feed-container" id="feed">
+<div class="discover-header">
+  <div class="discover-title">Discover Talent</div>
+  <div class="discover-subtitle">Search by skill, technology, domain, or username</div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Try 'React', 'Frontend', 'Machine Learning', or a username..."
+      autocomplete="off"
+    >
+    <button type="button" class="clear-search-btn" id="clearSearchBtn" title="Clear search">✕</button>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="result-counter" id="resultCounter"></div>
+  <div class="result-subcounter" id="resultSubcounter"></div>
+</div>
+
+<div class="container feed-container" id="feed">
   <p class="text-center text-muted">Loading skill graphs...</p>
 </div>
 
 <script src="auth.js"></script>
 
 <script>
-async function loadFeed() {
 
+/* =======================================================
+   DOMAIN MAP — canonical skill names only.
+   ======================================================= */
+const DOMAIN_MAP = {
+  "frontend": ["html", "css", "javascript", "react", "bootstrap", "tailwind", "vue", "angular", "sass", "typescript", "next.js"],
+  "backend": ["node.js", "express", "mongodb", "sql", "api", "django", "flask", "postgresql", "mysql", "java", "spring", "php"],
+  "ai": ["python", "machine learning", "deep learning", "nlp", "computer vision", "tensorflow", "pytorch"],
+  "machine learning": ["machine learning", "python", "statistics", "tensorflow", "pytorch", "scikit-learn", "data science", "model deployment", "deep learning"],
+  "data science": ["python", "pandas", "numpy", "statistics", "sql", "data visualization", "machine learning", "r"],
+  "devops": ["docker", "kubernetes", "ci/cd", "aws", "azure", "gcp", "jenkins", "linux", "terraform"],
+  "ui/ux": ["figma", "adobe xd", "design", "css", "html", "user research", "wireframing", "prototyping"]
+};
+
+const TERM_ALIASES = {
+  "reactjs": "react",
+  "react.js": "react",
+  "react native": "react",
+  "nodejs": "node.js",
+  "node": "node.js",
+  "js": "javascript",
+  "ml": "machine learning",
+  "py": "python",
+  "tf": "tensorflow",
+  "k8s": "kubernetes",
+  "ux": "ui/ux",
+  "ui": "ui/ux",
+  "dl": "deep learning",
+  "cv": "computer vision"
+};
+
+const NON_MATCHING_PAIRS = [
+  ["java", "javascript"]
+];
+
+const POPULAR_CHIPS = ["Frontend", "Backend", "React", "Python", "AI", "Machine Learning", "Java", "Data Science"];
+
+const TIER = {
+  USERNAME_EXACT: 3,
+  USERNAME_PARTIAL: 2,
+  SKILL_MATCH: 1
+};
+
+const WEIGHT = {
+  SEARCH: 10,
+  CHIP_CLICK: 12,
+  PROFILE_OPEN: 6,
+  PROFILE_LONG_VIEW: 5,
+  REPEAT_SEARCH_STEP: 2,
+  REPEAT_SEARCH_CAP: 10,
+  REPEAT_OPEN_STEP: 1,
+  REPEAT_OPEN_CAP: 5
+};
+
+const INTEREST_TABLE = "user_interest_scores";           // Supabase table (logged-in users)
+const INTEREST_STORAGE_PREFIX = "skillxpress_interests_"; // localStorage fallback (guests only)
+const PENDING_VIEW_STORAGE_PREFIX = "skillxpress_pending_view_";
+const MAX_TRACKED_INTERESTS = 40;
+const LONG_VIEW_THRESHOLD_MS = 20000;
+const PENDING_VIEW_MAX_AGE_MS = 60 * 60 * 1000;
+
+/* =======================================================
+   STATE
+   ======================================================= */
+let allUsers = [];
+let chartInstances = {};
+let searchDebounceTimer = null;
+let activeChip = null;
+let currentUserId = "guest";
+let isLoggedIn = false;
+let interestStore = { weights: {}, frequency: { search: {}, profileOpen: {} } };
+
+/* =======================================================
+   1. TERM NORMALIZATION + SKILL MATCHING
+   ======================================================= */
+function normalizeTerm(raw) {
+  const lower = String(raw || "").trim().toLowerCase();
+  return TERM_ALIASES[lower] || lower;
+}
+
+function isNonMatchingPair(a, b) {
+  return NON_MATCHING_PAIRS.some(([x, y]) => (a === x && b === y) || (a === y && b === x));
+}
+
+function termsMatch(skillCanonical, queryCanonical) {
+  if (skillCanonical === queryCanonical) return true;
+  if (isNonMatchingPair(skillCanonical, queryCanonical)) return false;
+  if (queryCanonical.length >= 3 &&
+      (skillCanonical.includes(queryCanonical) || queryCanonical.includes(skillCanonical))) {
+    return true;
+  }
+  return false;
+}
+
+function getSkillEntries(skillsObj) {
+  return Object.entries(skillsObj || {}).map(([name, score]) => ({
+    original: name,
+    canonical: normalizeTerm(name),
+    score: Number(score) || 0
+  }));
+}
+
+function getTopSkill(skillsObj) {
+  const entries = getSkillEntries(skillsObj);
+  if (entries.length === 0) return null;
+  return entries.reduce((best, cur) => (cur.score > best.score ? cur : best));
+}
+
+function computeSkillMatch(user, rawQuery) {
+  const q = normalizeTerm(rawQuery);
+  if (!q) return null;
+
+  const skillEntries = getSkillEntries(user.skills);
+
+  if (DOMAIN_MAP[q]) {
+    const domainSkills = DOMAIN_MAP[q];
+    const matched = skillEntries.filter(entry =>
+      domainSkills.some(domainSkill => termsMatch(entry.canonical, domainSkill))
+    );
+    if (matched.length === 0) return null;
+
+    const avgScore = matched.reduce((sum, e) => sum + e.score, 0) / matched.length;
+    const completenessBonus = Math.min(matched.length - 1, 3) * 2;
+    const topMatch = matched.reduce((best, cur) => (cur.score > best.score ? cur : best));
+    return { score: avgScore + completenessBonus, matchedSkill: topMatch.original };
+  }
+
+  let matched = skillEntries.filter(entry => entry.canonical === q);
+  if (matched.length === 0) {
+    matched = skillEntries.filter(entry => termsMatch(entry.canonical, q));
+  }
+  if (matched.length === 0) return null;
+
+  const best = matched.reduce((top, cur) => (cur.score > top.score ? cur : top));
+  return { score: best.score, matchedSkill: best.original };
+}
+
+function computeUsernameMatch(user, rawQuery) {
+  const q = String(rawQuery || "").trim().toLowerCase();
+  if (!q) return null;
+  const uname = user.username.toLowerCase();
+  if (uname === q) return { tier: TIER.USERNAME_EXACT, score: 100 };
+  if (uname.includes(q)) return { tier: TIER.USERNAME_PARTIAL, score: 90 };
+  return null;
+}
+
+function computeMatch(user, rawQuery) {
+  const usernameMatch = computeUsernameMatch(user, rawQuery);
+  const skillMatch = computeSkillMatch(user, rawQuery);
+
+  if (usernameMatch) {
+    const fallbackSkill = skillMatch ? skillMatch.matchedSkill : (getTopSkill(user.skills)?.original || null);
+    return { tier: usernameMatch.tier, score: usernameMatch.score, matchedSkill: fallbackSkill };
+  }
+  if (skillMatch) {
+    return { tier: TIER.SKILL_MATCH, score: skillMatch.score, matchedSkill: skillMatch.matchedSkill };
+  }
+  return null;
+}
+
+function searchAndRank(query) {
+  const results = [];
+  allUsers.forEach(user => {
+    const match = computeMatch(user, query);
+    if (match) results.push({ user, tier: match.tier, score: match.score, matchedSkill: match.matchedSkill });
+  });
+
+  results.sort((a, b) => {
+    if (b.tier !== a.tier) return b.tier - a.tier;
+    return (b.score || 0) - (a.score || 0);
+  });
+
+  return results;
+}
+
+function resolveKnownTerm(rawQuery) {
+  const q = normalizeTerm(rawQuery);
+  if (!q) return null;
+  if (DOMAIN_MAP[q]) return q;
+
+  const existsAsRealSkill = allUsers.some(user =>
+    getSkillEntries(user.skills).some(entry => entry.canonical === q)
+  );
+  return existsAsRealSkill ? q : null;
+}
+
+/* =======================================================
+   2. RULE-BASED INTEREST ENGINE
+   Logged-in users: source of truth is the Supabase table
+   `user_interest_scores`, so interests follow the account
+   across devices. Guests: falls back to localStorage since
+   there's no account to attach data to.
+   ======================================================= */
+function emptyInterestStore() {
+  return { weights: {}, frequency: { search: {}, profileOpen: {} } };
+}
+
+function guestStorageKey() {
+  return INTEREST_STORAGE_PREFIX + "guest";
+}
+
+function pendingViewStorageKey() {
+  return PENDING_VIEW_STORAGE_PREFIX + (currentUserId || "guest");
+}
+
+async function loadInterestStore() {
+  if (!isLoggedIn) {
+    try {
+      const raw = localStorage.getItem(guestStorageKey());
+      const parsed = raw ? JSON.parse(raw) : null;
+      return {
+        weights: (parsed && parsed.weights) || {},
+        frequency: {
+          search: (parsed && parsed.frequency && parsed.frequency.search) || {},
+          profileOpen: (parsed && parsed.frequency && parsed.frequency.profileOpen) || {}
+        }
+      };
+    } catch (e) {
+      return emptyInterestStore();
+    }
+  }
+
+  // Logged-in: pull every interest row for this account from Supabase.
+  const { data, error } = await supabaseClient
+    .from(INTEREST_TABLE)
+    .select("skill_term, weight, search_count, profile_open_count")
+    .eq("user_id", currentUserId);
+
+  if (error) {
+    console.error("Failed to load interest scores:", error);
+    return emptyInterestStore();
+  }
+
+  const store = emptyInterestStore();
+  (data || []).forEach(row => {
+    store.weights[row.skill_term] = Number(row.weight) || 0;
+    store.frequency.search[row.skill_term] = row.search_count || 0;
+    store.frequency.profileOpen[row.skill_term] = row.profile_open_count || 0;
+  });
+  return store;
+}
+
+// Persists ONE term's current weight/frequency. Called after every interaction
+// that touches that term, so writes stay small instead of rewriting everything.
+function syncInterestTerm(term) {
+  const canonical = normalizeTerm(term);
+  if (!canonical) return;
+
+  if (!isLoggedIn) {
+    try {
+      localStorage.setItem(guestStorageKey(), JSON.stringify(interestStore));
+    } catch (e) { /* non-critical */ }
+    return;
+  }
+
+  const payload = {
+    user_id: currentUserId,
+    skill_term: canonical,
+    weight: interestStore.weights[canonical] || 0,
+    search_count: interestStore.frequency.search[canonical] || 0,
+    profile_open_count: interestStore.frequency.profileOpen[canonical] || 0,
+    updated_at: new Date().toISOString()
+  };
+
+  // Fire-and-forget: don't block the UI on a write.
+  supabaseClient
+    .from(INTEREST_TABLE)
+    .upsert(payload, { onConflict: "user_id,skill_term" })
+    .then(({ error }) => { if (error) console.error("Interest sync failed:", error); });
+}
+
+function pruneInterestTerm(term) {
+  if (!isLoggedIn) return; // guest store is overwritten wholesale via syncInterestTerm anyway
+  supabaseClient
+    .from(INTEREST_TABLE)
+    .delete()
+    .eq("user_id", currentUserId)
+    .eq("skill_term", term)
+    .then(({ error }) => { if (error) console.error("Interest prune failed:", error); });
+}
+
+function addInterestWeight(term, amount) {
+  const canonical = normalizeTerm(term);
+  if (!canonical || !amount) return;
+
+  interestStore.weights[canonical] = (interestStore.weights[canonical] || 0) + amount;
+
+  const keys = Object.keys(interestStore.weights);
+  if (keys.length > MAX_TRACKED_INTERESTS) {
+    const weakest = keys.sort((a, b) => interestStore.weights[a] - interestStore.weights[b])[0];
+    delete interestStore.weights[weakest];
+    delete interestStore.frequency.search[weakest];
+    delete interestStore.frequency.profileOpen[weakest];
+    pruneInterestTerm(weakest);
+  }
+}
+
+function recordSearchInterest(term) {
+  const canonical = normalizeTerm(term);
+  interestStore.frequency.search[canonical] = (interestStore.frequency.search[canonical] || 0) + 1;
+  const repeatBonus = Math.min((interestStore.frequency.search[canonical] - 1) * WEIGHT.REPEAT_SEARCH_STEP, WEIGHT.REPEAT_SEARCH_CAP);
+  addInterestWeight(canonical, WEIGHT.SEARCH + repeatBonus);
+  syncInterestTerm(canonical);
+}
+
+function recordChipInterest(term) {
+  const canonical = normalizeTerm(term);
+  interestStore.frequency.search[canonical] = (interestStore.frequency.search[canonical] || 0) + 1;
+  const repeatBonus = Math.min((interestStore.frequency.search[canonical] - 1) * WEIGHT.REPEAT_SEARCH_STEP, WEIGHT.REPEAT_SEARCH_CAP);
+  addInterestWeight(canonical, WEIGHT.CHIP_CLICK + repeatBonus);
+  syncInterestTerm(canonical);
+}
+
+function recordProfileOpenInterest(term) {
+  const canonical = normalizeTerm(term);
+  interestStore.frequency.profileOpen[canonical] = (interestStore.frequency.profileOpen[canonical] || 0) + 1;
+  const repeatBonus = Math.min((interestStore.frequency.profileOpen[canonical] - 1) * WEIGHT.REPEAT_OPEN_STEP, WEIGHT.REPEAT_OPEN_CAP);
+  addInterestWeight(canonical, WEIGHT.PROFILE_OPEN + repeatBonus);
+  syncInterestTerm(canonical);
+}
+
+function recordLongViewInterest(term) {
+  const canonical = normalizeTerm(term);
+  addInterestWeight(canonical, WEIGHT.PROFILE_LONG_VIEW);
+  syncInterestTerm(canonical);
+}
+
+function hasInterestHistory() {
+  return Object.keys(interestStore.weights).length > 0;
+}
+
+function computePersonalizationScore(user) {
+  const weights = interestStore.weights;
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  Object.keys(weights).forEach(term => {
+    const w = weights[term];
+    const match = computeSkillMatch(user, term);
+    if (match) {
+      weightedSum += match.score * w;
+      totalWeight += w;
+    }
+  });
+
+  return totalWeight > 0 ? weightedSum / totalWeight : 0;
+}
+
+function getDominantInterestMatch(user) {
+  const sortedTerms = Object.keys(interestStore.weights)
+    .sort((a, b) => interestStore.weights[b] - interestStore.weights[a]);
+
+  for (const term of sortedTerms) {
+    const match = computeSkillMatch(user, term);
+    if (match) return match;
+  }
+  return null;
+}
+
+/* =======================================================
+   3. PENDING PROFILE-VIEW DURATION TRACKING
+   ======================================================= */
+function storePendingView(term) {
+  try {
+    localStorage.setItem(pendingViewStorageKey(), JSON.stringify({
+      term: normalizeTerm(term),
+      timestamp: Date.now()
+    }));
+  } catch (e) { /* non-critical */ }
+}
+
+function resolvePendingView() {
+  try {
+    const raw = localStorage.getItem(pendingViewStorageKey());
+    if (!raw) return;
+
+    const pending = JSON.parse(raw);
+    localStorage.removeItem(pendingViewStorageKey());
+
+    if (!pending || !pending.term || !pending.timestamp) return;
+
+    const elapsed = Date.now() - pending.timestamp;
+    if (elapsed >= LONG_VIEW_THRESHOLD_MS && elapsed <= PENDING_VIEW_MAX_AGE_MS) {
+      recordLongViewInterest(pending.term);
+    }
+  } catch (e) { /* non-critical */ }
+}
+
+/* =======================================================
+   4. DEFAULT FEED RANKING
+   ======================================================= */
+function computeBaseQualityScore(user) {
+  const entries = getSkillEntries(user.skills);
+  if (entries.length === 0) return 0;
+
+  const avgScore = entries.reduce((sum, e) => sum + e.score, 0) / entries.length;
+  const completenessBonus = Math.min(entries.length, 10) * 1.5;
+  return avgScore + completenessBonus;
+}
+
+function rankDefaultFeed() {
+  const usePersonalization = hasInterestHistory();
+
+  const ranked = allUsers.map(user => {
+    const baseScore = computeBaseQualityScore(user);
+
+    if (!usePersonalization) {
+      const topSkill = getTopSkill(user.skills);
+      return { user, score: baseScore, matchedSkill: topSkill ? topSkill.original : null };
+    }
+
+    const personalScore = computePersonalizationScore(user);
+    const dominantMatch = getDominantInterestMatch(user);
+    const topSkill = getTopSkill(user.skills);
+    const finalScore = (personalScore * 1000) + baseScore;
+
+    return {
+      user,
+      score: finalScore,
+      matchedSkill: dominantMatch ? dominantMatch.matchedSkill : (topSkill ? topSkill.original : null)
+    };
+  });
+
+  ranked.sort((a, b) => b.score - a.score);
+  return { results: ranked, personalized: usePersonalization };
+}
+
+/* =======================================================
+   5. RENDERING
+   ======================================================= */
+function renderChips() {
+  const chipRow = document.getElementById("chipRow");
+  chipRow.innerHTML = "";
+
+  POPULAR_CHIPS.forEach(label => {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.textContent = label;
+    chip.onclick = () => {
+      const input = document.getElementById("searchInput");
+      const isSameChipClicked = activeChip === label;
+
+      if (isSameChipClicked) {
+        activeChip = null;
+        input.value = "";
+        runSearch("");
+      } else {
+        activeChip = label;
+        input.value = label;
+        runSearch(input.value, { source: "chip" });
+      }
+      syncChipActiveStates();
+      toggleClearButton();
+    };
+    chipRow.appendChild(chip);
+  });
+}
+
+function syncChipActiveStates() {
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.classList.toggle("active", chip.textContent === activeChip);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
+function buildSkillTagsHtml(skillsObj, matchedSkill) {
+  const entries = Object.entries(skillsObj || {})
+    .sort((a, b) => (Number(b[1]) || 0) - (Number(a[1]) || 0))
+    .slice(0, 5);
+
+  if (entries.length === 0) return "";
+
+  const tags = entries.map(([name, score]) => {
+    const isHighlighted = matchedSkill && name.toLowerCase() === String(matchedSkill).toLowerCase();
+    return `<span class="skill-tag${isHighlighted ? " highlight" : ""}">${escapeHtml(name)} ${Math.round(score)}</span>`;
+  }).join("");
+
+  return `<div class="skill-tags">${tags}</div>`;
+}
+
+function drawChart(id, skills) {
+  return new Chart(document.getElementById(id), {
+    type: "radar",
+    data: {
+      labels: Object.keys(skills),
+      datasets: [{
+        data: Object.values(skills),
+        backgroundColor: "rgba(99,102,241,0.25)",
+        borderColor: "#4f46e5",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: { beginAtZero: true, max: 100 }
+      }
+    }
+  });
+}
+
+function renderResults(results, { mode, query }) {
   const feed = document.getElementById("feed");
+  const counter = document.getElementById("resultCounter");
+  const subcounter = document.getElementById("resultSubcounter");
+
+  Object.values(chartInstances).forEach(chart => chart.destroy());
+  chartInstances = {};
   feed.innerHTML = "";
 
-  /* =======================
-     1️⃣ FETCH SKILL SNAPSHOTS
-     ======================= */
+  const count = results.length;
+
+  if (mode === "search") {
+    counter.textContent = `Showing ${count} Developer${count === 1 ? "" : "s"} for "${query}"`;
+    subcounter.textContent = "";
+  } else if (mode === "recommended") {
+    counter.textContent = `Recommended for you`;
+    subcounter.textContent = `Based on your recent activity • ${count} developer${count === 1 ? "" : "s"}`;
+  } else {
+    counter.textContent = `Top Developers`;
+    subcounter.textContent = `${count} developer${count === 1 ? "" : "s"} on SkillXpress`;
+  }
+
+  if (count === 0) {
+    feed.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">🧭</div>
+        <h5>No matching skill graphs found</h5>
+        <p>Try a different skill, technology, or domain — like "React", "Backend", or "Machine Learning".</p>
+      </div>`;
+    return;
+  }
+
+  results.forEach((result, i) => {
+    const { user, matchedSkill } = result;
+    const canvasId = `chart-${i}`;
+
+    const card = document.createElement("div");
+    card.className = "skill-card";
+    card.style.animationDelay = `${Math.min(i * 40, 400)}ms`;
+
+    const skillTagsHtml = buildSkillTagsHtml(user.skills, matchedSkill);
+
+    card.innerHTML = `
+      <div class="card-top-row">
+        <div>
+          <div class="username" onclick="openProfile('${user.id}')">@${escapeHtml(user.username)}</div>
+          <p class="bio">${escapeHtml(user.bio)}</p>
+        </div>
+      </div>
+      ${skillTagsHtml}
+      <canvas id="${canvasId}" height="220"></canvas>
+    `;
+
+    feed.appendChild(card);
+    chartInstances[canvasId] = drawChart(canvasId, user.skills);
+  });
+}
+
+function renderDefaultFeed() {
+  const { results, personalized } = rankDefaultFeed();
+  renderResults(results, { mode: personalized ? "recommended" : "top" });
+}
+
+/* =======================================================
+   6. SEARCH INPUT WIRING
+   ======================================================= */
+function runSearch(rawQuery, options = {}) {
+  const query = rawQuery.trim();
+
+  if (!query) {
+    renderDefaultFeed();
+    return;
+  }
+
+  const results = searchAndRank(query);
+
+  const knownTerm = resolveKnownTerm(query);
+  if (knownTerm) {
+    if (options.source === "chip") {
+      recordChipInterest(knownTerm);
+    } else {
+      recordSearchInterest(knownTerm);
+    }
+  }
+
+  renderResults(results, { mode: "search", query });
+}
+
+function toggleClearButton() {
+  const input = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearSearchBtn");
+  clearBtn.style.display = input.value ? "block" : "none";
+}
+
+function initSearchBar() {
+  const input = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearSearchBtn");
+
+  input.addEventListener("input", () => {
+    toggleClearButton();
+
+    if (activeChip && input.value.trim().toLowerCase() !== activeChip.toLowerCase()) {
+      activeChip = null;
+      syncChipActiveStates();
+    }
+
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      runSearch(input.value, { source: "typed" });
+    }, 250);
+  });
+
+  clearBtn.addEventListener("click", () => {
+    input.value = "";
+    activeChip = null;
+    syncChipActiveStates();
+    toggleClearButton();
+    runSearch("");
+    input.focus();
+  });
+}
+
+/* =======================================================
+   7. NAVIGATION (unchanged, plus interest tracking)
+   ======================================================= */
+function openProfile(uid) {
+  const user = allUsers.find(u => u.id === uid);
+  if (user) {
+    const topSkill = getTopSkill(user.skills);
+    if (topSkill) {
+      recordProfileOpenInterest(topSkill.original);
+      storePendingView(topSkill.original);
+    }
+  }
+  window.location.href = `user.html?id=${uid}`;
+}
+
+async function goProfile(){
+  const { data:{session} } = await supabaseClient.auth.getSession();
+  if(!session) return alert("Login required");
+  window.location.href = `user.html?id=${session.user.id}`;
+}
+function goProjects(){
+  window.location.href = "projects.html";
+}
+function goInbox(){
+  window.location.href = "inbox.html";
+}
+function goexplore(){
+  window.location.href = "explore.html";
+}
+
+/* =======================================================
+   8. INITIAL LOAD
+   ======================================================= */
+async function resolveCurrentUser() {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user && session.user.id) {
+      return { id: session.user.id, loggedIn: true };
+    }
+    return { id: "guest", loggedIn: false };
+  } catch (e) {
+    return { id: "guest", loggedIn: false };
+  }
+}
+
+async function loadFeed() {
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "<p class='text-center text-muted'>Loading skill graphs...</p>";
+
+  const identity = await resolveCurrentUser();
+  currentUserId = identity.id;
+  isLoggedIn = identity.loggedIn;
+
+  interestStore = await loadInterestStore();
+  resolvePendingView();
+
   const { data: snapshots, error: snapErr } =
     await supabaseClient
       .from("user_skill_snapshot")
@@ -118,9 +972,6 @@ async function loadFeed() {
     return;
   }
 
-  /* =======================
-     2️⃣ FETCH ALL PROFILES (SAFE)
-     ======================= */
   const { data: profiles, error: profErr } =
     await supabaseClient
       .from("profiles")
@@ -132,90 +983,37 @@ async function loadFeed() {
     return;
   }
 
-  /* =======================
-     3️⃣ MAP PROFILES BY ID
-     ======================= */
   const profileMap = {};
-  profiles.forEach(p => {
-    profileMap[p.id] = p;
-  });
+  profiles.forEach(p => { profileMap[p.id] = p; });
 
-  /* =======================
-     4️⃣ RENDER FEED
-     ======================= */
-  snapshots.forEach((snap, i) => {
-    const user = profileMap[snap.user_id];
-    if (!user || !snap.skills) return;
+  allUsers = snapshots
+    .filter(snap => profileMap[snap.user_id] && snap.skills)
+    .map(snap => {
+      const user = profileMap[snap.user_id];
+      return {
+        id: user.id,
+        username: user.username || user.id.slice(0, 8),
+        bio: user.bio || "",
+        skills: snap.skills
+      };
+    });
 
-    const canvasId = `chart-${i}`;
-    const card = document.createElement("div");
-    card.className = "skill-card";
-
-    card.innerHTML = `
-      <div class="username" onclick="openProfile('${user.id}')">
-        @${user.username || user.id.slice(0,8)}
-      </div>
-      <p class="bio">${user.bio || ""}</p>
-      <canvas id="${canvasId}" height="220"></canvas>
-    `;
-
-    feed.appendChild(card);
-    drawChart(canvasId, snap.skills);
-  });
-
-  if (!feed.children.length) {
-    feed.innerHTML = "<p class='text-muted text-center'>No valid skill data found</p>";
-  }
+  renderChips();
+  renderDefaultFeed();
 }
 
-function drawChart(id, skills) {
-  new Chart(document.getElementById(id), {
-    type: "radar",
-    data: {
-      labels: Object.keys(skills),
-      datasets: [{
-        data: Object.values(skills),
-        backgroundColor: "rgba(99,102,241,0.25)",
-        borderColor: "#4f46e5",
-        borderWidth: 2
-      }]
-    },
-    options: {
-      scales: {
-        r: {
-          beginAtZero: true,
-          max: 100
-        }
-      }
-    }
-  });
-}
-
-function openProfile(uid) {
-  window.location.href = `user.html?id=${uid}`;
-}
-
+/* =======================================================
+   INIT
+   ======================================================= */
+initSearchBar();
 loadFeed();
-async function goProfile(){
-  const { data:{session} } = await supabaseClient.auth.getSession();
-  if(!session) return alert("Login required");
-  window.location.href = `user.html?id=${session.user.id}`;
-}
-function goProjects(){
-  window.location.href = "projects.html";
-}
-function goInbox(){
-  window.location.href = "inbox.html";
-}
-function goexplore(){
-  window.location.href = "explore.html";
-}
 </script>
+
 <div class="bottom-nav">
   <div onclick="goProjects()">🏠<span>Projects</span></div>
   <div onclick="goProfile()">👤<span>Profile</span></div>
   <div onclick="goInbox()">💬<span>Chats</span></div>
-   <div onclick="goexplore()">🎓<span>explore graphs</span></div>
+  <div onclick="goexplore()">🎓<span>explore graphs</span></div>
 </div>
 
 </body>
