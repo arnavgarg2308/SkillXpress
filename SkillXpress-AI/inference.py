@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
-MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
 
 
 class RoadmapGenerator:
@@ -52,12 +52,12 @@ class RoadmapGenerator:
         with torch.no_grad():
 
             output = self.model.generate(
-    **inputs,
-    max_new_tokens=1600,
-    temperature=0.3,
-    top_p=0.9,
-    do_sample=False
-)
+                **inputs,
+                max_new_tokens=700,
+                temperature=0.7,
+                top_p=0.9,
+                do_sample=True
+            )
 
         response = self.tokenizer.decode(
             output[0],

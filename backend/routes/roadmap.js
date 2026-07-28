@@ -5,7 +5,6 @@ const { createClient } = require("@supabase/supabase-js");
 const generateMentorNote = require("../utils/localAI");
 const jobRouter = require("./jobback");
 const JOB_REQUIREMENTS = jobRouter.JOB_REQUIREMENTS;
-const TOPIC_BANK = require("../utils/topicBank");
 const getFullSkills = require("../utils/getFullSkills");
 const generateAndUploadPDF = require("../utils/generateRoadmapPDF");
 const supabase = createClient(
@@ -21,30 +20,6 @@ function calculateGaps(userSkills, roleReq) {
       return { skill, current, required: reqVal, gap: reqVal - current };
     })
     .sort((a, b) => b.gap - a.gap);
-}
-function getLevel(current, required) {
-  if (current >= required) return "MASTERED";
-
-  const ratio = current / required;
-
-  if (ratio < 0.4) return "BEGINNER";
-  if (ratio < 0.8) return "INTERMEDIATE";
-
-  return "ADVANCED";
-}
-function getTopics(gaps) {
-  return gaps.map(gap => {
-
-    const level = getLevel(gap.current, gap.required);
-
-    return {
-      skill: gap.skill,
-      current: gap.current,
-      required: gap.required,
-      level,
-      topics: TOPIC_BANK[gap.skill]?.[level] || []
-    };
-  });
 }
 
 /* API */
@@ -115,19 +90,22 @@ if (row) {
 }
 
     /* ONLY TOP GAPS */
-    const gaps = calculateGaps(userSkills, roleReq)
-  .filter(g => g.gap > 0)
-  .slice(0, 3);
+    const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
 
+    /* SIMPLIFIED PROMPT */
+ const prompt = JSON.stringify({
 
-const roadmapTopics = getTopics(gaps);
-const prompt = JSON.stringify({
-  primaryRole,
-  month,
-  currentSkills: userSkills,
-  requiredSkills: roleReq,
-  roadmapTopics
-}, null, 2);
+    primaryRole,
+
+    month,
+
+    currentSkills: userSkills,
+
+    requiredSkills: roleReq,
+
+    topGaps: gaps.slice(0,3)
+
+});
     /* AI CALL */
     let content;
    
