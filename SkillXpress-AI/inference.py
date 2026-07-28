@@ -54,8 +54,8 @@ class RoadmapGenerator:
             output = self.model.generate(
                 **inputs,
                 max_new_tokens=700,
-                temperature=0.7,
-                top_p=0.9,
+                temperature=0.5,
+                top_p=0.8,
                 do_sample=True
             )
 
@@ -65,7 +65,7 @@ class RoadmapGenerator:
         )
 
         if "assistant" in response:
-            response = response.split("assistant")[-1].strip()
+          response = response.replace(text, "").strip()
 
         return response
 

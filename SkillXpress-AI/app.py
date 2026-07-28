@@ -207,7 +207,7 @@ def generate(request: PromptRequest):
 
     try:
 
-        full_prompt = SYSTEM_PROMPT + "\n\nStudent Data:\n" + request.prompt
+        full_prompt = SYSTEM_PROMPT + "\n\nStudent Data\n\nGenerate the roadmap ONLY using the following JSON.\n\nDo not invent new skills.\n\nDo not add technologies not related to the user's role.\n\nFocus only on the top 3 gaps.\n\n" + request.prompt
     
         print("=" * 80)
         print("FINAL PROMPT SENT TO MODEL")

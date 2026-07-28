@@ -93,19 +93,28 @@ if (row) {
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
 
     /* SIMPLIFIED PROMPT */
- const prompt = JSON.stringify({
+ const prompt = `
+You are an expert career mentor.
 
+Generate a personalized one-month learning roadmap.
+
+Input:
+${JSON.stringify({
     primaryRole,
-
     month,
-
     currentSkills: userSkills,
-
     requiredSkills: roleReq,
-
     topGaps: gaps.slice(0,3)
+}, null, 2)}
 
-});
+Requirements:
+- Focus mainly on the top skill gaps.
+- Assume the user already knows their current skill level.
+- Do not repeat topics unnecessarily.
+- Recommend practical projects and learning resources.
+- Keep the roadmap realistic for one month.
+- Return only valid JSON.
+`;
     /* AI CALL */
     let content;
    
