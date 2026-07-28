@@ -208,6 +208,12 @@ def generate(request: PromptRequest):
     try:
 
         full_prompt = SYSTEM_PROMPT + "\n\nStudent Data:\n" + request.prompt
+    
+        print("=" * 80)
+        print("FINAL PROMPT SENT TO MODEL")
+        print("=" * 80)
+        print(full_prompt)
+        print("=" * 80)
 
         roadmap = generator.generate(full_prompt)
 

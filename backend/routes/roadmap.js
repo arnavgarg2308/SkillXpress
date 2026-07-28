@@ -94,30 +94,17 @@ if (row) {
 
     /* SIMPLIFIED PROMPT */
  const prompt = JSON.stringify({
-  primaryRole,
-  level:
-    Object.values(userSkills).reduce((a, b) => a + b, 0) /
-      Object.keys(userSkills).length <
-    30
-      ? "Beginner"
-      : Object.values(userSkills).reduce((a, b) => a + b, 0) /
-          Object.keys(userSkills).length <
-        60
-      ? "Intermediate"
-      : "Advanced",
 
-  overallProgress: Number(
-    (
-      Object.values(userSkills).reduce((a, b) => a + b, 0) /
-      Object.keys(userSkills).length
-    ).toFixed(1)
-  ),
+    primaryRole,
 
-  currentSkills: userSkills,
+    month,
 
-  requiredSkills: roleReq,
+    currentSkills: userSkills,
 
-  topGaps: gaps
+    requiredSkills: roleReq,
+
+    topGaps: gaps.slice(0,3)
+
 });
     /* AI CALL */
     let content;
