@@ -11,14 +11,122 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
+function normalizeSkillName(skill) {
+  const map = {
+    "MONGODB": "MongoDB",
+    "MONGO": "MongoDB",
 
+    "NODE.JS": "Node.js",
+    "NODEJS": "Node.js",
+    "NODE": "Node.js",
+
+    "EXPRESS": "Express",
+    "EXPRESSJS": "Express",
+
+    "REACT": "React",
+    "REACTJS": "React",
+
+    "JAVASCRIPT": "JavaScript",
+    "JS": "JavaScript",
+
+    "TYPESCRIPT": "TypeScript",
+    "TS": "TypeScript",
+
+    "HTML": "HTML",
+    "HTML5": "HTML",
+
+    "CSS": "CSS",
+    "CSS3": "CSS",
+
+    "PYTHON": "Python",
+    "JAVA": "Java",
+
+    "SQL": "SQL",
+    "MYSQL": "SQL",
+    "POSTGRES": "SQL",
+    "POSTGRESQL": "SQL",
+
+    "GIT": "Git",
+    "GITHUB": "Git",
+
+    "AWS": "AWS",
+
+    "DOCKER": "Docker",
+
+    "FIREBASE": "Firebase",
+
+    "APIS": "APIs",
+    "API": "APIs",
+
+    "OOP": "OOP",
+
+    "DSA": "DSA",
+
+    "PROGRAMMING": "Programming",
+
+    "DEBUGGING": "Debugging",
+
+    "TESTING": "Testing",
+
+    "DATA_ANALYSIS": "Data Analysis",
+
+    "STATISTICS": "Statistics",
+
+    "MACHINE_LEARNING": "Machine Learning",
+    "ML": "Machine Learning",
+
+    "MODEL_DEPLOYMENT": "Model Deployment",
+
+    "EXCEL": "Excel",
+
+    "LINUX": "Linux",
+
+    "CICD": "CI/CD",
+
+    "NETWORKING": "Networking",
+
+    "AUTOMATION": "Automation",
+
+    "FIGMA": "Figma",
+
+    "UI_DESIGN": "UI Design",
+
+    "UX_RESEARCH": "UX Research"
+  };
+
+  return map[String(skill).trim().toUpperCase()] || skill;
+}
 /* GAP CALC */
 function calculateGaps(userSkills, roleReq) {
-  return Object.entries(roleReq)
+
+  const normalizedUserSkills = {};
+
+  for (const [skill, score] of Object.entries(userSkills || {})) {
+
+    const normalizedSkill = normalizeSkillName(skill);
+
+    normalizedUserSkills[normalizedSkill] =
+      Number(score) || 0;
+  }
+
+  return Object.entries(roleReq || {})
     .map(([skill, reqVal]) => {
-      const current = userSkills[skill] || 0;
-      return { skill, current, required: reqVal, gap: reqVal - current };
+
+      const normalizedSkill = normalizeSkillName(skill);
+
+      const current =
+        normalizedUserSkills[normalizedSkill] || 0;
+
+      const required = Number(reqVal) || 0;
+
+      return {
+        skill: normalizedSkill,
+        current,
+        required,
+        gap: Math.max(0, required - current)
+      };
     })
+    .filter(item => item.gap > 0)
     .sort((a, b) => b.gap - a.gap);
 }
 
