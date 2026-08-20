@@ -158,6 +158,9 @@ class RoadmapGenerator:
             generated_tokens,
             skip_special_tokens=True
         ).strip()
+        # Remove prompt/chat leakage
+        if "assistant" in response:
+            response = response[response.find("assistant"):]
 
         return response
 
