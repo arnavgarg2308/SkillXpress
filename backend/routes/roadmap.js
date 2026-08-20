@@ -98,35 +98,24 @@ function normalizeSkillName(skill) {
 }
 /* GAP CALC */
 function calculateGaps(userSkills, roleReq) {
-
-  const normalizedUserSkills = {};
-
-  for (const [skill, score] of Object.entries(userSkills || {})) {
-
-    const normalizedSkill = normalizeSkillName(skill);
-
-    normalizedUserSkills[normalizedSkill] =
-      Number(score) || 0;
-  }
-
-  return Object.entries(roleReq || {})
+  return Object.entries(roleReq)
     .map(([skill, reqVal]) => {
 
-      const normalizedSkill = normalizeSkillName(skill);
+      const normalizedSkill = skill.toUpperCase();
 
-      const current =
-        normalizedUserSkills[normalizedSkill] || 0;
+      const matchedEntry = Object.entries(userSkills).find(
+        ([key]) => key.toUpperCase() === normalizedSkill
+      );
 
-      const required = Number(reqVal) || 0;
+      const current = matchedEntry ? Number(matchedEntry[1]) : 0;
 
       return {
-        skill: normalizedSkill,
+        skill,
         current,
-        required,
-        gap: Math.max(0, required - current)
+        required: reqVal,
+        gap: Math.max(0, reqVal - current)
       };
     })
-    .filter(item => item.gap > 0)
     .sort((a, b) => b.gap - a.gap);
 }
 
@@ -201,28 +190,13 @@ if (row) {
     const gaps = calculateGaps(userSkills, roleReq).slice(0, 3);
 
     /* SIMPLIFIED PROMPT */
- const prompt = `
-You are an expert career mentor.
-
-Generate a personalized one-month learning roadmap.
-
-Input:
-${JSON.stringify({
-    primaryRole,
-    month,
-    currentSkills: userSkills,
-    requiredSkills: roleReq,
-    topGaps: gaps.slice(0,3)
-}, null, 2)}
-
-Requirements:
-- Focus mainly on the top skill gaps.
-- Assume the user already knows their current skill level.
-- Do not repeat topics unnecessarily.
-- Recommend practical projects and learning resources.
-- Keep the roadmap realistic for one month.
-- Return only valid JSON.
-`;
+ const prompt = JSON.stringify({
+  primaryRole,
+  month,
+  currentSkills: userSkills,
+  requiredSkills: roleReq,
+  topGaps: gaps.slice(0, 3)
+}, null, 2);
     /* AI CALL */
     let content;
    
