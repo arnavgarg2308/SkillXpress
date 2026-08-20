@@ -126,7 +126,7 @@ class RoadmapGenerator:
                 **inputs,
 
                 # 28 daily plans need enough output space
-                max_new_tokens=1800,
+                max_new_tokens=300,
 
                 # Controlled creativity
                 temperature=0.5,
