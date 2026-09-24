@@ -3,9 +3,17 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 
 
+# ==========================================================
+# MODEL CONFIGURATION
+# ==========================================================
+
 MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
 ADAPTER_PATH = "./adapter"
 
+
+# ==========================================================
+# ROADMAP GENERATOR
+# ==========================================================
 
 class RoadmapGenerator:
 
@@ -51,6 +59,10 @@ class RoadmapGenerator:
             self.base_model,
             ADAPTER_PATH
         )
+
+        # --------------------------------------------------
+        # EVALUATION MODE
+        # --------------------------------------------------
 
         self.model.eval()
 
@@ -107,14 +119,25 @@ class RoadmapGenerator:
             return_tensors="pt"
         )
 
-        # Move input tensors to model device
+        # --------------------------------------------------
+        # MOVE INPUT TO MODEL DEVICE
+        # --------------------------------------------------
+
         inputs = {
             key: value.to(self.model.device)
             for key, value in inputs.items()
         }
 
-        # Number of input tokens
+        # --------------------------------------------------
+        # INPUT TOKEN LENGTH
+        # --------------------------------------------------
+
         input_length = inputs["input_ids"].shape[1]
+
+        print("=" * 80)
+        print("🤖 GENERATING ROADMAP")
+        print("Input tokens:", input_length)
+        print("=" * 80)
 
         # --------------------------------------------------
         # GENERATION
@@ -125,25 +148,42 @@ class RoadmapGenerator:
             output = self.model.generate(
                 **inputs,
 
-                # 28 daily plans need enough output space
-                max_new_tokens=300,
+                # --------------------------------------------------
+                # OUTPUT LENGTH
+                # --------------------------------------------------
+                # 28 days + detailed tasks need a large output.
+                # min_new_tokens prevents very early stopping.
+                # --------------------------------------------------
 
-                # Controlled creativity
-                temperature=0.5,
-                top_p=0.8,
+                min_new_tokens=2500,
+                max_new_tokens=5000,
+
+                # --------------------------------------------------
+                # GENERATION CONTROL
+                # --------------------------------------------------
+
+                temperature=0.2,
+                top_p=0.9,
 
                 # Sampling
                 do_sample=True,
 
-                # Reduce unnecessary repetition
-                repetition_penalty=1.05,
+                # Reduce repetition
+                repetition_penalty=1.08,
 
-                # Prevent padding issues
+                # --------------------------------------------------
+                # PADDING
+                # --------------------------------------------------
+
                 pad_token_id=(
                     self.tokenizer.pad_token_id
                     if self.tokenizer.pad_token_id is not None
                     else self.tokenizer.eos_token_id
                 ),
+
+                # --------------------------------------------------
+                # END OF SEQUENCE
+                # --------------------------------------------------
 
                 eos_token_id=self.tokenizer.eos_token_id
             )
@@ -158,9 +198,52 @@ class RoadmapGenerator:
             generated_tokens,
             skip_special_tokens=True
         ).strip()
-        # Remove prompt/chat leakage
-        if "assistant" in response:
-            response = response[response.find("assistant"):]
+
+        # --------------------------------------------------
+        # CLEAN MARKDOWN JSON FENCE
+        # --------------------------------------------------
+
+        if response.startswith("```json"):
+
+            response = response[len("```json"):].strip()
+
+        elif response.startswith("```"):
+
+            response = response[3:].strip()
+
+        if response.endswith("```"):
+
+            response = response[:-3].strip()
+
+        # --------------------------------------------------
+        # REMOVE TEXT BEFORE JSON
+        # --------------------------------------------------
+        # Example:
+        #
+        # "Here is your roadmap:
+        # {
+        #   ...
+        # }"
+        #
+        # We keep only the JSON part.
+        # --------------------------------------------------
+
+        start = response.find("{")
+
+        if start != -1:
+
+            response = response[start:]
+
+        # --------------------------------------------------
+        # FINAL CLEANUP
+        # --------------------------------------------------
+
+        response = response.strip()
+
+        print("=" * 80)
+        print("✅ ROADMAP GENERATION COMPLETED")
+        print("Output tokens:", len(generated_tokens))
+        print("=" * 80)
 
         return response
 
