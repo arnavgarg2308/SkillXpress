@@ -155,8 +155,8 @@ class RoadmapGenerator:
                 # min_new_tokens prevents very early stopping.
                 # --------------------------------------------------
 
-                min_new_tokens=2500,
-                max_new_tokens=5000,
+                min_new_tokens=1200,
+                max_new_tokens=2100,
 
                 # --------------------------------------------------
                 # GENERATION CONTROL
