@@ -661,34 +661,22 @@ async function forgotPassword() {
   else alert("Password reset email has been sent.");
 }
 async function handleGoogleAuth() {
-  try {
-    // Supabase ko URL se session process karne ka time do
-    const {
-      data: { session },
-      error
-    } = await supabaseClient.auth.getSession();
+  const mode = localStorage.getItem("googleAuthMode");
 
-    if (error) {
-      console.error("Auth session error:", error);
-      return;
-    }
+  // Google OAuth se wapas nahi aaye ho to kuch mat karo
+  if (mode !== "signin") {
+    return;
+  }
 
-    if (!session?.user) {
-      return;
-    }
+  let handled = false;
+
+  const redirectUser = async (session) => {
+    if (handled || !session?.user) return;
+
+    handled = true;
 
     const user = session.user;
 
-    // URL clean
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
-
-    localStorage.removeItem("googleAuthMode");
-
-    // Profile check
     const { data: profile, error: profileError } =
       await supabaseClient
         .from("profiles")
@@ -698,17 +686,48 @@ async function handleGoogleAuth() {
 
     if (profileError) {
       console.error("Profile check error:", profileError);
+      alert("Unable to verify your profile. Please try again.");
       return;
     }
 
+    // OAuth flag hata do
+    localStorage.removeItem("googleAuthMode");
+
+    // URL clean
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+    // New Google user
     if (!profile || !profile.is_profile_completed) {
       window.location.replace("profile.html");
-    } else {
-      window.location.replace("main.html");
+      return;
     }
 
-  } catch (error) {
-    console.error("Google callback error:", error);
+    // Existing completed user
+    window.location.replace("main.html");
+  };
+
+  // OAuth callback session event
+  const {
+    data: { subscription }
+  } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_IN" && session) {
+      await redirectUser(session);
+      subscription.unsubscribe();
+    }
+  });
+
+  // Agar session already create ho chuka ho
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (session) {
+    await redirectUser(session);
+    subscription.unsubscribe();
   }
 }
 
