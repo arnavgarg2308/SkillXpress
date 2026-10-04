@@ -442,6 +442,20 @@
     <input id="loginPass" type="password" class="form-control" placeholder="Password" />
 
     <button id="loginBtn" class="btn btn-main" onclick="signin()">Sign In</button>
+   <button
+    type="button"
+    class="btn btn-google"
+    onclick="signInWithGoogle()">
+
+    <img
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        width="20"
+        height="20"
+        style="margin-right: 10px;"
+        alt="Google">
+
+    Continue with Google
+</button>
     
     <button type="button" class="forgot-password" onclick="forgotPassword()">
       Forgot password?
@@ -464,6 +478,20 @@
     <input id="signupPass" type="password" class="form-control" placeholder="Password" />
 
     <button id="signupBtn" class="btn btn-main" onclick="signup()">Create Account</button>
+    <button
+    type="button"
+    class="btn btn-google"
+    onclick="signUpWithGoogle()">
+
+    <img
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        width="20"
+        height="20"
+        style="margin-right: 10px;"
+        alt="Google">
+
+    Continue with Google
+</button>
 
     <div class="switch">
       Already have an account? <a onclick="showSignin()">Sign In</a>
@@ -472,6 +500,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
+
 <script>
   function showSignup(){
     document.getElementById("signin").classList.add("hidden");
@@ -486,10 +515,71 @@
     signin.classList.remove("hidden");
     signin.classList.add("animate-slide-in");
   }
+async function signInWithGoogle() {
+
+    const redirectTo =
+        window.location.hostname === '127.0.0.1'
+            ? window.location.origin + '/SkillXpress/frontend/choose.html'
+            : 'https://skillxpress.me/choose.html';
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+        await supabaseClient.auth.signOut();
+    }
+
+    localStorage.setItem("googleAuthMode", "signin");
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: redirectTo,
+            queryParams: {
+                prompt: 'select_account'
+            }
+        }
+    });
+
+    if (error) {
+        console.error("Google Sign In Error:", error);
+        localStorage.removeItem("googleAuthMode");
+        alert(error.message);
+    }
+}
+async function signUpWithGoogle() {
+
+    const redirectTo =
+        window.location.hostname === '127.0.0.1'
+            ? window.location.origin + '/SkillXpress/frontend/choose.html'
+            : 'https://skillxpress.me/choose.html';
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+        await supabaseClient.auth.signOut();
+    }
+
+    localStorage.setItem("googleAuthMode", "signup");
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: redirectTo,
+            queryParams: {
+                prompt: 'select_account'
+            }
+        }
+    });
+
+    if (error) {
+        console.error("Google Sign Up Error:", error);
+        localStorage.removeItem("googleAuthMode");
+        alert(error.message);
+    }
+}
+
 
 // SUPABASE SIGNUP
 async function signup() {
-  const email = document.getElementById("signupEmail").value;
+  const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPass").value;
   const phone = document.getElementById("signupPhone").value;
   const referralCode = document.getElementById("signupReferral").value.trim();
@@ -515,7 +605,6 @@ async function signup() {
   btn.disabled = true;
   btn.innerText = "Creating account...";
   
-  // 1️⃣ AUTH SIGNUP (EMAIL UNIQUE CHECK YAHIN HOTA HAI)
   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
@@ -528,6 +617,19 @@ async function signup() {
   btn.innerText = "Sign Up";
   
   if (error) {
+    const msg = (error.message || '').toLowerCase();
+    const isDuplicateEmail =
+      msg.includes('already registered') ||
+      msg.includes('already exists') ||
+      msg.includes('user already') ||
+      msg.includes('email already') ||
+      msg.includes('already in use');
+
+    if (isDuplicateEmail) {
+      alert("Email already registered. Please Sign In.");
+      return;
+    }
+
     alert(error.message);
     return;
   }
@@ -588,6 +690,66 @@ async function forgotPassword() {
   if (error) alert(error.message);
   else alert("Password reset email has been sent.");
 }
+async function handleGoogleAuth() {
+
+    const mode = localStorage.getItem("googleAuthMode");
+
+    // Normal visit to choose.html
+    if (!mode) {
+        return;
+    }
+
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+        localStorage.removeItem("googleAuthMode");
+        return;
+    }
+
+    localStorage.removeItem("googleAuthMode");
+
+    const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, is_profile_completed")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (profileError) {
+        console.error("Profile check error:", profileError);
+
+        await supabaseClient.auth.signOut();
+
+        alert("Unable to verify your account. Please try again.");
+        return;
+    }
+
+    if (mode === "signin") {
+
+        if (!profile) {
+            await supabaseClient.auth.signOut();
+
+            alert("This email is not registered. Please Sign Up first.");
+            return;
+        }
+
+        window.location.replace("main.html");
+        return;
+    }
+
+    if (mode === "signup") {
+
+        if (profile) {
+            await supabaseClient.auth.signOut();
+
+            alert("Email already registered. Please Sign In.");
+            return;
+        }
+
+        window.location.replace("profile.html");
+        return;
+    }
+}
+handleGoogleAuth();
 
 // ENTER KEY FUNCTIONALITY
 document.addEventListener('DOMContentLoaded', function() {
