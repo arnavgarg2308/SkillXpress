@@ -661,24 +661,25 @@ async function forgotPassword() {
   else alert("Password reset email has been sent.");
 }
 async function handleGoogleAuth() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-
-  if (!code) return;
-
   try {
-    const { data, error } =
-      await supabaseClient.auth.exchangeCodeForSession(code);
+    // Supabase ko URL se session process karne ka time do
+    const {
+      data: { session },
+      error
+    } = await supabaseClient.auth.getSession();
 
-    if (error) throw error;
-
-    const user = data.session?.user;
-
-    if (!user) {
-      throw new Error("Google login session not found.");
+    if (error) {
+      console.error("Auth session error:", error);
+      return;
     }
 
-    // URL se ?code= hata do
+    if (!session?.user) {
+      return;
+    }
+
+    const user = session.user;
+
+    // URL clean
     window.history.replaceState(
       {},
       document.title,
@@ -687,6 +688,7 @@ async function handleGoogleAuth() {
 
     localStorage.removeItem("googleAuthMode");
 
+    // Profile check
     const { data: profile, error: profileError } =
       await supabaseClient
         .from("profiles")
@@ -694,7 +696,10 @@ async function handleGoogleAuth() {
         .eq("id", user.id)
         .maybeSingle();
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error("Profile check error:", profileError);
+      return;
+    }
 
     if (!profile || !profile.is_profile_completed) {
       window.location.replace("profile.html");
@@ -703,8 +708,7 @@ async function handleGoogleAuth() {
     }
 
   } catch (error) {
-    console.error("Google OAuth callback error:", error);
-    alert(error.message || "Google login failed.");
+    console.error("Google callback error:", error);
   }
 }
 
