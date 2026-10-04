@@ -661,34 +661,26 @@ async function forgotPassword() {
   else alert("Password reset email has been sent.");
 }
 async function handleGoogleAuth() {
+  const hash = window.location.hash;
 
-  // OAuth callback hai ya normal page visit?
-  const hasOAuthHash =
-    window.location.hash &&
-    window.location.hash.includes("access_token=");
-
-  const mode = localStorage.getItem("googleAuthMode");
-
-  // Normal visit
-  if (!hasOAuthHash && !mode) {
+  if (!hash || !hash.includes("access_token=")) {
     return;
   }
 
-  // OAuth callback ke case me mode missing ho to bhi signin treat karo
-  const authMode = mode || "signin";
-
+  // Supabase ko hash process karne do
   const {
-    data: { user },
+    data: { session },
     error
-  } = await supabaseClient.auth.getUser();
+  } = await supabaseClient.auth.getSession();
 
-  if (error || !user) {
-    console.error("Google callback user error:", error);
-    localStorage.removeItem("googleAuthMode");
+  if (error || !session?.user) {
+    console.error("Google OAuth session error:", error);
     return;
   }
 
-  // Google OAuth URL se tokens immediately remove karo
+  const user = session.user;
+
+  // URL se OAuth tokens hatao
   window.history.replaceState(
     {},
     document.title,
@@ -712,13 +704,13 @@ async function handleGoogleAuth() {
     return;
   }
 
-  // FIRST TIME / PROFILE NOT COMPLETE
+  // First time / profile incomplete
   if (!profile || !profile.is_profile_completed) {
     window.location.replace("profile.html");
     return;
   }
 
-  // EXISTING / PROFILE COMPLETE
+  // Existing user / profile complete
   window.location.replace("main.html");
 }
 
