@@ -4,7 +4,7 @@ async function generateMentorNote(prompt) {
    console.log("🔥 Calling FastAPI");
   try {
     const response = await axios.post(
-      "https://crummy-sizable-squeeze.ngrok-free.dev/generate-roadmap",
+      "https://arnavgarg1906--skillxpress-ai-skillxpressai-generate-roadmap.modal.run",
       {
         prompt
 
