@@ -989,7 +989,11 @@
             <li><a class="dropdown-item" href="user-profile.html">👤 Profile</a></li>
             <li><a class="dropdown-item" href="support.html">💬 Support</a></li>
             <li><hr class="dropdown-divider my-1"></li>
-            <li><a class="dropdown-item text-danger" href="index.html">🚪 Logout</a></li>
+            <li><a class="dropdown-item text-danger"
+   href="#"
+   onclick="signOut(event)">
+   🚪 Logout
+</a></li>
           </ul>
         </div>
       </div>
@@ -1222,6 +1226,28 @@
 ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
+<script>
+
+async function signOut(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    const { error } = await supabaseClient.auth.signOut({
+        scope: 'local'
+    });
+
+    if (error) {
+        console.error("Sign out error:", error);
+        alert("Logout failed: " + error.message);
+        return;
+    }
+
+    window.location.replace("choose.html");
+}
+
+</script>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="subscription.js"></script>
 
