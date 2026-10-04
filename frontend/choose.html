@@ -661,15 +661,21 @@ async function forgotPassword() {
   else alert("Password reset email has been sent.");
 }
 async function handleGoogleAuth() {
+
+  // OAuth callback hai ya normal page visit?
+  const hasOAuthHash =
+    window.location.hash &&
+    window.location.hash.includes("access_token=");
+
   const mode = localStorage.getItem("googleAuthMode");
 
-  // Normal visit to choose.html
-  if (!mode) return;
-
-  if (mode !== "signin") {
-    localStorage.removeItem("googleAuthMode");
+  // Normal visit
+  if (!hasOAuthHash && !mode) {
     return;
   }
+
+  // OAuth callback ke case me mode missing ho to bhi signin treat karo
+  const authMode = mode || "signin";
 
   const {
     data: { user },
@@ -677,13 +683,21 @@ async function handleGoogleAuth() {
   } = await supabaseClient.auth.getUser();
 
   if (error || !user) {
+    console.error("Google callback user error:", error);
     localStorage.removeItem("googleAuthMode");
     return;
   }
 
+  // Google OAuth URL se tokens immediately remove karo
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+
   localStorage.removeItem("googleAuthMode");
 
-  // Check whether profile exists and is completed
+  // Profile check
   const { data: profile, error: profileError } =
     await supabaseClient
       .from("profiles")
@@ -698,21 +712,13 @@ async function handleGoogleAuth() {
     return;
   }
 
-  // IMPORTANT:
-  // Remove OAuth tokens from browser URL
-  window.history.replaceState(
-    {},
-    document.title,
-    window.location.pathname
-  );
-
-  // FIRST TIME / PROFILE NOT COMPLETED
+  // FIRST TIME / PROFILE NOT COMPLETE
   if (!profile || !profile.is_profile_completed) {
     window.location.replace("profile.html");
     return;
   }
 
-  // EXISTING / PROFILE COMPLETED
+  // EXISTING / PROFILE COMPLETE
   window.location.replace("main.html");
 }
 
