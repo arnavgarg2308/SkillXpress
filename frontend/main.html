@@ -1532,18 +1532,18 @@ document.getElementById("referralBalance").textContent =
    function shareViaWhatsApp() {
   const code = document.getElementById("referralCode").textContent;
 
-  const referralLink = `${window.location.origin}/index.html?ref=${encodeURIComponent(code)}`;
+  const body = `Hi,
 
-  const text = `🚀 Join me on SkillXpress!
+I've been using SkillXpress to boost my career and I think you'd love it too! 🚀
 
-Build your skills, discover career opportunities and get personalized AI-powered guidance.
+Use my referral code: ${code}
 
-🎁 Use my referral code: ${code}
+Join here: ${window.location.origin}
 
-🔗 Join SkillXpress:
-${referralLink}`;
+Best,
+Your friend`;
 
-  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  const url = `https://wa.me/?text=${encodeURIComponent(body)}`;
 
   window.open(url, '_blank');
 }
