@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skillxpress-v1';
+const CACHE_NAME = 'skillxpress-v2';
 const urlsToCache = [
   '/',
   '/index.html',
