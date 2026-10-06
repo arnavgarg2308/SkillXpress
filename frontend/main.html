@@ -1528,12 +1528,25 @@ document.getElementById("referralBalance").textContent =
     alert("Referral code copied to clipboard!");
   }
 
-  function shareViaWhatsApp() {
-    const code = document.getElementById("referralCode").textContent;
-    const text = `Join SkillXpress with my referral code: ${code} and get started on your career journey! 🚀`;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  }
+  
+   function shareViaWhatsApp() {
+  const code = document.getElementById("referralCode").textContent;
+
+  const referralLink = `${window.location.origin}/index.html?ref=${encodeURIComponent(code)}`;
+
+  const text = `🚀 Join me on SkillXpress!
+
+Build your skills, discover career opportunities and get personalized AI-powered guidance.
+
+🎁 Use my referral code: ${code}
+
+🔗 Join SkillXpress:
+${referralLink}`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+  window.open(url, '_blank');
+}
 
   function shareViaInstagram() {
     const code = document.getElementById("referralCode").textContent;
